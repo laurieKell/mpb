@@ -129,7 +129,8 @@ function(fn)
 			A[[vnam[i]]]=dum
 		}
 	}
-	options(warn=0)
+  
+	options(ow)
 	
 	return(A)
 }

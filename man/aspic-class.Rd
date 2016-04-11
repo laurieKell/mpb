@@ -22,8 +22,6 @@ The Class is intended to be used as part of an MSE and includes methods for diag
 \describe{
 \item{\code{name}}{{\code{character} with the name of the stock}}
 
-\item{\code{obj}}{{ \code{factor}}}
-
 \item{\code{conditioning}}{{ \code{factor}}}
 
 \item{\code{options}}{{ \code{numeric}}}

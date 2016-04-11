@@ -73,7 +73,7 @@ checkFile=function(x){
   cat(as.integer(object@rnd)                           ,comment[21],file=fl,append=TRUE)
   
   cat(daply(u,.(name), with, length(name)),comment[22],file=fl,append=TRUE)
-  
+ 
   d_ply(u,.(name), function(x) {
     if(any(names(x)=="type"))
       names(x)[seq(length(names(x)))[names(x)=="type"]]="code"
@@ -331,7 +331,8 @@ aspicInp =function(x){
   
   res@index=iUAspic(x)#,"aspic")
   
-  res@catch=as.FLQuant(ddply(index(res),.(year),with, data.frame(year=year,data=sum(catch))))
+  res@catch=as.FLQuant(ddply(index(res),.(year), with, 
+                             data.frame(data=sum(catch))))
   res@stock=   FLQuant(NA,dimnames=dimnames(res@catch))
   res@stock=window(res@stock,end=dims(res@catch)$maxyear+1)
   

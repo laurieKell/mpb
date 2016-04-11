@@ -7,15 +7,13 @@ utils::globalVariables('alply')
 setMethod('fit',signature(object='biodyn',index='FLQuant'),
           function(object,index=index,exeNm='pella',package='mp', 
                    dir=tempdir(),
-                   set=setPella,
-                   get=getPella,cmdOps=paste('-maxfn 500 -iprint 0')){
+                   cmdOps=paste('-maxfn 500 -iprint 0'),
+                   lav="ll"){
 
             #sink(file = "/home/laurie/Desktop/temp/output.txt")          
             
             res=fitPella(object,index=index,exeNm=exeNm,package=package, 
-                         dir=dir,
-                         set=set,
-                         get=get,cmdOps=cmdOps)
+                         dir=dir,cmdOps=cmdOps,lav=lav)
             #sink()
             
             res})
@@ -23,27 +21,39 @@ setMethod('fit',signature(object='biodyn',index='FLQuant'),
 setMethod('fit',signature(object='biodyn',index='FLQuants'),
           function(object,index=index,exeNm='pella',package='mp', 
                    dir=tempdir(),
-                   set=setPella,
-                   get=getPella,cmdOps=paste('-maxfn 500 -iprint 0'))
+                   cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE)
             fitPella(object,index,exeNm,package, 
                      dir=dir,
-                     set=set,
-                     get=get,cmdOps=cmdOps))
+                     cmdOps=cmdOps,lav=lav))
+
+setMethod('fit',signature(object='biodyn',index='FLQuantJKs'),
+          function(object,index=index, 
+                   dir=tempdir(),
+                   cmdOps=paste('-maxfn 500 -iprint 0'),
+                   lav=FALSE){
+           
+            nits  =max(laply(index,function(x) as.numeric(dims(x)$iter)))
+            control(object)=propagate(control(object),nits)
+            object@params=propagate(object@params,nits)
+            object@stock   =propagate(stock(  object),nits)
+            index =FLQuants(llply(index,as.FLQuant))
+            object=fitPella(object,index=index, 
+                            dir=dir,cmdOps=cmdOps,lav=lav)
+            attributes(object)['jk']=TRUE
+            object})
 
 setMethod('fit',signature(object='biodyn',index='FLQuantJK'),
           function(object,index=index,exeNm='pella',package='mp', 
                    dir=tempdir(),
-                   set=setPella,
-                   get=getPella,cmdOps=paste('-maxfn 500 -iprint 0')){
+                   cmdOps=paste('-maxfn 500 -iprint 0'),
+                   lav=FALSE){
             
             object=propagate(object,dims(index)$iter)
             
             index =as.FLQuant(index)
             
             object=fitPella(object,index=index,exeNm=exeNm,package=package, 
-                            dir=dir,
-                            set=set,
-                            get=get,cmdOps=cmdOps)
+                            dir=dir,cmdOps=cmdOps,lav=lav)
             
             attributes(object)['jk']=TRUE
             
@@ -82,7 +92,10 @@ setMethod('fit',signature(object='biodyn',index='FLQuantJK'),
 #' }
 
 diagsFn=function(res){
+  ow=options("warn");options(warn=-1)
+  
   res$residualLag <- c(res$residual[-1],NA)
+  
   
   qqLine <- function(x,y){ 
     qtlx <- quantile(x, prob=c(0.25,0.75), na.rm=T)
@@ -106,6 +119,8 @@ diagsFn=function(res){
        
        res$qqHat=qqpar["a"]*res$qqx+qqpar["b"]})
   
+  options(ow)
+  
   res}
 
 #### ADMB ###################################################################################
@@ -125,7 +140,7 @@ setExe=function(exeNm,package,dir=tempdir()){
   # Linux
   if (R.version$os=='linux-gnu') {
     exe = paste(system.file('bin', 'linux', package=package, mustWork=TRUE),exeNm, sep='/')
-    if (length(grep("-rwxrwxr-x",system(paste("ls -l",exe),inter=TRUE)))==0)
+    if (length(grep("-rwxrwxr-x",system(paste("ls -l",exe),intern=TRUE)))==0)
       warning("Executable privilege not set for \n",exe,call.=FALSE)
     
     file.copy(exe, dir)
@@ -135,8 +150,7 @@ setExe=function(exeNm,package,dir=tempdir()){
   } else if (.Platform$OS.type == 'windows') {
     exe = paste(system.file('bin', 'windows', package=package, mustWork=TRUE), paste(exeNm, '.exe', sep=''), sep='/')
     file.copy(exe, dir)
-    print(exe)
-    print(dir)
+
     dir = paste(dir, '\\', sep='')
     
     # Mac OSX
@@ -150,7 +164,7 @@ setExe=function(exeNm,package,dir=tempdir()){
   
   oldwd}
 
-setPella=function(obj, exeNm='pella', dir=tempdir()) {
+setPella=function(obj, exeNm='pella', dir=tempdir(), lav=FALSE) {
   # create input files ################################
   dgts=options()$digits
   options(digits=22)
@@ -188,7 +202,8 @@ setPella=function(obj, exeNm='pella', dir=tempdir()) {
 # print("set 2")
 #   names(ctl) =nms
 
-  mp:::writeADMB(ctl, paste(dir, '/', exeNm, '.ctl', sep=''),append=FALSE)
+  writeADMB(ctl, paste(dir, '/', exeNm, '.ctl', sep=''),append=FALSE)
+  writeADMB(ifelse(lav,0,1), paste(dir, '/', exeNm, '.obj', sep=''),append=FALSE)
 
   cat('# q ####################\n', file=paste(dir, '/', exeNm, '.ctl', sep=''),append=TRUE)
 
@@ -197,7 +212,7 @@ setPella=function(obj, exeNm='pella', dir=tempdir()) {
   ctl           = alply(t(matrix(ctl,dim(ctl))),1)
   names(ctl)    = c('phase','lower','upper','guess')
 
-  mp:::writeADMB(ctl, paste(dir, '/', exeNm, '.ctl', sep=''),append=TRUE)
+  writeADMB(ctl, paste(dir, '/', exeNm, '.ctl', sep=''),append=TRUE)
   
   cat('# sigma ################\n', file=paste(dir, '/', exeNm, '.ctl', sep=''),append=TRUE)
   ctl           = bd.@control[nmIdx[grep('s',nmIdx)],,1]
@@ -225,7 +240,7 @@ setPella=function(obj, exeNm='pella', dir=tempdir()) {
   ctc = c(nYrs=length(ctc[[1]]), ctc)
   res = c(ctc, c(nIdxYrs=dim(idx)[1], nIdx=length(unique(idx$name)), idx))
 
-  mp:::writeADMB(res, paste(dir, '/', exeNm, '.dat', sep=''),append=FALSE)
+  writeADMB(res, paste(dir, '/', exeNm, '.dat', sep=''),append=FALSE)
 
 #   # propagate as required
 #   its = dims(bd)$iter
@@ -245,6 +260,8 @@ setPella=function(obj, exeNm='pella', dir=tempdir()) {
   return(bd.)}
 
 getPella=function(obj, exeNm='pella') {
+  ow=options("warn");options(warn=-1)
+
   t1 = read.table(paste(exeNm,'.rep',sep=''),skip =18,header=T) 
   # params
   t2 = unlist(c(read.table(paste(exeNm,'.rep',sep=''),nrows=4)))
@@ -259,7 +276,8 @@ getPella=function(obj, exeNm='pella') {
   obj@params[grep('s',dimnames(obj@params)$params),]=s. 
   err=try(t3<-unlist(c(read.table(paste(exeNm,'.rep',sep=''),skip=dim(params(obj))[1]*2,nrows=2,header=F))))
 
-  if (!(is(err)=="try-error")){
+  obj@objFn=iter(obj@objFn,1)
+  if (!(any(is(err)=="try-error"))){
      obj@objFn['ll'] =t3[length(t3)]
      obj@objFn['rss']=t3[length(t3)-1]}
   else{
@@ -268,14 +286,17 @@ getPella=function(obj, exeNm='pella') {
     }
 
   us=paste('u',seq(length(dimnames(params(obj))$params[grep('q',dimnames(params(obj))$params)])),sep='')
-
+ 
   err=try(vals<-unlist(readADMB('lls.txt')))
-  if (!(is(err)=="try-error")){
+
+  if (any(is(err)=="try-error")){
     obj@ll=FLPar(vals[length(vals)],dimnames=list(params=us,iter=1))
     }
   # stock biomass
   obj@stock[,1:dim(t1)[1]] = unlist(c(t1['stock'])) 
 
+  options(ow)
+  
   return(obj)} 
 
 #FLParBug sim@control['r','val',1]=c(.5,.6)
@@ -284,12 +305,12 @@ getPella=function(obj, exeNm='pella') {
 activeParams=function(obj) dimnames(obj@control)$params[c(obj@control[,'phase']>-1)]
 
 fitPella=function(object,index=index,exeNm='pella',package='mp', 
-                  dir=tempdir(),
-                  set=setPella,
-                  get=getPella,cmdOps=paste('-maxfn 500 -iprint 0'))          
+                  dir=tempdir(),cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE,maxF=2.5)          
   {
-  first=TRUE   
+  ow=options("warn");options(warn=-1)
   
+  first=TRUE   
+
   catch=NULL
   if ('FLQuant'%in%is(index))
     index=FLQuants(index)
@@ -297,7 +318,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
   its=max(laply(index,function(x) dims(x)$iter),dims(catch(object))$iter)
               
   catch(object)=propagate(catch(object),its)   
-  
+
   max=min(dims(catch(object))$maxyear,max(laply(index,function(x) dims(x)$maxyear)))
   if (!is.na(range(object)['maxyear'])) max=min(max,range(object)['maxyear']) 
   min=min(dims(catch(object))$minyear,max(laply(index,function(x) dims(x)$minyear)))
@@ -320,7 +341,8 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
           #print(x)
           #print(dims(slot(bd,x))$iter)
           dims(slot(bd,x))$iter 
-          })) 
+          }))
+  
   its=max(its,dims(bd@control)$iter)
 
   nms=dimnames(params(bd))$params
@@ -329,7 +351,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
 
   us=paste('u',seq(length(dimnames(params(bd))$params[grep('q',dimnames(params(bd))$params)])),sep='')
   bd@ll=FLPar(NA,dimnames=list(params=us,iter=seq(1)))
-
+  
   if (its>1){
    
       ## these are all results, so doesnt loose anything
@@ -358,7 +380,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
 
   cpue=object[[2]]
   bd2 =object[[1]]
-
+  
   for (i in seq(its)){       
      object[[2]] = FLCore::iter(cpue,i) 
      
@@ -366,13 +388,13 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
         slot(object[[1]],s) = FLCore::iter(slot(bd2,s),i) 
         }  
      
-     object[[1]]=set(object,exeNm,dir)
+     object[[1]]=setPella(object,exeNm,dir,lav=lav)
 
      exe = paste(system.file('bin', 'linux', package="mp", mustWork=TRUE),exeNm, sep='/')      
 
     #bug in windows
     try(
-      if (length(grep("-rwxrwxr-x",system(paste("ls -l",exe),inter=TRUE)))==0)
+      if (length(grep("-rwxrwxr-x",system(paste("ls -l",exe),intern=TRUE)))==0)
         warning("Executable privilege not set for \n",exe,call.=FALSE) )
 
      # run
@@ -381,11 +403,11 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
 
      # gets results
      object[[1]]=getPella(object[[1]], exeNm)     
-    
+
      s=names(slts)[slts%in%c('FLQuant','FLPar')]
      for (s in s[!(s=="catch")])
        try(FLCore::iter(slot(bd,s),i) <- slot(object[[1]],s)) 
-    
+
      if (its<=1 & file.exists(paste(dir,'admodel.hes',sep='/'))){
        ##hessian
        x<-file(paste(dir,'admodel.hes',sep='/'),'rb')
@@ -420,9 +442,11 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
                                     if (file.exists(fl))
                                       admbPlt(fl)})
        }
+ 
      bd@params@.Data[  ,i] = object[[1]]@params
      bd@control@.Data[,,i] = object[[1]]@control
-     #bd@objFn@.Data[   ,i] = object[[1]]@objFn
+
+     bd@objFn@.Data[   ,i] = object[[1]]@objFn
     
      #FLParBug
      bd@ll@.Data[,i][] = unlist(c(object[[1]]@ll))
@@ -430,7 +454,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
      if (file.exists('pella.std')){
        err1=try(mng.<-read.table('pella.std',header=T)[,-1])
     
-       err2=try(mngVcov.<-fitFn(paste(dir,'pella',sep='/'))$vcov)
+       #err2=try(mngVcov.<-fitFn(paste(dir,'pella',sep='/'))$vcov)
        
      ## FLPar hack
      if (first) {
@@ -439,21 +463,21 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
          bd@mng=FLPar(array(unlist(c(mng.[   ,-1])), dim     =c(dim(mng.)[1],2,its),
                                                      dimnames=list(param=mng.[,1],var=c('hat','sd'),iter=seq(its))))
         
-       if (any(is(err2)!='try-error')) 
-         bd@mngVcov<-FLPar(array(unlist(c(mngVcov.)),dim     =c(dim(mng.)[1],dim(mng.)[1],its),
-                                                     dimnames=list(param=dimnames(mngVcov.)[[1]],
-                                                                   param=dimnames(mngVcov.)[[1]],iter=seq(its))))
+       #if (any(is(err2)!='try-error')) 
+       #   bd@mngVcov<-FLPar(array(unlist(c(mngVcov.)),dim     =c(dim(mng.)[1],dim(mng.)[1],its),
+       #                                               dimnames=list(param=dimnames(mngVcov.)[[1]],
+       #                                                             param=dimnames(mngVcov.)[[1]],iter=seq(its))))
  
        first=!first  
     }else{     
-       try(if (is(err1)!='try-error') bd@mng@.Data[,,i][]=unlist(c(mng.[,-1])))
-       try(if (is(err2)!='try-error') bd@mngVcov@.Data[,,i][]=unlist(c(mngVcov.)))
+       try(if (all(is(err1)!='try-error')) bd@mng@.Data[    ,,i][]=unlist(c(mng.[,-1])))
+       #try(if (all(is(err2)!='try-error')) bd@mngVcov@.Data[,,i][]=unlist(c(mngVcov.)))
        }}
   }
 
   units(bd@mng)='NA'  
 
-  bd=fwd(bd,catch=catch(bd)[,rev(dimnames(catch(bd))$year)[1]]) 
+  bd=fwd(bd,catch=catch(bd)[,rev(dimnames(catch(bd))$year)[1]],starvationRations=2) 
 
   if (length(grep('-mcmc',cmdOps))>0 & length(grep('-mcsave',cmdOps))>0){
     #'-mcmc 100000 -mcsave 100'
@@ -478,11 +502,13 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
     mcsave=sub(' +', '', cmd[[1]][grp>0])
     mcsave=sub(' +', '', mcsave)
     mcsave=as.numeric(substr(mcsave,8,nchar(mcsave)))
-     
+    
     bd@params=propagate(bd@params[,1],dims(par)$iter)
+    bd@objFn =propagate(bd@objFn[ ,1],dims(par)$iter)
+
     bd@params[dims(par)$params,]=par
     bd@stock=propagate(bd@stock,dim(params(bd))[2])
-    bd=fwd(bd,catch=catch(bd))  
+    bd=fwd(bd,catch=catch(bd),starvationRations=2)  
 
     attributes(bd@params)[['mcmc']]  =mcmc
     attributes(bd@params)[['mcsave']]=mcsave 
@@ -498,8 +524,8 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
         hat     =stockHat*params(bd)[paste("q",i,sep="")]
         res=model.frame(mcf(FLQuants(
           obs   =index,
-          stock   =stock(bd),
-          stockHat=stockHat,
+          #stock   =stock(bd),
+          #stockHat=stockHat,
           hat     =hat,
           residual=log(index/hat))),drop=T)
         
@@ -509,6 +535,8 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
   setwd(oldwd) 
 
 #  if (!is.null(catch)) catch(object)=catch
+
+  options(ow)
 
   return(bd)}
             
@@ -524,8 +552,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
 admbCor=function(fl='pella.cor'){
   if (!file.exists(fl)) return
   
-  tmp=options()
-  options(warn=-1)
+  ow=options("warn");  options(warn=-1)
   
   res=scan(fl,sep='\n',what=as.character(),quiet=TRUE)[-1]
   res=maply(res, str_trim)
@@ -545,7 +572,7 @@ admbCor=function(fl='pella.cor'){
   
   vcov=cor*sd%o%sd
   
-  options(tmp)
+  options(ow)
   
   hat =FLPar(hat, units='NA')
   dimnames(hat)$params=dimnames(vcov)[[1]]
@@ -573,7 +600,7 @@ calcElasticity=function(bd,mn=3,rg=5){
   elasFn=function(x,dmns,bd,mn,rg) {
     
     params(bd)[dmns]=exp(x)
-    bd=fwd(bd,catch=catch(bd))
+    bd=fwd(bd,catch=catch(bd),starvationRations=2) 
     
     maxYr =ac(range(bd)['maxyear'])
     max1  =ac(range(bd)['maxyear']-(seq(mn)-1))

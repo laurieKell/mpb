@@ -33,7 +33,6 @@ whooow<-function(x,fn,probs)
 #' @param facet facet for panels
 #'
 #' @importFrom reshape cast
-#' @import ggplot2
 #' 
 #' @return an \code{ggplot2} object
 #' 

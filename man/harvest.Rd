@@ -3,9 +3,10 @@
 \name{harvest}
 \alias{harvest}
 \alias{harvest,aspic-method}
+\alias{harvest,biodyn-method}
 \title{harvest}
 \usage{
-harvest(object, ...)
+harvest(object)
 }
 \arguments{
 \item{object}{either \emph{biodyn} or \emph{aspic} classes}

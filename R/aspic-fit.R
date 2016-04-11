@@ -75,14 +75,6 @@ setMethod('jk',  signature(object='aspic'),
 #' @aliases fit,aspic,missing-method
 #'  
 #' @examples
-#'     ## get aspic input file (i.e. *.inp) for North Atlantic swordfish
-#'     file=paste(system.file(package="mp"),"exdata/swon.inp",sep="/")
-#'     
-#'     swon=aspic(file)
-#'     
-#'     swon=fit(swon)
-#'     
-#'     plot(swon)
 
 #' jk, jack knifes \code{aspic} 
 #' 
@@ -150,6 +142,7 @@ jkIdx=function(x) dimnames(x)[[1]][ !is.na(x$index)]
 
 
 runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe=FALSE){
+  ow=options("warn");options(warn=-1)
   
   object@index=object@index[object@index$year %in% range(object)["minyear"]:range(object)["maxyear"],]
   
@@ -166,9 +159,6 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
   oldwd=getwd()
   setwd(dir)
   path=exe(package)
-  
-  ow=options("warn")
-  options(warn=-1)
   
   if (.Platform$OS.type == "windows" & copyExe) 
     file.copy(paste(paste(system.file("bin", "windows", package=package, mustWork=TRUE),exeNm, sep="/"),"exe",sep="."), dir)
@@ -199,7 +189,7 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
                }
                   
         # create exe input files
-        .writeAspicInp(FLCore:::iter(object,i),what="FIT",niter=1,
+        .writeAspicInp(FLCore::iter(object,i),what="FIT",niter=1,
                        fl=paste(exeNm,".inp",sep=""))
          
         # run
@@ -216,35 +206,34 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
         
         names(rdat$t.series)=tolower(names(rdat$t.series))
         
-        FLCore:::iter(object@stock,i)=as.FLQuant(transform(rdat$t.series[,c("year","b")],data=b)[c("year","data")])[,dimnames(object@stock)$year]
+        FLCore::iter(object@stock,i)=as.FLQuant(transform(rdat$t.series[,c("year","b")],data=b)[c("year","data")])[,dimnames(object@stock)$year]
         
         if (.Platform$OS!="windows"){
         try(object@objFn[1,i]<-rdat$diagnostics$obj.fn.value)        
 
         #try(object@objFn[2,i]<-rdat$diagnostics$rsquare) 
         rtn=aspicPrn(paste(exeNm,"prn",sep=".")) 
+        object@diags=rtn
 
-          object@diags=rtn
-
-          pos=seq(dim(params(object))[1])[substr(dimnames(params(object))[[1]],1,1)=="q"]
-          object@diags=transform(object@diags,
-                stock.  =hat/c(object@params[pos,i])[name],
-                stockHat=obs/c(object@params[pos,i])[name])
+        pos=seq(dim(params(object))[1])[substr(dimnames(params(object))[[1]],1,1)=="q"]
+#           object@diags=transform(object@diags,
+#                 stock.  =hat/c(object@params[pos,i])[name],
+#                 stockHat=obs/c(object@params[pos,i])[name])
          
-          object@diags=merge(object@diags,model.frame(mcf(FLQuants(stock  =object@stock,                                                                  harvest=harvest(object))),drop=TRUE),all=T)
-          object@diags$name=ac(factor(object@diags$name, labels=unique(object@index$name)))
-  
-          object@diags$stock=object@diags$stock.
-          object@diags=object@diags[,-10]
-          object@diags=object@diags[!is.na(object@diags$name),]
+        object@diags$name=factor(unique(object@index$name)[as.integer(object@diags$name)])
+        object@diags=merge(object@diags,model.frame(mcf(FLQuants(stock  =object@stock)),drop=TRUE),all=T)
+          
+        object@diags$stock=object@diags$stock.
+        object@diags=object@diags[,-10]
+        object@diags=object@diags[!is.na(object@diags$name),]
 
         } else {
           rtn=try(readAspic(paste(exeNm,"prn",sep="."))) 
           
           if (is.data.frame(rtn)) object@diags=rtn[!is.na(rtn$residual),]
           
-          object@diags=transform(object@diags,stock.  =hat/c(object@params[grep("q",dimnames(params(object))$params),i])[name],
-                                              stockHat=obs/c(object@params[grep("q",dimnames(params(object))$params),i])[name])
+#           object@diags=transform(object@diags,stock.  =hat/c(object@params[grep("q",dimnames(params(object))$params),i])[name],
+#                                               stockHat=obs/c(object@params[grep("q",dimnames(params(object))$params),i])[name])
   
           object@diags$name=ac(factor(object@diags$name, labels=unique(object@index$name)))
            
@@ -258,7 +247,7 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
         
 #         dgs=subset(object@diags,!is.na(object@diags$residual))
 #         try(object@ll@.Data[,"ll",i]<-daply(dgs, .(name), with,
-#                                             mp:::calcLogLik(as.FLQuant(data.frame(data=residual,year=year)),
+#                                             calcLogLik(as.FLQuant(data.frame(data=residual,year=year)),
 #                                                        as.FLQuant(data.frame(data=1,year=year)),type=3)))
 #         
 #         try(object@ll@.Data[,"ss",i]<-daply(dgs, .(name), with, sum(residual^2)))
@@ -267,8 +256,9 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
   
     #if (dims(object)$iter!=1) object@diags=data.frame(NULL)
     setwd(oldwd)
+    
     options(ow)
-  
+
     return(object)}
   
 runBoot=function(object, package="mp", exeNm=package, dir=tempdir(),boot=500){

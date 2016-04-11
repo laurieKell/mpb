@@ -17,8 +17,7 @@ Imports:
   FLBRP
 Maintainer: 
   Laurence Kell<laurie.kell@iccat.int>
-License: 
-  GPL-2
+License: GPL-2
 Collate:
   'biodyn-class.R'
   'biodyns.R'
@@ -28,6 +27,8 @@ Collate:
   'aspic-biodyns.R'
   'biodyn-control.R'
   'biodyn-methods.R'
+  'FLQuantJKs.R'
+  'hrate.R'
   'biodyn-accessors.R'
   'aspic-accessors.R'
   'aspic-readU.R'
@@ -54,7 +55,11 @@ Collate:
   'biodyn-msy.R'
   'aspic-refpts.R'
   'biodyn-profile.R'
-  'aspic-profile.R'
   'FLBRP-production.R'
+  'objFn.R'
+  'biodyn-xval.R'
+  'biodyn-rand.R'
+  'biodyn-jackSummary.R'
+  'biodyn-oem.R'
 LazyLoad: Yes
 LazyData: Yes

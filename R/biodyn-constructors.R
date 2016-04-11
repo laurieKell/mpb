@@ -3,7 +3,7 @@ setMethod('biodyn', signature(),
              catch=NA,
              r=0.5,p=1,k=guessK(r=r,catch=catch,p=p),b0=0.75,
              min=.1,max=10,...){
-            
+           
       model=tolower(model)
             
       args = list(...)
@@ -23,19 +23,19 @@ setMethod('biodyn', signature(),
                                p =FLPar(p),
                                b0=FLPar(b0)))  
         }
-        
+
       res@control=propagate(res@control,dims(res@params)$iter)
       nms=dimnames(res@control)$param[dimnames(res@control)$param %in% dimnames(res@params)$param]
       res@control[nms,  'val']=res@params[nms,]
       res@control[nms,  'min']=res@params[nms,]*min
       res@control[nms,  'max']=res@params[nms,]*max
       res@control[c("b0","p"),'phase']=-1
-             
+
       range(res)=unlist(dims(catch(res))[c("minyear","maxyear")])
 
       if (!("stock"%in%names(args)))
         res@stock=FLQuant(NA,dimnames=list(year= range(res)["minyear"]:(range(res)["maxyear"]+1)))
-
+        
       res=fwd(res,catch=res@catch)
 
       return(res)})
@@ -58,7 +58,7 @@ setMethod('biodyn', signature(object='FLBRP',params='FLStock'),
 setMethod('biodyn', signature(object='factor',params='FLPar'),
           function(object,params,min=0.1,max=10,catch=NULL,stock=NULL,msy=NULL,...){
             model=object
-            
+          
             if (is.null(msy) & !is.null(catch)) 
               msy=mean(catch,na.rm=TRUE)
             
@@ -122,13 +122,13 @@ setMethod('biodyn', signature(object='character',params='FLPar'),
  
 setMethod('biodyn', signature(object='factor',params='missing'),
           function(object,params,min=min,max=max,catch=NULL,stock=NULL,...){
-            
+
             args = list(...)
             
             res        =new("biodyn")
             res@model  =object
             
-            nms=c(mp:::modelParams(object),'b0')
+            nms=c(modelParams(object),'b0')
             par=rep(NA,length(nms))
             names(par)=nms
             
@@ -147,7 +147,7 @@ setMethod('biodyn', signature(object='factor',params='missing'),
             # Load given slots
             for(i in names(args))
               slot(res, i) = args[[i]]
-            
+          
             return(res)})
 
 setMethod('biodyn', signature(object='character',params='missing'),
@@ -157,7 +157,7 @@ setMethod('biodyn', signature(object='character',params='missing'),
 setMethod('biodyn', signature(object='missing',params='missing'),
           function(object,params,min=0.1,max=10.0,msy=NULL,...) {
             args = list(...)
-         
+
             res=new('biodyn')
             
             # Load given slots
@@ -167,6 +167,7 @@ setMethod('biodyn', signature(object='missing',params='missing'),
             range(res)=unlist(dims(catch(res))[c("minyear","maxyear")])
             
             return(res)})
+
 
 #' is.biodyn
 #'

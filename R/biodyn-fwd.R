@@ -163,7 +163,7 @@ setMethod( 'fwd', signature(object='biodyn',ctrl='missing'),
          'FLQuant' %in% class(catch))
         res=fwdFn(object,ctrl=ctrl,
               catch,harvest,stock,pe,peMult,minF,maxF,bounds,lag,end,
-              starvationRations=starvationRations,...) 
+              starvationRations=starvationRations,...)
      else if ('FLQuants' %in% class(stock))  
         res=biodyns(llply(stock, function(x) fwdFn(object,ctrl=ctrl,
                  catch,harvest,x,pe,peMult,minF,maxF,bounds,lag,end,...)))
@@ -193,7 +193,7 @@ fwdFn=function(object,
       hvtTrgt=FALSE
       stkTrgt=FALSE
       hcrTrgt=FALSE
-      
+
       if (!is.null(catch))   ctcTrgt=TRUE 
       if (!is.null(harvest)) hvtTrgt=TRUE
       if (!is.null(stock))   stkTrgt=TRUE
@@ -203,11 +203,11 @@ fwdFn=function(object,
       
       if(!ctcTrgt & hvtTrgt & stkTrgt & hcrTrgt)
           stop('must supply catch, harvest or stock as a target')
-    
+
       if (ctcTrgt) if (dims(object@stock)$maxyear   < dims(  catch)$maxyear) object=window(object,end=dims(  catch)$maxyear)
       if (hvtTrgt) if (dims(object@stock)$maxyear-1 < dims(harvest)$maxyear) object=window(object,end=dims(harvest)$maxyear+1)
       if (stkTrgt) if (dims(object@stock)$maxyear   < dims(  stock)$maxyear) object=window(object,end=dims(  stock)$maxyear)
-       
+
       if (stkTrgt) catch=stock*0
      
       ## check year range
@@ -238,14 +238,17 @@ fwdFn=function(object,
       ## maxyear
       if (max(as.numeric(yrs)) == range(object,'maxyear'))
          object@stock <- window(object@stock,end=range(object,'maxyear')+1)
-    
+
       ## niters
+      ow=options("warn"); options(warn=-1)
       nits=dims(object)$iter
+      options(ow)
+      
       if (hvtTrgt) nits=max(nits,dims(harvest)$iter)
       if (ctcTrgt) nits=max(nits,dims(  catch)$iter)
       if (stkTrgt) nits=max(nits,dims(  stock)$iter)
       if (!is.null(pe)) nits=max(nits,dims(pe)$iter)
-      
+
       if (hvtTrgt) nits=max(nits,dims(harvest)$iter) else
       if (ctcTrgt) nits=max(nits,dims(catch  )$iter) else
       if (stkTrgt) nits=max(nits,dims(stock  )$iter) 
@@ -284,7 +287,7 @@ fwdFn=function(object,
                                    
          object@stock[,ac(y+1)] = object@stock[,ac(y)] - 
                                   object@catch[,ac(y)] + sp.
-    
+         
     ## Not implemented     
     ### bounds
     #      if ('catch' %in% bounds){ 
@@ -297,24 +300,23 @@ fwdFn=function(object,
           object@catch[,ac(y)]  =object@stock[,ac(y)]*harvest[,ac(y)]
           object@stock[,ac(y+1)]=object@stock[,ac(y)] - object@catch[,ac(y)] + sp.
           }
-      
+
         object@stock[stock(object) < 0] = 0.001
         object@catch[catch(object) < 0] = 0.0000001
     
         return(object)}
 
-
 setMethod('fwd', signature(object='biodyn',ctrl='FLQuants'),
   function(object, ctrl, pe=NULL, peMult=TRUE,minF=0,maxF=2,lag=0,
            bounds=list(catch=c(Inf,Inf)),...) {
-    
+ 
   res=mlply(seq(length(names(ctrl))),
       function(x,object,ctrl,pe,peMult,minF,maxF,lag,bounds){
         if (names(ctrl)[x]=='catch')  return(fwd(object,catch  =ctrl[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds))
         if (names(ctrl)[x]=='harvest')return(fwd(object,harvest=ctrl[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds))
         if (names(ctrl)[x]=='stock')  return(fwd(object,stock  =ctrl[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds))},
        object=object,ctrl=ctrl,pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds)
-  
+ 
   names(res)=names(ctrl)
         
   return(biodyns(res))})

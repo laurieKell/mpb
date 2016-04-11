@@ -40,6 +40,7 @@ validity<-function(object) {
 #' @slot desc    {A \code{character} providing a fuller description of the object}       
 #' @slot range   {A \code{numeric} vector containing the quant and year ranges}
 #' @slot model   {A \code{factor} giving name of production function, for now this is only `pellat`}
+#' @slot obj     { \code{factor} that determines the objective function type -LL or LAV}  
 #' @slot catch   {An \code{FLQuant} with total catch by year}        
 #' @slot stock   {An \code{FLQuant} which will hold the estimated stock by year}       
 #' @slot control {An \code{FLPar} which sets initial guess (val) and bounds (min and max) for each parameter. The phase allows a parameter to be fixed if less <0 and for paramters to be estimated sequentially}       
@@ -75,7 +76,8 @@ validity<-function(object) {
 #' \dontrun{biodyn()}
  setClass('biodyn', representation(
     'FLComp',
-    model         ='factor',
+    model         ='factor',   
+    obj           ='factor',   
     catch         ='FLQuant',
     stock         ='FLQuant',
     diags         ='data.frame',
@@ -99,8 +101,8 @@ validity<-function(object) {
     catch       =FLQuant(),
     stock       =FLQuant(),
     model       =models[3],
-    params      =FLPar(c(.5,as.numeric(NA),2,1,as.numeric(NA),as.numeric(NA)),                            dimnames=list(params=c('r','k','p','b0'),iter=1)),
-    control     =FLPar(array(rep(c(1,as.numeric(NA),as.numeric(NA),as.numeric(NA)),each=4), dim=c(4,4,1), dimnames=list(params=c('r','k','p','b0'),option=c('phase','min','val','max'),iter=1))),
+    params      =FLPar(c(.5,as.numeric(NA),1,1,as.numeric(NA),as.numeric(NA)),                            dimnames=list(params=c('r','k','p','b0'),iter=1)),
+    control     =FLPar(array(c(1,1,-1,-1,rep(NA,each=6),1,rep(NA,5)), dim=c(4,4,1), dimnames=list(params=c('r','k','p','b0'),option=c('phase','min','val','max'),iter=1))),
     priors      =array(rep(c(0,0,0.3,1),       each=7), dim=c(7,4),   dimnames=list(params=c('r','k','p','b0','msy','bmsy','fmsy'),c('weight','a','b','type'))),
     vcov        =FLPar(array(as.numeric(NA), dim=c(4,4,1), dimnames=list(params=c('r','k','p','b0'),params=c('r','k','p','b0'),iter=1))),
     hessian     =FLPar(array(as.numeric(NA), dim=c(4,4,1), dimnames=list(params=c('r','k','p','b0'),params=c('r','k','p','b0'),iter=1))),

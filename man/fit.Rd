@@ -51,14 +51,6 @@ Fits the aspic model to catch and catch per unit effort data
 A generic method for fitting catch and index of relative abundance for both \emph{biodyn} and \emph{aspic}.
 }
 \examples{
-## get aspic input file (i.e. *.inp) for North Atlantic swordfish
-    file=paste(system.file(package="mp"),"exdata/swon.inp",sep="/")
-
-    swon=aspic(file)
-
-    swon=fit(swon)
-
-    plot(swon)
 jk, jack knifes \\code{aspic}
 }
 \seealso{

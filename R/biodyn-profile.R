@@ -1,43 +1,6 @@
 utils::globalVariables(c('profileGrid'))
 utils::globalVariables('maply')
 
-#' profile
-#'
-#' Profiles biodyn  
-#'
-#' @param fitted an object of class \code{biodyn}
-#' @param index an \code{FLQuant}, \code{FLQuants} or  \code{data.frame} object with CPUE indices
-#' @param which parameters to fix
-#' @param range relative values to fix over
-#' @param fn returned values
-#' @param run logical, run the profile if TRUE, if FALSE set control slot and return original object
-#'     
-#' @export
-#' @rdname profile
-#'
-#' @examples
-#' \dontrun{
-#' library(aspic)
-#' library(biodyn)
-#' data(asp)
-#' }
-
-# ### debugging stuff
-# data(bd)
-# fitted=biodyn(factor('pellat'),params(bd),catch=catch(bd))
-# index=rlnorm(1,log(stock(bd)),.2)[,-60]
-# setParams(fitted)     =index
-# 
-# 
-# attach(list(maxsteps=11, range=0.5, ci=c(0.25, 0.5, 0.75, 0.95),
-#             plot=TRUE,fixed=c()))
-# which='r'
-# fixed=c('p','b0')
-# ###
-# res=profile(bd,which='r',fixed=c('b0','p'),index,range=c(1.2,3.0))
-# ggplot(res)+geom_line(aes(r,ll))
-# v <- ggplot(res, aes(r, k, z = ll))
-# v <- ggplot(res, aes(r, k, z = ll))+ stat_contour(aes(colour = ..level..), size = 1)
 setMethod('profile', signature(fitted='biodyn'),
       function(fitted, 
                which,
@@ -71,18 +34,18 @@ setMethod('profile', signature(fitted='biodyn'),
            }
         else{
           
-           fitted@catch  =iter(catch(fitted),1)
-           fitted@stock  =iter(stock(fitted),1)
+           fitted@catch      =iter(catch(fitted),1)
+           fitted@stock      =iter(stock(fitted),1)
            setControl(fitted)=params(fitted)
            
-           params(fitted)=iter(params(fitted),1)
+           params(fitted)    =iter(params(fitted),1)
 
-           fitted@control=profileGrid(fitted@control,which,range)
+           fitted@control    =profileGrid(fitted@control,which,range)
            
-           vcov(fitted)  =propagate(iter(vcov(fitted),  1),dims(fitted@control)$iter)
-           fitted@hessian=propagate(iter(fitted@hessian,1),dims(fitted@control)$iter)
-           fitted@mng    =propagate(iter(fitted@mng,    1),dims(fitted@control)$iter)
-           fitted@mngVcov=propagate(iter(fitted@mngVcov,1),dims(fitted@control)$iter)
+           vcov(fitted)      =propagate(iter(vcov(fitted),  1),dims(fitted@control)$iter)
+           fitted@hessian    =propagate(iter(fitted@hessian,1),dims(fitted@control)$iter)
+           fitted@mng        =propagate(iter(fitted@mng,    1),dims(fitted@control)$iter)
+           fitted@mngVcov    =propagate(iter(fitted@mngVcov,1),dims(fitted@control)$iter)
            }
         
         if (!run) return(fitted)

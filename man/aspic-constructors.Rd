@@ -11,7 +11,7 @@
 \alias{aspic-method}
 \title{aspic constructor}
 \usage{
-aspic(object, ...)
+aspic(object, value, ...)
 }
 \arguments{
 \item{object}{can be \code{character} or \code{biodyn} objects}

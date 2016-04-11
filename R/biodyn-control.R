@@ -26,7 +26,8 @@ setMethod('setParams<-', signature(object='biodyn',value='FLQuants'), function(o
   nms=c(modelParams(as.character(object@model)),'b0')
   object@params=object@params[nms]
     
-  object@params =setQ(FLCore::iter(object,1),FLQuants(lapply(value, function(x) FLCore::apply(x,2,mean,na.rm=T))))
+  #object@params =setQ(FLCore::iter(object,1),FLQuants(lapply(value, function(x) FLCore::apply(x,2,mean,na.rm=T))))
+  object@params =setQ(object,value)
   
   nms=dimnames(params(object))$param
   n  = as.numeric(summary(substr(nms,1,1)=='q')['TRUE'])
@@ -71,7 +72,6 @@ setMethod('setParams<-', signature(object='biodyn',value='FLBRP'), function(obje
   
   return(object)})
 
-
 #' setControl<-
 #'
 #' @description Sets the control slot in a biodyn object given the parameters in the \code{params}
@@ -96,7 +96,7 @@ setMethod('setParams<-', signature(object='biodyn',value='FLBRP'), function(obje
 #' }
 #'  
 setGeneric('setControl<-',function(object,...,value)  standardGeneric('setControl<-'))
-setMethod('setControl<-', signature(object='biodyn',value='FLPar'), function(object,value,min=0.1,max=10.0) {
+setMethod( 'setControl<-', signature(object='biodyn',value='FLPar'), function(object,value,min=0.1,max=10.0) {
   
   if (dims(value)$iter>1 & dims(object@control)$iter==1)
     object@control=propagate(control(object),dims(value)$iter)
@@ -170,6 +170,9 @@ calcQ<-function(stock,index,error='log',na.rm=T){
   return(res)}
 
 setQ=function(object,value,error='log'){
+  if (!is.FLQuant(value))
+    names(value)=seq(length(value))
+  
   fn=function(value,stock){
     if (dims(value)$iter==1)
       dimnames(value)$iter=1
@@ -178,6 +181,9 @@ setQ=function(object,value,error='log'){
     
     if (dims(stock)$iter==1 & dims(value)$iter>1)
       stock=propagate(stock,dims(value)$iter)
+    
+    if (dims(stock)$iter>1 & dims(value)$iter==1)
+      value=propagate(value,dims(stock)$iter)
     
     model.frame(mcf(FLQuants(stock=stock,value=value)))}
 
@@ -200,7 +206,7 @@ setQ=function(object,value,error='log'){
   names(res.)[2]='data'
 
   #bug
-  res=as(res.,'FLPar')[,1]
+  res=as(res.,'FLPar')
   #res=FLCore::iter(res,seq(its))
   units(res)='NA'
   res=res.[with(res.,order(iter,params)),]
@@ -218,8 +224,8 @@ setQ=function(object,value,error='log'){
   
   object@params}
 
-setMethod('setControl<-', signature(object='biodyn',value='FLQuant'), function(object,value,
-  min=0.1,max=10.0) {
+setMethod('setControl<-', signature(object='biodyn',value='FLQuant'), 
+  function(object,value,min=0.1,max=10.0) {
   
   setParams(object)<-value
   setControl(object,min=min,max=max)<-params(object)

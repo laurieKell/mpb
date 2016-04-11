@@ -73,8 +73,7 @@ validAspic <- function(object) {
 #' @details 
 #' The Class is intended to be used as part of an MSE and includes methods for diagnostics, calculating  reference points and other quantities used when providing management advice.
 #' 
-#' @slot name         {\code{character} with the name of the stock}
-#' @slot obj          { \code{factor}}          
+#' @slot name         {\code{character} with the name of the stock}      
 #' @slot conditioning { \code{factor}}
 #' @slot options      { \code{numeric}}     
 #' @slot index        { \code{data.frame}}   
@@ -101,7 +100,6 @@ validAspic <- function(object) {
 #'  
 setClass('aspic', representation(
     "biodyn",
-    obj           ="factor",
     conditioning  ="factor",
     options       ="numeric",     
     

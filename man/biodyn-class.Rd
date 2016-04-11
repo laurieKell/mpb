@@ -21,6 +21,8 @@ The Class is intended to be used as part of an MSE and includes methods for diag
 
 \item{\code{model}}{{A \code{factor} giving name of production function, for now this is only `pellat`}}
 
+\item{\code{obj}}{{ \code{factor} that determines the objective function type -LL or LAV}}
+
 \item{\code{catch}}{{An \code{FLQuant} with total catch by year}}
 
 \item{\code{stock}}{{An \code{FLQuant} which will hold the estimated stock by year}}

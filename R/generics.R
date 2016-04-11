@@ -39,7 +39,7 @@ setGeneric('biodyn',      function(object,params,...)            standardGeneric
 #' \dontrun{
 #' asp=aspic()
 #' }
-setGeneric('aspic',       function(object,...)            standardGeneric('aspic'))
+setGeneric('aspic',       function(object,value,...)   standardGeneric('aspic'))
 
 #' aspics
 #' @description Create a list of aspic objects
@@ -73,7 +73,7 @@ setGeneric('aspics',      function(object,...)            standardGeneric('aspic
 #' 
 #' @aliases fit,aspic-method fit,aspics-method fit,biodyn,FLQuant-method fit,biodyn,FLQuants-method  
 #' @seealso  \code{\link{aspic}}, \code{\link{biodyn}}, \code{\link{jk}}, \code{\link{boot}}
-setGeneric('fit',       function(object,index,...)  standardGeneric('fit'))
+setGeneric('fit',       function(object,index,...)  standardGeneric('fit'), package='mp')
 
 #' jk
 #'
