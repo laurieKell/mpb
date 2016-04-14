@@ -22,20 +22,17 @@ setMethod('index<-',  signature(object='aspic',value="data.frame"),
 
 
 setMethod('index',signature(object='aspic'),
-          function(object,df=TRUE) {
+  function(object,df=TRUE) {
           
-            if (df) return(object@index)
+    if (df) return(object@index)
               
-            if (length(unique(object@index[,"name"]))==1) 
-              return(FLQuant(object@index$index,dimnames=list(year=object@index$year)))
-            else {
-                  res=dlply(object@index,.(name), with, FLQuant(index, dimnames=list(year=year)))
+    if (length(unique(object@index[,"name"]))==1) 
+      return(FLQuant(object@index$index,dimnames=list(year=object@index$year)))
+    else {
+      res=FLQuants(dlply(object@index,.(name), with, FLQuant(index, dimnames=list(year=year))))[unique(object@index$name)]
                
-                  names(res)=unique(object@index[,"name"])
-                  return(FLQuants(res))
-                  }           
-            
-            })
+      return(res)}
+    })
 
 indexFn<-function(x){
   u=index(x)[,c("name","year","index")]

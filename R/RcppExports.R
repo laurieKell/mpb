@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 stockCPP<-function(F, C, B, params, tol = 1e-10, niter = 200L) {
-    .Call('biodyn_stockCPP', PACKAGE='mp', F, C, B, params, tol, niter)
+    .Call('biodyn_stockCPP', PACKAGE='mpb', F, C, B, params, tol, niter)
 }
 
 fCPP<-function(F, C, B, params, tol = 1e-10, niter = 200L) {
-    .Call('biodyn_fCPP', PACKAGE='mp', F, C, B, params, tol, niter)
+    .Call('biodyn_fCPP', PACKAGE='mpb', F, C, B, params, tol, niter)
 }
 

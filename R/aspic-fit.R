@@ -1,14 +1,33 @@
 utils::globalVariables(c("year","swon","year","B","obs"))
+utils::globalVariables(c("m_ply","b"))
+utils::globalVariables(c("%dopar%","foreach","i"))
+
+#' fit
+#' 
+#' @name fit
+#' @rdname fit
+#' @export
+#' @docType methods
+#' 
+#' @description 
+#' Fits the aspic model to catch and catch per unit effort data
+#'
+#' @param object; an \code{aspic} object 
+#' @param dir; an optional \code{dir} where aspic text files used for fitting can be found 
+#' @return An aspic object with fitted values and parameter estimates 
+#' @seealso \code{\link{aspic},\link{biodyn},\link{boot},\link{jk}}
+#' 
+#' @aliases fit,aspic,missing-method
 
 setMethod('fit',signature(object='aspic',index="missing"),
-          function(object,dir=tempdir(), package="mp", exeNm="aspic",jk=FALSE,copyExe=FALSE)
+          function(object,dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE,copyExe=FALSE)
             runExe(object=object, dir=dir, package=package, exeNm=exeNm,jk=jk,copyExe=copyExe))
 
 setMethod('fit',signature(object='aspics',index="missing"),
-          function(object, dir=tempdir(), package="mp", exeNm="aspic",jk=FALSE,
+          function(object, dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE,
                    .combine=list,
                    .multicombine=TRUE,.maxcombine=length(object),
-                   .packages=c("mp","plyr","reshape")){
+                   .packages=c("mpb","plyr","reshape")){
            
             if (is.null(.combine)) ..combine=list else ..combine=.combine
             
@@ -28,82 +47,6 @@ setMethod('fit',signature(object='aspics',index="missing"),
             names(res)=names(object)
         
       return(aspics(res))})
-
-setGeneric('boot',      function(object,...)        standardGeneric('boot'))
-setMethod('boot', signature(object='aspic'),
-          function(object, dir=tempdir(), package="mp", exeNm="aspic",boot=500)
-            runBoot(object=object, dir=dir,package=package, exeNm=exeNm,boot=boot))
-setMethod('boot',  signature(object='aspics'),
-          function(object, dir=tempdir(), package="mp", exeNm="aspic",boot=500,
-                   .combine=NULL,
-                   .multicombine=T,.maxcombine=10,.packages=c("mp","plyr")){
-            
-            if (is.null(.combine)) ..combine=list else ..combine=.combine
-            res=foreach(i=names(object), .combine=..combine,
-                        .multicombine=.multicombine,
-                        .maxcombine  =.maxcombine,
-                        .packages    =.packages) %dopar% {  
-                          wkdir=tempfile('file', dir)
-                          dir.create(wkdir, showWarnings = FALSE)
-                          boot(object[[i]],dir=wkdir,boot=boot)}
-            
-            if (is.null(.combine)) {
-              res=aspics(res)
-              names(res)=names(object)}
-            
-            res})
-
-setMethod('jk',  signature(object='aspic'),
-          function(object, dir=tempdir(), package="mp", exeNm="aspic")
-            runExe(object=object, dir=dir, package=package, exeNm=exeNm,jk=TRUE))
-
-#' fit
-#' 
-#' @name fit
-#' @rdname fit
-#' @export
-#' @docType methods
-#' 
-#' @description 
-#' Fits the aspic model to catch and catch per unit effort data
-#'
-#' @param object; an \code{aspic} object 
-#' @param dir; an optional \code{dir} where aspic text files used for fitting can be found 
-#' @return An aspic object with fitted values and parameter estimates 
-#' @seealso \code{\link{aspic},\link{biodyn},\link{boot},\link{jk}}
-#' 
-#' @aliases fit,aspic,missing-method
-#'  
-#' @examples
-#'     ## get aspic input file (i.e. *.inp) for North Atlantic swordfish
-#'     file=paste(system.file(package="mp"),"exdata/swon.inp",sep="/")
-#'     
-#'     swon=aspic(file)
-#'     
-#'     swon=fit(swon)
-#'     
-#'     plot(swon)
-
-#' jk, jack knifes \code{aspic} 
-#' 
-#' @name jk
-#' @rdname jk
-#' @export
-#' @docType methods
-#' 
-#' @description 
-#' Fits the aspic model to catch and catch per unit effort data removing 1 cpue observation at a time
-#'
-#' @param object; an \code{aspic} object or
-#' @param object; a character string giving an aspic "inp" file
-#' @param dir; an optional \code{dir} where aspic text files used for fitting can be found 
-#' @return An aspic object with fitted values and parameter estimates 
-#' @seealso \code{\link{biodyn},\link{boot},\link{fit}}
-#' 
-#' @examples
-#' \dontrun{
-#'     data(asp)
-#'     asp=jk(asp)}
 
 #' boot, Bootstraps the ASPIC biomass dynamic model.
 #'
@@ -125,6 +68,61 @@ setMethod('jk',  signature(object='aspic'),
 #' \dontrun{
 #'     data(asp)
 #'     asp=boot(asp)}
+
+
+
+setGeneric('boot',      function(object,...)        standardGeneric('boot'))
+setMethod('boot', signature(object='aspic'),
+          function(object, dir=tempdir(), package="mpb", exeNm="aspic",boot=500)
+            runBoot(object=object, dir=dir,package=package, exeNm=exeNm,boot=boot))
+setMethod('boot',  signature(object='aspics'),
+          function(object, dir=tempdir(), package="mpb", exeNm="aspic",boot=500,
+                   .combine=NULL,
+                   .multicombine=T,.maxcombine=10,.packages=c("mpb","plyr")){
+            
+            if (is.null(.combine)) ..combine=list else ..combine=.combine
+            res=foreach(i=names(object), .combine=..combine,
+                        .multicombine=.multicombine,
+                        .maxcombine  =.maxcombine,
+                        .packages    =.packages) %dopar% {  
+                          wkdir=tempfile('file', dir)
+                          dir.create(wkdir, showWarnings = FALSE)
+                          boot(object[[i]],dir=wkdir,boot=boot)}
+            
+            if (is.null(.combine)) {
+              res=aspics(res)
+              names(res)=names(object)}
+            
+            res})
+
+#' jk 
+#' jack knifes \code{aspic} 
+#' 
+#' @name jk
+#' @rdname jk
+#' @export
+#' @docType methods
+#' 
+#' @description 
+#' Fits the aspic model to catch and catch per unit effort data removing 1 cpue observation at a time
+#'
+#' @param object; an \code{aspic} object or
+#' @param object; a character string giving an aspic "inp" file
+#' @param dir; an optional \code{dir} where aspic text files used for fitting can be found 
+#' @return An aspic object with fitted values and parameter estimates 
+#' @seealso \code{\link{biodyn},\link{boot},\link{fit}}
+#' 
+#' @examples
+#' \dontrun{
+#'     data(asp)
+#'     asp=jk(asp)}
+
+setMethod('jk',  signature(object='aspic'),
+          function(object, dir=tempdir(), package="mpb", exeNm="aspic")
+            runExe(object=object, dir=dir, package=package, exeNm=exeNm,jk=TRUE))
+
+
+
 
 
 chkIters=function(object){
@@ -149,7 +147,8 @@ chkIters=function(object){
 jkIdx=function(x) dimnames(x)[[1]][ !is.na(x$index)]
 
 
-runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe=FALSE){
+runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe=FALSE){
+  ow=options("warn");options(warn=-1)
   
   object@index=object@index[object@index$year %in% range(object)["minyear"]:range(object)["maxyear"],]
   
@@ -166,9 +165,6 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
   oldwd=getwd()
   setwd(dir)
   path=exe(package)
-  
-  ow=options("warn")
-  options(warn=-1)
   
   if (.Platform$OS.type == "windows" & copyExe) 
     file.copy(paste(paste(system.file("bin", "windows", package=package, mustWork=TRUE),exeNm, sep="/"),"exe",sep="."), dir)
@@ -199,7 +195,7 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
                }
                   
         # create exe input files
-        .writeAspicInp(FLCore:::iter(object,i),what="FIT",niter=1,
+        .writeAspicInp(FLCore::iter(object,i),what="FIT",niter=1,
                        fl=paste(exeNm,".inp",sep=""))
          
         # run
@@ -216,35 +212,34 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
         
         names(rdat$t.series)=tolower(names(rdat$t.series))
         
-        FLCore:::iter(object@stock,i)=as.FLQuant(transform(rdat$t.series[,c("year","b")],data=b)[c("year","data")])[,dimnames(object@stock)$year]
+        FLCore::iter(object@stock,i)=as.FLQuant(transform(rdat$t.series[,c("year","b")],data=b)[c("year","data")])[,dimnames(object@stock)$year]
         
         if (.Platform$OS!="windows"){
         try(object@objFn[1,i]<-rdat$diagnostics$obj.fn.value)        
 
         #try(object@objFn[2,i]<-rdat$diagnostics$rsquare) 
         rtn=aspicPrn(paste(exeNm,"prn",sep=".")) 
+        object@diags=rtn
 
-          object@diags=rtn
-
-          pos=seq(dim(params(object))[1])[substr(dimnames(params(object))[[1]],1,1)=="q"]
-          object@diags=transform(object@diags,
-                stock.  =hat/c(object@params[pos,i])[name],
-                stockHat=obs/c(object@params[pos,i])[name])
+        pos=seq(dim(params(object))[1])[substr(dimnames(params(object))[[1]],1,1)=="q"]
+#           object@diags=transform(object@diags,
+#                 stock.  =hat/c(object@params[pos,i])[name],
+#                 stockHat=obs/c(object@params[pos,i])[name])
          
-          object@diags=merge(object@diags,model.frame(mcf(FLQuants(stock  =object@stock,                                                                  harvest=harvest(object))),drop=TRUE),all=T)
-          object@diags$name=ac(factor(object@diags$name, labels=unique(object@index$name)))
-  
-          object@diags$stock=object@diags$stock.
-          object@diags=object@diags[,-10]
-          object@diags=object@diags[!is.na(object@diags$name),]
+        object@diags$name=factor(unique(object@index$name)[as.integer(object@diags$name)])
+        object@diags=merge(object@diags,model.frame(mcf(FLQuants(stock  =object@stock)),drop=TRUE),all=T)
+          
+        object@diags$stock=object@diags$stock.
+        object@diags=object@diags[,-10]
+        object@diags=object@diags[!is.na(object@diags$name),]
 
         } else {
           rtn=try(readAspic(paste(exeNm,"prn",sep="."))) 
           
           if (is.data.frame(rtn)) object@diags=rtn[!is.na(rtn$residual),]
           
-          object@diags=transform(object@diags,stock.  =hat/c(object@params[grep("q",dimnames(params(object))$params),i])[name],
-                                              stockHat=obs/c(object@params[grep("q",dimnames(params(object))$params),i])[name])
+#           object@diags=transform(object@diags,stock.  =hat/c(object@params[grep("q",dimnames(params(object))$params),i])[name],
+#                                               stockHat=obs/c(object@params[grep("q",dimnames(params(object))$params),i])[name])
   
           object@diags$name=ac(factor(object@diags$name, labels=unique(object@index$name)))
            
@@ -258,7 +253,7 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
         
 #         dgs=subset(object@diags,!is.na(object@diags$residual))
 #         try(object@ll@.Data[,"ll",i]<-daply(dgs, .(name), with,
-#                                             mp:::calcLogLik(as.FLQuant(data.frame(data=residual,year=year)),
+#                                             calcLogLik(as.FLQuant(data.frame(data=residual,year=year)),
 #                                                        as.FLQuant(data.frame(data=1,year=year)),type=3)))
 #         
 #         try(object@ll@.Data[,"ss",i]<-daply(dgs, .(name), with, sum(residual^2)))
@@ -267,11 +262,12 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
   
     #if (dims(object)$iter!=1) object@diags=data.frame(NULL)
     setwd(oldwd)
+    
     options(ow)
-  
+
     return(object)}
   
-runBoot=function(object, package="mp", exeNm=package, dir=tempdir(),boot=500){
+runBoot=function(object, package="mpb", exeNm=package, dir=tempdir(),boot=500){
   
   object@index=object@index[object@index$year %in% range(object)["minyear"]:range(object)["maxyear"],]
 

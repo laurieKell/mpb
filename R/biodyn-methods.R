@@ -4,14 +4,13 @@
 #' 
 #' @param object either \emph{biodyn} or \emph{aspic} classes
 #' 
-#' @rdname harvest
+#' @rdname hrate
+#'
 #' @export
 #' 
-#' @aliases harvest harvest,aspic-method 
+#' @aliases harvest harvest,biodyn-method harvest,aspic-method 
 #' 
-setGeneric('harvest',   function(object,...)        standardGeneric('harvest'))
-
-setMethod('harvest', signature(object='biodyn'),function(object,when=.5,...) {
+setMethod('harvest', signature(object='biodyn',catch="missing"),function(object) {
              
   yrs1=  dimnames(stock(object))$year
   yrs2=c(dimnames(stock(object))$year[-1],as.numeric(max(dimnames(stock(object))$year))+1)

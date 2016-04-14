@@ -1,3 +1,4 @@
+
 setMethod('setParams<-', signature(object='aspic',value="data.frame"), function(object,value) {
   #LOGISTIC 
   nms=c("b0","msy","k")

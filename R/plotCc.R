@@ -1,3 +1,5 @@
+utils::globalVariables(c("geom_linerange","facet_grid","geom_vline"))
+
 setGeneric('plotCc',  function(data,...)     standardGeneric('plotCc'))
 setMethod('plotCc', signature(data='FLQuants'),
           function(data,...) plotCcFn(data,...))

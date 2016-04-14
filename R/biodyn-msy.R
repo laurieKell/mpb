@@ -296,22 +296,22 @@ refptsFn=function(model,params){
   
   return(res)}
 
-fnB=function(x,bd,year=range(bd)['maxyear']){
+funcB=function(x,bd,year=range(bd)['maxyear']){
   if (is.numeric(year)) year=ac(year)
   params(bd)[c('r','k')]=x
   stock(bd[,year])/refpts(bd)['bmsy']}
 
-fnF=function(x,bd,year=range(bd)['maxyear']){
+funcF=function(x,bd,year=range(bd)['maxyear']){
   if (is.numeric(year)) year=ac(year)
   params(bd)[c('r','k')]=x
   harvest(bd[,'2008'])/refpts(bd)['fmsy']}
 
-fnY=function(x,bd,year=range(bd)['maxyear']){
+funcY=function(x,bd,year=range(bd)['maxyear']){
   if (is.numeric(year)) year=ac(year)
   params(bd)[c('r','k')]=x
   catch(bd[,'2008'])/refpts(bd)['msy']}
 
-fnJ=function(x,bd,year=range(bd)['maxyear']){
+funcJ=function(x,bd,year=range(bd)['maxyear']){
   if (is.numeric(year)) year=ac(year)
   bd@params[activeParams(bd)]=x
   c(stock  =stock(  bd[,'2008'])/refpts(bd)['bmsy'],

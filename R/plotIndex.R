@@ -1,3 +1,5 @@
+utils::globalVariables(c("gam","geom_smooth","theme_bw"))
+
 setGeneric('plotIndex',  function(data,...)     standardGeneric('plotIndex'))
 setMethod('plotIndex', signature(data='FLQuants'),
           function(data,
@@ -17,3 +19,19 @@ setMethod('plotIndex', signature(data='FLQuants'),
     theme(legend.position="none")            +
     facet
 })
+
+setMethod('plotIndex', signature(data='aspic'),
+          function(data,facet=facet_wrap(~qname,ncol=1,scale="free_y"),...){
+            
+            u=FLQuants(dlply(data,.(name), with,
+                             as.FLQuant(data.frame(year=year,data=index))))
+            plotIndex(u,facet,...)})
+
+setMethod('plotIndex', signature(data='aspics'),
+          function(data,facet=facet_wrap(~qname,ncol=1,scale="free_y"),...){
+    
+    u=ldply(data,index)
+    u=u[!duplicated(u[,c("name","year")]),]
+    u=FLQuants(dlply(u,.(name), with,
+                             as.FLQuant(data.frame(year=year,data=index))))
+    plotIndex(u,facet,...)})

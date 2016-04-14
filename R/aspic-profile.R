@@ -1,4 +1,3 @@
-
 profileFn=function(fitted,which,
                    range=seq(0.5,1.5,length.out=21),
                    fn   =function(x) cbind(model.frame(params(x)), 
@@ -125,7 +124,7 @@ setMethod('profile',  signature(fitted='aspics'),
 #' @rdname fnProfile 
 #'
 #' @examples
-#' /dontrun{
+#' \dontrun{
 #' data(asp)
 #' dcK=profile(asp,which=c("k"),range=seq(0.2,2.0,length.out=21),fn=fnProfile)
 #' ggplot(dcK)+geom_line(aes(k,value,group=variable,col=variable))+
@@ -166,7 +165,7 @@ fnProfile=function(x) {
 # rtn=profile(swon[[1]],which="k",fixed="b0",length.out=31,range=c(.75,1.5))
 # ggplot(rtn)+geom_line(aes(msy,rss))
 
-# /dontrun{
+# \dontrun{
 #  data(asp)
 #  res=profile(asp,which="msy",range=seq(0.75,1.25,length.out=21))
 #  ggplot(res)+geom_line(aes(k,rss))

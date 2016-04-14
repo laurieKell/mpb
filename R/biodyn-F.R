@@ -10,7 +10,7 @@ beta =function(r,k) r/k
 yield<-function(F,B,r,k)
     (F/(r/k))*log(1-(r/k)*B*(1-exp((r-F)))/(r-F))
 
-fnY   =function(F,C,B,r,k)
+fnY<-function(F,C,B,r,k)
   C-yield(F,B,r,k)
 
 minY   =function(F,C,B,r,k)
@@ -62,7 +62,7 @@ NewRhap=function(x, func, grad)
 prj<-function(F,C,B,r,k)
   alpha(r,F)*B*exp(alpha(r,F))/(alpha(r,F)+beta(r,k)*B*(exp(alpha(r,F))-1))
 
-nr<-function(C,B,r,k,B0,tolVal=1e-10,niter=200,yieldFlag=!TRUE){
+nr<-function(C,B,r,k,b0,tolVal=1e-10,niter=200,yieldFlag=!TRUE){
   
   F=-log(1-C/B[,dimnames(C)$year])*.5
   for (t in rev(rev(dimnames(C)$year)[-1])){
@@ -91,8 +91,8 @@ nr<-function(C,B,r,k,B0,tolVal=1e-10,niter=200,yieldFlag=!TRUE){
   
   return(list(F=F,B=B))}
 
-slv<-function(C,r,k,B0){
-  B=window(FLQuant(k*B0,dimnames=dimnames(C)),end=max(as.numeric(dimnames(C)$year))+1)
+slv<-function(C,r,k,b0){
+  B=window(FLQuant(c(k*b0),dimnames=dimnames(C)),end=max(as.numeric(dimnames(C)$year))+1)
   F=-log(1-C/B[,-dim(B)[2]])
   for (t in rev(rev(dimnames(B)$year)[-1])){
     res=ucminf(c(F[,t]), fn = minF, #gr = gradMinF, 
@@ -128,7 +128,7 @@ if (FALSE){
   c( gradF(.01, C=C[,t],B=B[,t],r=r,k=k))
   
   ggplot(mdply(data.frame(F=seq(0,.03,length.out=101)), 
-               function(F) c(fnY(F,C[,t],B[,t],r,k)/dfdY(F,C[,t],B[,t],r,k))))+
+               function(F) c(fnY(F,C[,t],B[,t],r,k)/gradY(F,C[,t],B[,t],r,k))))+
     geom_line(aes(F,V1))
   
   ggplot(mdply(data.frame(F=seq(0,.7,length.out=101)), 

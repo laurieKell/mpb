@@ -1,4 +1,5 @@
 utils::globalVariables('read.fit')
+utils::globalVariables(c("ow"))
 
 # io.ADMB.R - 
 # FLCore/R/io.ADMB.R
@@ -129,7 +130,8 @@ function(fn)
 			A[[vnam[i]]]=dum
 		}
 	}
-	options(warn=0)
+  
+	options(ow)
 	
 	return(A)
 }
