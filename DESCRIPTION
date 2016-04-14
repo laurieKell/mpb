@@ -1,6 +1,6 @@
 Package: mpb
 Title: Management Procedures
-Version: 0.0.0
+Version: 0.1.0
 Author: Laurence Kell
 Description: The biodyn class includes methods for fitting,  examining goodness of fit diagnostics, estimating uncertainly in stock status relative to reference points, deriving quantities used in management, running projections, simulating Harvest Control Rules (HCRs), conducting Management Strategy Evaluation (MSE) and for plotting.
 VignetteBuilder: knitr
