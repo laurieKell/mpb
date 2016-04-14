@@ -370,8 +370,7 @@ aspicFit=function(x){
   
   start=seq(length(txt))[substr(txt,1,9)=="ESTIMATED"]+5
   end  =seq(length(txt))[substr(txt,1,7)=="RESULTS"]  -3
-  libra
-  txt=txt[start:end]
+  txt  =txt[start:end]
   
   res=as.data.frame(t(matrix(as.numeric(unlist(strsplit(txt," +"))),ncol=end-start+1,nrow=10)))[,-1]
   names(res)=c("year","harvest","biomass","biomassMn","yield","yieldHat","sp","harvestMSY","biomassMSY")

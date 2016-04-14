@@ -1,5 +1,6 @@
 utils::globalVariables(c('admbCor','admbProfile',
                          'daply','residual', 'count'))
+utils::globalVariables(c("%dopar%","foreach","i"))
 
 utils::globalVariables(c('laply','llply','maply','mlply'))
 utils::globalVariables('alply')
@@ -69,8 +70,6 @@ setMethod('fit',signature(object='biodyn',index='FLQuantJK'),
 #'
 #' @export
 #' @rdname fit-biodyn
-#'
-#' @aliases fit-method fit,biodyn,FLQuant-method  fit,biodyn,FLQuants-method  fit,biodyn,FLQuantJK-method
 #' 
 #' @examples
 #' \dontrun{
@@ -147,10 +146,13 @@ setExe=function(exeNm,package,dir=tempdir()){
     dir = paste(dir, '/', sep='')
      
     # Windows
-  } else if (.Platform$OS.type == 'windows') {
+  } else if (.Platform$OS.type=='windows') {
     exe = paste(system.file('bin', 'windows', package=package, mustWork=TRUE), paste(exeNm, '.exe', sep=''), sep='/')
     file.copy(exe, dir)
 
+    print(exe)
+    print(dir)
+    
     dir = paste(dir, '\\', sep='')
     
     # Mac OSX
@@ -330,10 +332,10 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
   slts=getSlots('biodyn')
   slts=slts[slts %in% c('FLPar','FLQuant')]
  
-  #oldwd =setExe(exeNm,package,dir)
+  oldwd =setExe(exeNm,package,dir)
   oldwd=getwd()
   setwd(dir)
-  exe()
+  #exe()
 
   object=list(object,index)
   bd =object[[1]]
@@ -390,7 +392,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
      
      object[[1]]=setPella(object,exeNm,dir,lav=lav)
 
-     exe = paste(system.file('bin', 'linux', package="mp", mustWork=TRUE),exeNm, sep='/')      
+     exe = paste(system.file('bin', 'linux', package="mpb", mustWork=TRUE),exeNm, sep='/')      
 
     #bug in windows
     try(
@@ -398,8 +400,8 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
         warning("Executable privilege not set for \n",exe,call.=FALSE) )
 
      # run
-     #system(paste('./', exeNm, ' ', cmdOps, sep=''))
-     system(paste(exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
+     system(paste('./', exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
+     #system(paste(exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
 
      # gets results
      object[[1]]=getPella(object[[1]], exeNm)     
@@ -660,7 +662,8 @@ exe=function(package='mp'){
    
   Sys.setenv(PATH=path)
 
-return(path)}
+  return(path)}
+
 #asp=aspic('http://gbyp-sam.googlecode.com//svn//trunk//tests//aspic//swon//2009//high//aspic.inp')
 #asp=fit(asp)
 

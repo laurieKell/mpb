@@ -1,4 +1,4 @@
-Package: mp
+Package: mpb
 Title: Management Procedures
 Version: 0.0.0
 Author: Laurence Kell
@@ -55,6 +55,7 @@ Collate:
   'biodyn-msy.R'
   'aspic-refpts.R'
   'biodyn-profile.R'
+  'aspic-profile.R'
   'FLBRP-production.R'
   'objFn.R'
   'biodyn-xval.R'

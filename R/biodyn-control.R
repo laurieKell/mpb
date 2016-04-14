@@ -1,5 +1,6 @@
 utils::globalVariables(c('ldply','melt','variable'))
 globalVariables("lambda")
+utils::globalVariables(c("eql"))
 
 setMethod('setParams<-', signature(object='biodyn',value='data.frame'), function(object,value) {
   nms=c(modelParams(as.character(object@model)),'b0')

@@ -1,3 +1,5 @@
+utils::globalVariables(c("aaply"))
+
 #' rand
 #'
 #' Simulates a \code{biodyn} object for a catch series, given the parameter estimates  in the \code{param} 

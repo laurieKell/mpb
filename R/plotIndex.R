@@ -1,3 +1,5 @@
+utils::globalVariables(c("gam","geom_smooth","theme_bw"))
+
 setGeneric('plotIndex',  function(data,...)     standardGeneric('plotIndex'))
 setMethod('plotIndex', signature(data='FLQuants'),
           function(data,

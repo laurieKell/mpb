@@ -173,9 +173,7 @@ setGeneric("setIndex<-",    function(object,value)   standardGeneric('setIndex<-
 #' @export
 #' 
 #' @aliases control-method control,biodyn,missing-method 
-#' control<-,biodyn,FLPar-method 
-#' setControl<-,biodyn,FLPar-method setControl<-,biodyn,FLQuant-method  setControl<-,biodyn,FLQuants-method 
-#' control,biodyn-method
+#' 
 setGeneric('setControl<-',function(object,...,value)  standardGeneric('setControl<-'))
 
 #' params

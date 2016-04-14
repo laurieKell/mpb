@@ -5,7 +5,9 @@
 \alias{as}
 \title{as("biodyn", "FLStock")}
 \usage{
-FLStock2biodyn(from)
+FLStock2biodyn(from, index = computeStock(from), control = biodyn()@control,
+  mult = FLPar(rep(c(0.5, 1, 1/0.5), each = 4), dimnames =
+  dimnames(biodyn()@control[, -1])))
 }
 \description{
 Coerces an \code{FLStock} into a \code{biodyn} object.

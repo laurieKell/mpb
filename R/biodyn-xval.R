@@ -37,7 +37,7 @@ xvalFn=function(object,index,minyear,maxyear=range(object)["maxyear"]){
 #' @details Returns a data.frame with index, year, obs and hat
 #' @examples
 #' \dontrun{
-#'    
+#'  data(bd)  
 #' }
 
 setGeneric('xval',   function(object,index,...) standardGeneric('xval'))

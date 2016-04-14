@@ -25,14 +25,5 @@ The elements of \code{FLQuantJKs} must all be of class  \code{FLQuant}.
     \item{lock}{Lock mechanism, if turned on the length of the list can not be modified by adding or removing elements. \code{logical}.}
 }
 }
-\author{
-The FLR Team
-}
-\seealso{
-\link[base]{*}, \link[methods]{Arith}, \link[base]{as.data.frame},
-\link{bubbles}, \link{catch<-}, \link{iter}, \link[stats]{model.frame},
-\link[methods]{show}, \link[base]{summary}, \link[lattice]{xyplot},
-\link{FLlst}, \link[base]{list}
-}
 \keyword{classes}
 

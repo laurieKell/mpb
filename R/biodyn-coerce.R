@@ -9,7 +9,69 @@ globalVariables("ctrl")
 #' @family biodyn
 #'
 #' @rdname as
-FLStock2biodyn=function(from){
+
+
+FLStock2biodyn=function(from,
+                        control=biodyn()@control,
+                        mult   =FLPar(rep(c(0.5,1,1/0.5),each=4),
+                                      dimnames=dimnames(biodyn()@control[,-1]))){
+  
+  stock(from)=computeStock(from)
+  bd         =biodyn()
+  range(bd)[]=range(from)[c('minyear','maxyear')]
+  bd@catch   =catch(from)
+  
+  eql     =FLBRP(from,ny=dims(from)$year)
+  sr      =as.FLSR(from,model="bevholtSV")
+  
+  ow      =options("warn");options(warn=-1)
+  sr      =fmle(sr,fixed=list(spr0=spr0(eql),s=0.95),control=list(silent=TRUE))
+  options(ow)
+  
+  eql     =brp(FLBRP(from,ny=dims(from)$year,sr=ab(sr)))
+  
+  params(bd)["k" ] =refpts(eql)["virgin","biomass"]
+  params(bd)["b0"] =mean(stock(from)[,1:5])/params(bd)["k" ]
+  
+  if (control["p","val"]==1){
+    params(bd)["p"]=1
+    params(bd)["r"]=4*refpts(eql)["msy","yield"]%/%params(bd)["k"]       
+  }else{
+    params(bd)["r" ] =log(lambda(leslie(eql,c(refpts(eql)["crash","harvest"]))))
+    
+    fn  =function(p,bmsy,k) (bmsy-k*(1/(1+p))^(1/p))^2
+    
+    params(bd)["p"]=optimise(fn, c(0.001,5),    
+                             bmsy=c(refpts(eql)["msy","biomass"]),
+                             k   =c(refpts(eql)["virgin","biomass"]))$minimum
+  }
+  
+  nms =dimnames(params( bd))$params
+  nms.=dimnames(mult)$params
+  nms =nms.[nms.%in%nms]
+  
+  params(bd)[nms]=params(bd)[nms]*mult[nms,"val",drop=T]
+  bd=mp::fwd(bd,catch=catch(bd))
+  setControl(bd)=params(bd)
+  
+  params(bd)[nms][!is.na(control(bd)[nms,"val"])]=
+    control(bd)[nms,"val"][!is.na(control(bd)[nms,"val"])]
+  
+  #setParams(bd) =index
+  setControl(bd)=params(bd)
+  
+  control(bd)[dimnames(control)$params,dimnames(control)[[2]], ][!is.na(control)]=control[!is.na(control)]
+  
+  nms=dimnames(mult)$params
+  control(bd)[nms,"min"]=mult[nms,"min"]*control(bd)[nms,"val"]
+  control(bd)[nms,"max"]=mult[nms,"max"]*control(bd)[nms,"val"]
+  control(bd)[nms,"val"]=mult[nms,"val"]*control(bd)[nms,"val"]
+  
+  #bd=fit(bd,index)
+  
+  bd}
+
+FLStock2biodynSimple=function(from){
   
   res      =biodyn()
   res@catch=catch(from)
@@ -111,4 +173,5 @@ p<-function(from){
   optimise(function(p,bmsy,k) 
     (bmsy-k*(1/(1+p))^(1/p))^2, c(0.001,5), bmsy=bmsy,k=k)$minimum}
   
-       
+
+

@@ -94,7 +94,7 @@ validAspic <- function(object) {
 #' @slot desc         { \code{character}}      
 #' @slot range        { \code{numeric}}      
 #' 
-#' @aliases harvest harvest,aspic-method catch,aspic-method catch<-,aspic,FLQuant-method
+#' @aliases catch,aspic-method catch<-,aspic,FLQuant-method
 #' @rdname aspic-class
 #' @docType class
 #'  

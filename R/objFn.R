@@ -1,3 +1,5 @@
+utils::globalVariables(c("aaply"))
+
 logLikeFn<-function(residual){
   
   SS  =sum(residual^2,   na.rm=TRUE)

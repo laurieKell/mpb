@@ -3,13 +3,8 @@
 \name{control}
 \alias{control}
 \alias{control,biodyn,missing-method}
-\alias{control,biodyn-method}
 \alias{control-method}
-\alias{control<-,biodyn,FLPar-method}
 \alias{setControl<-}
-\alias{setControl<-,biodyn,FLPar-method}
-\alias{setControl<-,biodyn,FLQuant-method}
-\alias{setControl<-,biodyn,FLQuants-method}
 \alias{setParams<-}
 \alias{setParams<-,aspic,data.frame-method}
 \alias{setParams<-,biodyn,FLBRP-method}

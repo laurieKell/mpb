@@ -51,7 +51,8 @@ Fits the aspic model to catch and catch per unit effort data
 A generic method for fitting catch and index of relative abundance for both \emph{biodyn} and \emph{aspic}.
 }
 \examples{
-jk, jack knifes \\code{aspic}
+jk
+jack knifes \\code{aspic}
 }
 \seealso{
 \code{\link{aspic},\link{biodyn},\link{boot},\link{jk}}

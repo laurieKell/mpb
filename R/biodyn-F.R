@@ -10,7 +10,7 @@ beta =function(r,k) r/k
 yield<-function(F,B,r,k)
     (F/(r/k))*log(1-(r/k)*B*(1-exp((r-F)))/(r-F))
 
-fnY   =function(F,C,B,r,k)
+fnY<-function(F,C,B,r,k)
   C-yield(F,B,r,k)
 
 minY   =function(F,C,B,r,k)

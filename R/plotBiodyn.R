@@ -6,12 +6,17 @@ utils::globalVariables(c('ggplot','geom_line','aes','yield',
 
 utils::globalVariables(c('laply','ldply','geom_path','.id',
                          'scale_size_manual','scale_linetype_manual'))
+utils::globalVariables(c("scale_alpha_manual"))
 
 utils::globalVariables(c('geom_path','scale_size_manual','scale_linetype_manual'))
 
 utils::globalVariables(c('qname','What'))
 
 globalVariables(c("ymax","ymin","CI","50%","ymax","ymin","CI"))
+
+utils::globalVariables(c("x"))
+
+utils::globalVariables(c("x"))
 
 whooow<-function(x,fn,probs)
   as.data.frame(FLQuants(lapply(fn,
@@ -112,7 +117,7 @@ setMethod('plot', signature(x='biodyns', y='missing'),
                    'Harvest'=function(x) harvest(x),
                    'Yield'  =function(x) catch(x)),...)
     {  
-    res=ldply(x,function(x) plot(x,probs=probs,type=type,na.rm=na.rm)$data)
+    res=ldply(x,function(x) plot(x,fn=fn,probs=probs,type=type,na.rm=na.rm)$data)
     mdn=ldply(x,function(x) whooow(x,fn,probs=.5))
     
     if (names(res)[1]=="X1") names(res)[1]=".id"

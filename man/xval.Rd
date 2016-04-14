@@ -25,7 +25,7 @@ Returns a data.frame with index, year, obs and hat
 }
 \examples{
 \dontrun{
-
+ data(bd)
 }
 }
 

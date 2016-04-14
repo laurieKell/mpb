@@ -1,14 +1,16 @@
 utils::globalVariables(c("year","swon","year","B","obs"))
+utils::globalVariables(c("m_ply","b"))
+utils::globalVariables(c("%dopar%","foreach","i"))
 
 setMethod('fit',signature(object='aspic',index="missing"),
-          function(object,dir=tempdir(), package="mp", exeNm="aspic",jk=FALSE,copyExe=FALSE)
+          function(object,dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE,copyExe=FALSE)
             runExe(object=object, dir=dir, package=package, exeNm=exeNm,jk=jk,copyExe=copyExe))
 
 setMethod('fit',signature(object='aspics',index="missing"),
-          function(object, dir=tempdir(), package="mp", exeNm="aspic",jk=FALSE,
+          function(object, dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE,
                    .combine=list,
                    .multicombine=TRUE,.maxcombine=length(object),
-                   .packages=c("mp","plyr","reshape")){
+                   .packages=c("mpb","plyr","reshape")){
            
             if (is.null(.combine)) ..combine=list else ..combine=.combine
             
@@ -31,12 +33,12 @@ setMethod('fit',signature(object='aspics',index="missing"),
 
 setGeneric('boot',      function(object,...)        standardGeneric('boot'))
 setMethod('boot', signature(object='aspic'),
-          function(object, dir=tempdir(), package="mp", exeNm="aspic",boot=500)
+          function(object, dir=tempdir(), package="mpb", exeNm="aspic",boot=500)
             runBoot(object=object, dir=dir,package=package, exeNm=exeNm,boot=boot))
 setMethod('boot',  signature(object='aspics'),
-          function(object, dir=tempdir(), package="mp", exeNm="aspic",boot=500,
+          function(object, dir=tempdir(), package="mpb", exeNm="aspic",boot=500,
                    .combine=NULL,
-                   .multicombine=T,.maxcombine=10,.packages=c("mp","plyr")){
+                   .multicombine=T,.maxcombine=10,.packages=c("mpb","plyr")){
             
             if (is.null(.combine)) ..combine=list else ..combine=.combine
             res=foreach(i=names(object), .combine=..combine,
@@ -54,7 +56,7 @@ setMethod('boot',  signature(object='aspics'),
             res})
 
 setMethod('jk',  signature(object='aspic'),
-          function(object, dir=tempdir(), package="mp", exeNm="aspic")
+          function(object, dir=tempdir(), package="mpb", exeNm="aspic")
             runExe(object=object, dir=dir, package=package, exeNm=exeNm,jk=TRUE))
 
 #' fit
@@ -76,7 +78,8 @@ setMethod('jk',  signature(object='aspic'),
 #'  
 #' @examples
 
-#' jk, jack knifes \code{aspic} 
+#' jk 
+#' jack knifes \code{aspic} 
 #' 
 #' @name jk
 #' @rdname jk
@@ -141,7 +144,7 @@ chkIters=function(object){
 jkIdx=function(x) dimnames(x)[[1]][ !is.na(x$index)]
 
 
-runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe=FALSE){
+runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe=FALSE){
   ow=options("warn");options(warn=-1)
   
   object@index=object@index[object@index$year %in% range(object)["minyear"]:range(object)["maxyear"],]
@@ -261,7 +264,7 @@ runExe=function(object,package="mp",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe
 
     return(object)}
   
-runBoot=function(object, package="mp", exeNm=package, dir=tempdir(),boot=500){
+runBoot=function(object, package="mpb", exeNm=package, dir=tempdir(),boot=500){
   
   object@index=object@index[object@index$year %in% range(object)["minyear"]:range(object)["maxyear"],]
 
