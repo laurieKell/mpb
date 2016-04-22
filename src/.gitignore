@@ -1,5 +1,2 @@
-Makevars~
-RcppExports.o
-biodyn-logistic.h~
-biodyn-logistic.o
-biodyn.so
+^*.o$
+^*.so$

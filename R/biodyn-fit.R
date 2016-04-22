@@ -6,10 +6,10 @@ utils::globalVariables(c('laply','llply','maply','mlply'))
 utils::globalVariables('alply')
 
 setMethod('fit',signature(object='biodyn',index='FLQuant'),
-          function(object,index=index,exeNm='pella',package='mp', 
+          function(object,index=index,exeNm='pella',package='mpb', 
                    dir=tempdir(),
                    cmdOps=paste('-maxfn 500 -iprint 0'),
-                   lav="ll"){
+                   lav=FALSE){
 
             #sink(file = "/home/laurie/Desktop/temp/output.txt")          
             
@@ -20,7 +20,7 @@ setMethod('fit',signature(object='biodyn',index='FLQuant'),
             res})
 
 setMethod('fit',signature(object='biodyn',index='FLQuants'),
-          function(object,index=index,exeNm='pella',package='mp', 
+          function(object,index=index,exeNm='pella',package='mpb', 
                    dir=tempdir(),
                    cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE)
             fitPella(object,index,exeNm,package, 
@@ -44,7 +44,7 @@ setMethod('fit',signature(object='biodyn',index='FLQuantJKs'),
             object})
 
 setMethod('fit',signature(object='biodyn',index='FLQuantJK'),
-          function(object,index=index,exeNm='pella',package='mp', 
+          function(object,index=index,exeNm='pella',package='mpb', 
                    dir=tempdir(),
                    cmdOps=paste('-maxfn 500 -iprint 0'),
                    lav=FALSE){
@@ -306,7 +306,7 @@ getPella=function(obj, exeNm='pella') {
   
 activeParams=function(obj) dimnames(obj@control)$params[c(obj@control[,'phase']>-1)]
 
-fitPella=function(object,index=index,exeNm='pella',package='mp', 
+fitPella=function(object,index=index,exeNm='pella',package='mpb', 
                   dir=tempdir(),cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE,maxF=2.5)          
   {
   ow=options("warn");options(warn=-1)
@@ -407,7 +407,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mp',
      object[[1]]=getPella(object[[1]], exeNm)     
 
      s=names(slts)[slts%in%c('FLQuant','FLPar')]
-     for (s in s[!(s=="catch")])
+     for (s in s)
        try(FLCore::iter(slot(bd,s),i) <- slot(object[[1]],s)) 
 
      if (its<=1 & file.exists(paste(dir,'admodel.hes',sep='/'))){
@@ -641,7 +641,7 @@ calcElasticity=function(bd,mn=3,rg=5){
   
   return(jbn)}
 
-exe=function(package='mp'){
+exe=function(package='mpb'){
 
   sep =  function() if (R.version$os=='linux-gnu') ':' else if (.Platform$OS=='windows') ';' else ','
   

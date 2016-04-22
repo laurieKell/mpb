@@ -73,7 +73,7 @@ setGeneric('aspics',      function(object,...)            standardGeneric('aspic
 #' 
 #' @aliases fit,aspic-method fit,aspics-method fit,biodyn,FLQuant-method fit,biodyn,FLQuants-method  
 #' @seealso  \code{\link{aspic}}, \code{\link{biodyn}}, \code{\link{jk}}, \code{\link{boot}}
-setGeneric('fit',       function(object,index,...)  standardGeneric('fit'), package='mp')
+setGeneric('fit',       function(object,index,...)  standardGeneric('fit'), package='mpb')
 
 #' jk
 #'
@@ -157,7 +157,6 @@ setGeneric('diags<-',  function(object,value)         standardGeneric('diags<-')
 
 setGeneric('survey',      function(object,...)       standardGeneric('survey'))
 setGeneric('index',       function(object,...)       standardGeneric('index'))
-setGeneric("index<-",     function(object,value)     standardGeneric('index<-'))
 setGeneric("setIndex<-",    function(object,value)   standardGeneric('setIndex<-'))
 
 #' control

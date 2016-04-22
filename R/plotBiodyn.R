@@ -286,10 +286,7 @@ plotProdfn=function(bd,brp,II=FALSE){
 #'
 #' @aliases plotMSE,biodyn,FLStock,FLBRP-method
 #' 
-#' @examples
-#' \dontrun{ 
-#' refpts('logistic',FLPar(msy=100,k=500))
-#' }
+
 # setMethod('plotMSE',signature(x='biodyn',y='FLStock',z='FLBRP'),  
 #           function(x,y,z,...) plotMSEfn(x,y,z,...))
 

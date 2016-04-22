@@ -51,7 +51,7 @@ FLStock2biodyn=function(from,
   nms =nms.[nms.%in%nms]
   
   params(bd)[nms]=params(bd)[nms]*mult[nms,"val",drop=T]
-  bd=mp::fwd(bd,catch=catch(bd))
+  bd=mpb::fwd(bd,catch=catch(bd))
   setControl(bd)=params(bd)
   
   params(bd)[nms][!is.na(control(bd)[nms,"val"])]=

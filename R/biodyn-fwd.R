@@ -157,7 +157,6 @@ setMethod( 'fwd', signature(object='biodyn',ctrl='missing'),
                     ...) {
      
      ## target arg is an FLQuant
-     
      if ('FLQuant' %in% class(stock)   |
          'FLQuant' %in% class(harvest) |
          'FLQuant' %in% class(catch))
@@ -167,7 +166,7 @@ setMethod( 'fwd', signature(object='biodyn',ctrl='missing'),
      else if ('FLQuants' %in% class(stock))  
         res=biodyns(llply(stock, function(x) fwdFn(object,ctrl=ctrl,
                  catch,harvest,x,pe,peMult,minF,maxF,bounds,lag,end,...)))
-      else if ('FLQuants' %in% class(harvest))  
+      else if ('FLQuants' %in% class(harvest))
         res=biodyns(llply(harvest, function(x) fwdFn(object,ctrl=ctrl,
                  catch,x,stock,pe,peMult,minF,maxF,bounds,lag,end,...))) 
       else if ('FLQuants' %in% class(catch))  

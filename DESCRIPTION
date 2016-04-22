@@ -1,66 +1,70 @@
 Package: mpb
 Title: Management Procedures
 Version: 0.1.0
-Author: Laurence Kell
-Description: The biodyn class includes methods for fitting,  examining goodness of fit diagnostics, estimating uncertainly in stock status relative to reference points, deriving quantities used in management, running projections, simulating Harvest Control Rules (HCRs), conducting Management Strategy Evaluation (MSE) and for plotting.
+Author: Laurence Kell <laurie@iccat.int>
+Description: The biodyn class includes methods for fitting, examining goodness
+    of fit diagnostics, estimating uncertainly in stock status relative to reference
+    points, deriving quantities used in management, running projections, simulating
+    Harvest Control Rules (HCRs), conducting Management Strategy Evaluation (MSE)
+    and for plotting.
 VignetteBuilder: knitr
-Suggests:  
-  knitr
+Suggests:
+    knitr
 Depends:
-  R(>= 3.0.1),
-  methods,
-  FLCore(>= 2.5)
+    R(>= 3.0.1)
 Imports:
-  plyr,
-  stringr,
-  reshape,
-  FLBRP
-Maintainer: 
-  Laurence Kell<laurie.kell@iccat.int>
+    methods,
+    FLCore(>= 2.5),
+    plyr,
+    stringr,
+    reshape,
+    FLBRP
+Maintainer: Laurence Kell<laurie.kell@iccat.int>
 License: GPL-2
 Collate:
-  'biodyn-class.R'
-  'biodyns.R'
-  'aspic-class.R'
-  'generics.R'
-  'aspics.R'
-  'aspic-biodyns.R'
-  'biodyn-control.R'
-  'biodyn-methods.R'
-  'FLQuantJKs.R'
-  'hrate.R'
-  'biodyn-accessors.R'
-  'aspic-accessors.R'
-  'aspic-readU.R'
-  'aspic-io.R'
-  'aspic-index.R'
-  'biodyn-admb.R'
-  'biodyn-F.R'
-  'RcppExports.R'
-  'biodyn-constructors.R'
-  'aspic-setIndex.R'
-  'biodyn-coerce.R'
-  'aspic-methods.R'
-  'aspic-control.R'
-  'aspic-constructors.R'
-  'aspic-coerce.R'
-  'aspic-fit.R'
-  'biodyn-fit.R'
-  'biodyn-fwd.R'
-  'plotComp.R'
-  'plotAspic.R'
-  'plotBiodyn.R'
-  'plotIndex.R'
-  'plotCc.R'
-  'biodyn-msy.R'
-  'aspic-refpts.R'
-  'biodyn-profile.R'
-  'aspic-profile.R'
-  'FLBRP-production.R'
-  'objFn.R'
-  'biodyn-xval.R'
-  'biodyn-rand.R'
-  'biodyn-jackSummary.R'
-  'biodyn-oem.R'
+    'biodyn-class.R'
+    'biodyns.R'
+    'aspic-class.R'
+    'generics.R'
+    'aspics.R'
+    'aspic-biodyns.R'
+    'biodyn-control.R'
+    'biodyn-methods.R'
+    'FLQuantJKs.R'
+    'hrate.R'
+    'biodyn-accessors.R'
+    'aspic-accessors.R'
+    'aspic-readU.R'
+    'aspic-io.R'
+    'aspic-index.R'
+    'biodyn-admb.R'
+    'biodyn-F.R'
+    'RcppExports.R'
+    'biodyn-constructors.R'
+    'aspic-setIndex.R'
+    'biodyn-coerce.R'
+    'aspic-control.R'
+    'aspic-constructors.R'
+    'aspic-coerce.R'
+    'aspic-fit.R'
+    'biodyn-fit.R'
+    'biodyn-fwd.R'
+    'plotComp.R'
+    'plotAspic.R'
+    'plotBiodyn.R'
+    'plotIndex.R'
+    'plotCc.R'
+    'biodyn-msy.R'
+    'aspic-refpts.R'
+    'biodyn-profile.R'
+    'aspic-profile.R'
+    'FLBRP-production.R'
+    'objFn.R'
+    'biodyn-xval.R'
+    'biodyn-rand.R'
+    'biodyn-jackSummary.R'
+    'biodyn-oem.R'
+    'biodyn-hcr.R'
 LazyLoad: Yes
 LazyData: Yes
+RoxygenNote: 5.0.1

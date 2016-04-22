@@ -98,12 +98,6 @@ as2bs<-function(object, ...) {
   }
 #)
    
-  
-if (FALSE){
-  nms=c("ftar","flim","btrig","blim")
-  
-  data.frame(what,stat)
-  }
 
 setGeneric('biodyns', function(object, ...) standardGeneric('biodyns'))
 biodyns <- setClass('biodyns', contains='FLComps',

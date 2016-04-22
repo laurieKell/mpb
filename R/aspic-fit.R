@@ -2,6 +2,23 @@ utils::globalVariables(c("year","swon","year","B","obs"))
 utils::globalVariables(c("m_ply","b"))
 utils::globalVariables(c("%dopar%","foreach","i"))
 
+
+#' fit
+#' 
+#' @name fit
+#' @rdname fit
+#' @export
+#' @docType methods
+#' 
+#' @description 
+#' Fits the aspic model to catch and catch per unit effort data
+#'
+#' @param object; an \code{aspic} object 
+#' @param dir; an optional \code{dir} where aspic text files used for fitting can be found 
+#' @return An aspic object with fitted values and parameter estimates 
+#' @seealso \code{\link{aspic},\link{biodyn},\link{boot},\link{jk}}
+#' 
+#' @aliases fit,aspic,missing-method
 setMethod('fit',signature(object='aspic',index="missing"),
           function(object,dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE,copyExe=FALSE)
             runExe(object=object, dir=dir, package=package, exeNm=exeNm,jk=jk,copyExe=copyExe))
@@ -31,6 +48,29 @@ setMethod('fit',signature(object='aspics',index="missing"),
         
       return(aspics(res))})
 
+#' boot, Bootstraps the ASPIC biomass dynamic model.
+#'
+#' @name boot
+#' @rdname boot
+#' @export
+#' @docType methods
+#' 
+#' @description 
+#' Bootstraps the aspic model
+#'
+#' @param object; an \code{aspic} object or
+#' @param object; a character string giving an aspic "inp" file
+#' @param dir; an optional \code{dir} where aspic text files used for fitting can be found 
+#' @return An aspic object with fitted values and parameter estimates 
+#' @seealso \code{\link{biodyn},\link{boot},\link{jk}}
+#' 
+#' @examples
+#' \dontrun{
+#'     data(asp)
+#'     asp=boot(asp)}
+
+
+
 setGeneric('boot',      function(object,...)        standardGeneric('boot'))
 setMethod('boot', signature(object='aspic'),
           function(object, dir=tempdir(), package="mpb", exeNm="aspic",boot=500)
@@ -55,29 +95,6 @@ setMethod('boot',  signature(object='aspics'),
             
             res})
 
-setMethod('jk',  signature(object='aspic'),
-          function(object, dir=tempdir(), package="mpb", exeNm="aspic")
-            runExe(object=object, dir=dir, package=package, exeNm=exeNm,jk=TRUE))
-
-#' fit
-#' 
-#' @name fit
-#' @rdname fit
-#' @export
-#' @docType methods
-#' 
-#' @description 
-#' Fits the aspic model to catch and catch per unit effort data
-#'
-#' @param object; an \code{aspic} object 
-#' @param dir; an optional \code{dir} where aspic text files used for fitting can be found 
-#' @return An aspic object with fitted values and parameter estimates 
-#' @seealso \code{\link{aspic},\link{biodyn},\link{boot},\link{jk}}
-#' 
-#' @aliases fit,aspic,missing-method
-#'  
-#' @examples
-
 #' jk 
 #' jack knifes \code{aspic} 
 #' 
@@ -100,26 +117,9 @@ setMethod('jk',  signature(object='aspic'),
 #'     data(asp)
 #'     asp=jk(asp)}
 
-#' boot, Bootstraps the ASPIC biomass dynamic model.
-#'
-#' @name boot
-#' @rdname boot
-#' @export
-#' @docType methods
-#' 
-#' @description 
-#' Bootstraps the aspic model
-#'
-#' @param object; an \code{aspic} object or
-#' @param object; a character string giving an aspic "inp" file
-#' @param dir; an optional \code{dir} where aspic text files used for fitting can be found 
-#' @return An aspic object with fitted values and parameter estimates 
-#' @seealso \code{\link{biodyn},\link{boot},\link{jk}}
-#' 
-#' @examples
-#' \dontrun{
-#'     data(asp)
-#'     asp=boot(asp)}
+setMethod('jk',  signature(object='aspic'),
+          function(object, dir=tempdir(), package="mpb", exeNm="aspic")
+            runExe(object=object, dir=dir, package=package, exeNm=exeNm,jk=TRUE))
 
 
 chkIters=function(object){

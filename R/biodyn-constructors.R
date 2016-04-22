@@ -53,12 +53,12 @@ setMethod('biodyn', signature(object='FLBRP',params='FLStock'),
         
         res})
             
-            
+
 ##########################################
 setMethod('biodyn', signature(object='factor',params='FLPar'),
           function(object,params,min=0.1,max=10,catch=NULL,stock=NULL,msy=NULL,...){
             model=object
-          
+
             if (is.null(msy) & !is.null(catch)) 
               msy=mean(catch,na.rm=TRUE)
             
@@ -117,8 +117,9 @@ setMethod('biodyn', signature(object='factor',params='FLPar'),
             return(res)})
 
 setMethod('biodyn', signature(object='character',params='FLPar'),
-           function(object,params,min=0.1,max=10,catch=NULL,stock=NULL,...) 
-             biodyn(object=factor(object,levels=models),params,min=min,max=max,catch=catch,stock=stock,...))
+           function(object,params,min=0.1,max=10,catch=NULL,stock=NULL,...) {
+             biodyn(object=factor(object,levels=models),params=params,min=min,max=max,catch=catch,stock=stock,...)
+             })
  
 setMethod('biodyn', signature(object='factor',params='missing'),
           function(object,params,min=min,max=max,catch=NULL,stock=NULL,...){

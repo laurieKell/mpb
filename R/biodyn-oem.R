@@ -35,7 +35,7 @@ setMethod( 'sim',   signature(stock='missing',brp='missing'),
            function(params=FLPar(r=0.5, k=1000, p=1, b0=1.0),
                     harvest=FLQuant(FLQuant(c(seq(0,1.5,length.out=30), 
                                               rev(seq(0.5,1.5,length.out=15))[-1],
-                                              rep(0.5,5)))*fmsy(biodyn("pellat",params=params))),
+                                              rep(0.5,5)))*(params['r']*(1/(1+params['p'])))),
                     bounds =c(0.1,10),
                     p=NULL,b0=NULL,...) {
 
@@ -46,11 +46,10 @@ setMethod( 'sim',   signature(stock='missing',brp='missing'),
   
   nyr=dim(harvest)[2]
   stock =FLQuant(rep(params['k'], nyr), dimnames=dimnames(harvest))
-  
+
   nyr <- dims(harvest)$year
-  object = biodyn(model ='pellat',
-                  stock =stock,
-                  params=params)
+  object = biodyn('pellat',params=params,
+                  stock=stock)
   
   object@control['r',     'val']=params['r']
   object@control['k',     'val']=params['k']
