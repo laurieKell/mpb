@@ -3,7 +3,7 @@ setMethod('refpts', signature(object='aspic', params='missing'),
 
     if (object@model=="LOGISTIC"){
       msy =params(object)["msy"]
-      fmsy=msy/params(object)["k"]*4
+      fmsy=msy/params(object)["k"]*2
       dimnames(fmsy)[[1]]="fmsy"
       bmsy=msy/fmsy
       dimnames(bmsy)[[1]]="bmsy"

@@ -276,6 +276,7 @@ getPella=function(obj, exeNm='pella') {
 
   obj@params[grep('q',dimnames(obj@params)$params),]=q. 
   obj@params[grep('s',dimnames(obj@params)$params),]=s. 
+  
   err=try(t3<-unlist(c(read.table(paste(exeNm,'.rep',sep=''),skip=dim(params(obj))[1]*2,nrows=2,header=F))))
 
   obj@objFn=iter(obj@objFn,1)
@@ -407,19 +408,24 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
      object[[1]]=getPella(object[[1]], exeNm)     
 
      s=names(slts)[slts%in%c('FLQuant','FLPar')]
-     for (s in s)
+    
+     for (s in s[!("hessian"%in%s)]){
+       print(s)
        try(FLCore::iter(slot(bd,s),i) <- slot(object[[1]],s)) 
+       }
 
      if (its<=1 & file.exists(paste(dir,'admodel.hes',sep='/'))){
        ##hessian
        x<-file(paste(dir,'admodel.hes',sep='/'),'rb')
        nopar<-readBin(x,'integer',1)
        H<-matrix(readBin(x,'numeric',nopar*nopar),nopar)
+       
        try(bd@hessian@.Data[activeParams(object[[1]]),activeParams(object[[1]]),i] <- H, silent=TRUE)
        close(x)
      
        ## vcov
        #print(file.exists(paste(dir,'admodel.cov',sep='/')))
+       
        if (file.exists(paste(dir,'admodel.cov',sep='/')))
          try(bd@vcov@.Data[activeParams(object[[1]]),activeParams(object[[1]]),i] <- cv(paste(dir,'admodel.hes',sep='/')), silent=TRUE) 
         
@@ -471,7 +477,9 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
        #                                                             param=dimnames(mngVcov.)[[1]],iter=seq(its))))
  
        first=!first  
-    }else{     
+    }else{    
+      
+       print("try(mng)")
        try(if (all(is(err1)!='try-error')) bd@mng@.Data[    ,,i][]=unlist(c(mng.[,-1])))
        #try(if (all(is(err2)!='try-error')) bd@mngVcov@.Data[,,i][]=unlist(c(mngVcov.)))
        }}
@@ -531,9 +539,11 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
           hat     =hat,
           residual=log(index/hat))),drop=T)
         
-        diagsFn(res)})}
+        diagsFn(res)})
   
-  names(bd@diags)[1]="name"
+      names(bd@diags)[1]="name"
+      }
+  
   setwd(oldwd) 
 
 #  if (!is.null(catch)) catch(object)=catch
@@ -570,8 +580,8 @@ admbCor=function(fl='pella.cor'){
   cor=upper.triangle(array(1,dim=c(npar,npar),dimnames=list(nms,nms)))
   cor[upper.triangle(cor)==1]=val
   cor=cor+t(cor)
+
   diag(cor)=1
-  
   vcov=cor*sd%o%sd
   
   options(ow)

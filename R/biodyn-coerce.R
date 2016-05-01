@@ -102,15 +102,20 @@ FLBRP2biodyn=function(from){
   k   =c(from@refpts["virgin","biomass"])
   
   # biomass based reference points
-  p   =optimise(function(p,bmsy,k) 
+  p =optimise(function(p,bmsy,k) 
     (bmsy-k*(1/(1+p))^(1/p))^2, c(0.001,5), bmsy=bmsy,k=k)$minimum
   k=bmsy/((1/(1+p))^(1/p))
-  r=msy/(k*(1/(1+p))^(1/p+1))
+  
+  r=lambda(leslie(from,f=c(refpts(from)["crash","harvest"])))-1
+  
+  #r=msy/(k*(1/(1+p))^(1/p+1))
+  
   b0=mean(stock(from)[,1:5]/k)
   
-  bd=biodyn()
+  bd=biodyn(catch=catch.obs(from))
   
   bd@params=FLPar(c(r=r,k=k,p=p,b0=b0))
+  
   control(bd)["r", c("min","val","max")]=params(bd)["r"]
   control(bd)["k", c("min","val","max")]=params(bd)["k"]
   control(bd)["p", c("min","val","max")]=params(bd)["p"]
@@ -127,8 +132,7 @@ FLBRP2biodyn=function(from){
   bd@priors["bmsy","a"]=refpts(bd)["bmsy"]
   bd@priors["fmsy","a"]=refpts(bd)["fmsy"]
   
-  bd@catch=catch.obs(from)
-  bd@stock=from@stock.obs
+  bd=fwd(bd,catch=catch(bd))
   
   range(bd)["minyear"]=dims(bd@catch)$minyear
   range(bd)["maxyear"]=dims(bd@catch)$maxyear

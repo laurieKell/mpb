@@ -60,3 +60,4 @@ calcObjFn=function(object,index="missing",when=0.5,calcq=TRUE,na=10e6){
   attributes(res)=NULL
   
   res}
+
