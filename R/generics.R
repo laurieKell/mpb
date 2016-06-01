@@ -157,7 +157,6 @@ setGeneric('diags<-',  function(object,value)         standardGeneric('diags<-')
 
 setGeneric('survey',      function(object,...)       standardGeneric('survey'))
 setGeneric('index',       function(object,...)       standardGeneric('index'))
-setGeneric("setIndex<-",    function(object,value)   standardGeneric('setIndex<-'))
 
 #' control
 #'

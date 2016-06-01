@@ -94,23 +94,45 @@ FLStock2biodynSimple=function(from){
 setAs('FLStock','biodyn',
       function(from) FLStock2biodyn(from))
 
-FLBRP2biodyn=function(from){
+FLBRP2biodyn=function(from,what=c("ssb","biomass","exploitable")[1],fix=c("bmsy","msy")[1]){
   
-  ## age based regference points
+  warn=options()$warn
+  options(warn=-1)
+  
+  r=lambda(leslie(from,f=c(refpts(from)["crash","harvest"]))[drop=T])-1
   msy =c(from@refpts["msy",   "yield"])
-  bmsy=c(from@refpts["msy",   "biomass"])
-  k   =c(from@refpts["virgin","biomass"])
   
-  # biomass based reference points
-  p =optimise(function(p,bmsy,k) 
-    (bmsy-k*(1/(1+p))^(1/p))^2, c(0.001,5), bmsy=bmsy,k=k)$minimum
-  k=bmsy/((1/(1+p))^(1/p))
+  fbar(from)[,1]=0
+  k=switch(tolower(substr(what[1],1,1)),
+      s=from@refpts["virgin","ssb"],
+      b=from@refpts["virgin","biomass"],
+      e=apply(stock.n(from)[,1]%*%stock.wt(from)[,1]%*%catch.sel(from)%/%
+        apply(catch.sel(from),c(2,6),max),6,sum))
+
+  b0=switch(tolower(substr(what[1],1,1)),
+        s=ssb.obs(from)[,1]%/%k,
+        b=from@stock.obs[,1]%/%k,
+        e=from@stock.obs[,1]%/%from@refpts["virgin","biomass"])
   
-  r=lambda(leslie(from,f=c(refpts(from)["crash","harvest"])))-1
+  fbar(from)[,1]=from@refpts["msy","harvest"]  
+  bmsy=switch(tolower(substr(what[1],1,1)),
+           s=from@refpts["msy","ssb"],
+           b=from@refpts["msy","biomass"],
+           e=apply(stock.n(from)[,1]%*%stock.wt(from)[,1]%*%catch.sel(from)%/%
+             apply(catch.sel(from),c(2,6),max),6,sum))
   
-  #r=msy/(k*(1/(1+p))^(1/p+1))
+  msy=from@refpts["msy","yield"]
   
-  b0=mean(stock(from)[,1:5]/k)
+  if (tolower(substr(fix,1,1))=="m")
+    p=optimise(function(p,msy,r,k) {
+              res=(msy/(r*k)-(1/(1+p))^(1/p+1))^2
+              res}, 
+               c(1e-12,1e12),    
+               msy=msy,
+               r  =r,
+               k  =k)$minimum
+  else  
+    p=getP(bmsy,k,p=c(0.001,5))
   
   bd=biodyn(catch=catch.obs(from))
   
@@ -136,6 +158,8 @@ FLBRP2biodyn=function(from){
   
   range(bd)["minyear"]=dims(bd@catch)$minyear
   range(bd)["maxyear"]=dims(bd@catch)$maxyear
+  
+  options(warn=warn)
   
   bd}
 

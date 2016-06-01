@@ -130,7 +130,7 @@ msySchaefer <- function(params)
   params['r']*params['k']/4
 msyLogistic <- function(params){
   r=4*params['msy']/params['k']
-  r*params['k']/4}
+  r*params['k']/2}
 
 # PellaT
 msyPellaT <- function(params)

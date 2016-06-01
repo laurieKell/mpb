@@ -25,8 +25,8 @@ setGeneric('tac',      function(object, harvest, ...) standardGeneric('tac'))
 setMethod( 'tac', signature(object='biodyn'),
            function(object,harvest,...){
 
-             yrs  =dimnames(harvest)$year  
-             #maxY =max(as.numeric(yrs))
+             yr  =dimnames(harvest)$year  
+             #maxY =max(as.numeric(yr))
           
              #stock(object)=window(stock(object),end=maxY)
              #stock(object)[,ac(maxY)]=stock(object)[,ac(maxY-1)]-catch(object)[,ac(maxY-1)]+computePrd(object,stock(object)[,ac(maxY-1)])
@@ -37,11 +37,11 @@ setMethod( 'tac', signature(object='biodyn'),
              
              #object=fwd(object, harvest=harvest(object)[,ac(dimnames(object)$year-1)])
              
-             object=window(object, end=max(as.numeric(yrs)))
+             object=window(object, end=max(as.numeric(yr)))
              object=fwd(object,harvest=harvest(object)[,ac(dims(object)$maxyear-1)])
              object=fwd(object, harvest=harvest)
              
-             return(catch(object)[,yrs])})
+             return(catch(object)[,yr])})
 
 #' hcrParam
 #' 
@@ -93,9 +93,9 @@ hcrParam=function(ftar,btrig,fmin,blim){
 #' @param object an object of class \code{biodyn} or
 #' @param ... other parameters, i.e.
 #' params \code{FLPar} object with hockey stick HCR parameters, see hcrParam
-#' yrs numeric vector with years used to for stock/ssb in HCR
-#' byrs numeric vector with years used to for stock/ssb in HCR
-#' pyrs numeric vector with years used to for stock/ssb in HCR
+#' yr numeric vector with years used to values in HCR
+#' byr numeric vector with years used for bounds
+#' hyr numeric vector with years to use in projection
 #' tac \code{logical} should return value be TAC rather than F?
 #' bndF \code{vector} with bounds (i.e.min and max values) on iter-annual variability on  F
 #' bndTac \code{vector} with bounds (i.e. min and max values) on iter-annual variability on TAC
@@ -115,7 +115,7 @@ hcrParam=function(ftar,btrig,fmin,blim){
 #' 
 #' bd=window(bd,end=29)
 #' for (i in seq(29,49,1))
-#' bd=fwd(bd,harvest=hcr(bd,yr=i,yrs=i+1)$hvt)
+#' bd=fwd(bd,harvest=hcr(bd,yr=i,yr=i+1)$hvt)
 #' }
 setGeneric('hcr', function(object,...) standardGeneric('hcr'))
 setMethod('hcr', signature(object='biodyn'),
@@ -125,9 +125,9 @@ setMethod('hcr', signature(object='biodyn'),
                            fmin =0.01*refpts(object)['fmsy'],
                            blim =0.40*refpts(object)['bmsy']),
     
-           yr=max(as.numeric(dimnames(catch(object))$year))-1,
+           yr =max(as.numeric(dimnames(catch(object))$year))-1,
            byr=yr+1,
-           pyr=yr+2:5,
+           hyr=yr+2:5,
            
            tac   =FALSE,
            tacMn =TRUE,
@@ -160,22 +160,22 @@ setMethod('hcr', signature(object='biodyn'),
     FLCore::iter(rtn,i)[]=max(FLCore::iter(rtn,i),FLCore::iter(fmin,i))
     FLCore::iter(rtn,i)[]=min(FLCore::iter(rtn,i),FLCore::iter(ftar,i))} 
   
-  rtn=window(rtn,end=max(pyr))
-  #dimnames(rtn)$year=min(pyr)  
-  if (length(pyr)>1){
-    rtn=window(rtn,end=max(pyr))
-    rtn[,ac(pyr)]=rtn[,dimnames(rtn)$year[1]]}
+  rtn=window(rtn,end=max(hyr))
+  #dimnames(rtn)$year=min(hyr)  
+  if (length(hyr)>1){
+    rtn=window(rtn,end=max(hyr))
+    rtn[,ac(hyr)]=rtn[,dimnames(rtn)$year[1]]}
   
   ### Bounds ##################################################################################
   ## F
   if (!is.null(bndF)){  
       ref=FLCore::apply(harvest(object)[,ac(yr-1)],6,mean)
     
-      rtn[,ac(min(pyr))]=qmax(rtn[,ac(min(pyr))],ref*bndF[1])
-      rtn[,ac(min(pyr))]=qmin(rtn[,ac(min(pyr))],ref*bndF[2])
+      rtn[,ac(min(hyr))]=qmax(rtn[,ac(min(hyr))],ref*bndF[1])
+      rtn[,ac(min(hyr))]=qmin(rtn[,ac(min(hyr))],ref*bndF[2])
     
-      if (length(pyr)>1)        
-        for (i in pyr[-1]){
+      if (length(hyr)>1)        
+        for (i in hyr[-1]){
           if (iaF){
             rtn[,ac(i)]=qmax(rtn[,ac(i)],rtn[,ac(i-1)]*bndF[1])
             rtn[,ac(i)]=qmin(rtn[,ac(i)],rtn[,ac(i-1)]*bndF[2])
@@ -190,17 +190,17 @@ setMethod('hcr', signature(object='biodyn'),
    if (tac){     
       ref=FLCore::apply(catch(object)[,ac(yr)],6,mean)
 
-      object=window(object, end=max(as.numeric(pyr)))
-      object=fwd(object,harvest=harvest(object)[,ac(min(as.numeric(pyr)-1))])
+      object=window(object, end=max(as.numeric(hyr)))
+      object=fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hyr)-1))])
      
-      rtn   =catch(fwd(object, harvest=rtn))[,ac(pyr)]
+      rtn   =catch(fwd(object, harvest=rtn))[,ac(hyr)]
 
       if (!is.null(bndTac)){  
-        rtn[,ac(min(pyr))]=qmax(rtn[,ac(min(pyr))],ref*bndTac[1])
-        rtn[,ac(min(pyr))]=qmin(rtn[,ac(min(pyr))],ref*bndTac[2])
+        rtn[,ac(min(hyr))]=qmax(rtn[,ac(min(hyr))],ref*bndTac[1])
+        rtn[,ac(min(hyr))]=qmin(rtn[,ac(min(hyr))],ref*bndTac[2])
 
-        if (length(pyr)>1)        
-          for (i in pyr[-1]){
+        if (length(hyr)>1)        
+          for (i in hyr[-1]){
             if (iaTac){
               rtn[,ac(i)]=qmax(rtn[,ac(i)],rtn[,ac(i-1)]*bndTac[1])
               rtn[,ac(i)]=qmin(rtn[,ac(i)],rtn[,ac(i-1)]*bndTac[2])
@@ -211,12 +211,12 @@ setMethod('hcr', signature(object='biodyn'),
   
   #if (tac) rtn=list(hvt=hvt,tac=rtn,stock=stk) else rtn=list(hvt=hvt,stock=stk)
   if (tac) {
-    rtn=window(rtn,start=pyr[1]-1)
-    rtn[,ac(pyr[1]-1)]=catch(object)[,ac(pyr[1]-1)]
+    rtn=window(rtn,start=hyr[1]-1)
+    rtn[,ac(hyr[1]-1)]=catch(object)[,ac(hyr[1]-1)]
     return(rtn)
   }else{
-    hvt=hvt[,ac(c(pyr[1]-1,pyr))]
-    hvt[,ac(pyr[1]-1)]=harvest(object)[,ac(pyr[1]-1)]
+    hvt=hvt[,ac(c(hyr[1]-1,hyr))]
+    hvt[,ac(hyr[1]-1)]=harvest(object)[,ac(hyr[1]-1)]
     return(hvt)}
   
   return(rtn)})

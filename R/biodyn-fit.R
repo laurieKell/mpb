@@ -479,7 +479,6 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
        first=!first  
     }else{    
       
-       print("try(mng)")
        try(if (all(is(err1)!='try-error')) bd@mng@.Data[    ,,i][]=unlist(c(mng.[,-1])))
        #try(if (all(is(err2)!='try-error')) bd@mngVcov@.Data[,,i][]=unlist(c(mngVcov.)))
        }}

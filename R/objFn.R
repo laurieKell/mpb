@@ -15,10 +15,10 @@ objLog=function(residual){
            iter  =dimnames(residual)$iter)
   rtn=FLPar(array(as.numeric(NA),dim=unlist(laply(dmn, length)),dimnames=dmn))
   
-  rtn["ss", ]=aaply(residual%*%residual,6,sum,na.rm=TRUE)
+  rtn[ "ss",]=aaply(residual%*%residual,6,sum,na.rm=TRUE)
   rtn["lav",]=aaply(abs(residual),      6,sum,na.rm=TRUE)
-  rtn["ll",] =aaply(residual,6,function(x) logLikeFn(x))
-  rtn[ "n",] =aaply(residual,6,function(x) sum(!is.na(x)))
+  rtn[ "ll",]=aaply(residual,           6,function(x) logLikeFn(x))
+  rtn[  "n",]=aaply(residual,           6,function(x) sum(!is.na(x)))
   
   rtn}
 
@@ -46,7 +46,7 @@ calcObjFn=function(object,index="missing",when=0.5,calcq=TRUE,na=10e6){
   if (!calcq)
       q=params(object)[grep("q",dimnames(params(object))$params)]
   else
-      q=FLPar(q=laply(index,function(x) calcQFLQuant(stock(object),x)))
+      q=FLPar(q=laply(index,function(x) mpb:::calcQFLQuant(stock(object),x)))
   
   res=FLPars(mlply(data.frame(component=seq(length(index))), function(component){
     obs=index[[component]]%/%q[component]

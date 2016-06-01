@@ -1,3 +1,4 @@
+setGeneric("setIndex<-",    function(object,value)   standardGeneric('setIndex<-'))
 
 setMethod('setParams<-', signature(object='aspic',value="data.frame"), function(object,value) {
   #LOGISTIC 
@@ -84,9 +85,10 @@ setIndexFn=function(object,value){
   res@desc=paste(res@desc,"new index")
 
   nms=dimnames(res@params)$params[dimnames(res@params)$params %in% dimnames(object@params)$params]
+  res@params[nms]=object@params[nms]
   
-  res@params[ nms]=object@params[ nms]
-  res@control[nms]=object@control[nms]
+  nms=dimnames(res@control)$params[dimnames(res@control)$params %in% dimnames(object@control)$params]
+  res@control[nms,c("min","val","max")]=object@control[nms,c("min","val","max")]
   
   res@stock=object@stock
   

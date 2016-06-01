@@ -177,7 +177,25 @@ setMethod('plotPrd',signature(data='biodyn',biomass='FLQuant'),
 # setMethod('plotPrd',signature(x='biodyn',biomass='FLBRP'),  
 #           function(x,biomass,II=FALSE,...) plotProdfn(bd=x,brp=biomass,II=II,...))
 
+setMethod('plotPrd',signature(data='biodyns',biomass='missing'),  
+          function(data,biomass,...) {
+    res=ldply(data,function(x) {
+           biomass=FLQuant(seq(0,max(params(x)['k']),length.out=101))
+           model.frame(FLQuants(stock=biomass, yield=FLQuant(computePrd(x,biomass))))})
+ 
+    msy=ldply(data,function(x) 
+         cast(as.data.frame(refpts(x)),iter~refpts,value='data'))
+      
+    ggplot(res)+
+        geom_line( aes(stock, yield, group=.id, col=.id))+
+        geom_point(aes(bmsy,  msy,   col=.id),size=2,data=msy) +
+        xlab('Stock') + ylab('Surplus Production')})
+                   
+
 plotPrdfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=101)),...) {
+  warn=options()$warn
+  options(warn=-1)
+  
   if ((dims(data)$iter>1 | dims(params(data))$iter>1) & dims(biomass)$iter==1) 
     biomass=propagate(biomass,max(dims(data)$iter,dims(params(data))$iter))
   
@@ -185,6 +203,8 @@ plotPrdfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=
     geom_line(aes(stock, yield, group=iter, col=iter)) +
     geom_point(aes(bmsy,msy,col=iter),size=2,data=cast(as.data.frame(refpts(data)),iter~refpts,value='data')) +
     xlab('Stock') + ylab('Surplus Production')
+  
+  options(warn=warn)
   
   p} 
 
