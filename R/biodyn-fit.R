@@ -268,7 +268,6 @@ getPella=function(obj, exeNm='pella') {
   # params
   t2 = unlist(c(read.table(paste(exeNm,'.rep',sep=''),nrows=4)))
   q. = unlist(c(read.table(paste(exeNm,'.rep',sep=''),nrows=1,skip=8)))
-
   s. = unlist(c(read.table(paste(exeNm,'.rep',sep=''),nrows=1,skip=10)))
 
   nms=c('r','k','b0','p')
@@ -277,24 +276,13 @@ getPella=function(obj, exeNm='pella') {
   obj@params[grep('q',dimnames(obj@params)$params),]=q. 
   obj@params[grep('s',dimnames(obj@params)$params),]=s. 
   
-  err=try(t3<-unlist(c(read.table(paste(exeNm,'.rep',sep=''),skip=dim(params(obj))[1]*2,nrows=2,header=F))))
+  err=try(t3<-unlist(c(read.table(paste(exeNm,'.rep',sep=''),skip=13,nrows=1,header=F))))
 
-  obj@objFn=iter(obj@objFn,1)
   if (!(any(is(err)=="try-error"))){
-     obj@objFn['ll'] =t3[length(t3)]
-     obj@objFn['rss']=t3[length(t3)-1]}
-  else{
-    obj@objFn[ 'll']=NA
-    obj@objFn['rss']=NA
+    names(t3)=paste("u",seq(length(s.)),sep="") 
+    obj@ll =FLPar(t3)
     }
 
-  us=paste('u',seq(length(dimnames(params(obj))$params[grep('q',dimnames(params(obj))$params)])),sep='')
- 
-  err=try(vals<-unlist(readADMB('lls.txt')))
-
-  if (any(is(err)=="try-error")){
-    obj@ll=FLPar(vals[length(vals)],dimnames=list(params=us,iter=1))
-    }
   # stock biomass
   obj@stock[,1:dim(t1)[1]] = unlist(c(t1['stock'])) 
 

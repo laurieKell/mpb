@@ -2,7 +2,7 @@ iRate<-function(cpue,catch,y,
                 cpue_smooth=NULL,responsiveness=0.5,
                 DLAG=1,SFREQ=2,MLAG=1,
                 biomass_threshold=0.5,biomass_limit=0.2,hr_multiplier= 1.1,
-                maxTAC=25){
+                maxTAC=1.5){
   
   tc=catch[,ac(y - DLAG)]
   

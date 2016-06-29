@@ -119,6 +119,10 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   slopeb.allocate("slopeb");
   slopef.allocate("slopef");
   ll.allocate(1,nIdx,"ll");
+  pen.allocate("pen");
+  #ifndef NO_AD_INITIALIZE
+  pen.initialize();
+  #endif
   SS.allocate("SS");
   #ifndef NO_AD_INITIALIZE
   SS.initialize();
@@ -142,6 +146,18 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   tmps.allocate(1,nIdx,"tmps");
   #ifndef NO_AD_INITIALIZE
     tmps.initialize();
+  #endif
+  nll.allocate(1,nIdx,"nll");
+  #ifndef NO_AD_INITIALIZE
+    nll.initialize();
+  #endif
+  rss.allocate(1,nIdx,"rss");
+  #ifndef NO_AD_INITIALIZE
+    rss.initialize();
+  #endif
+  n.allocate(1,nIdx,"n");
+  #ifndef NO_AD_INITIALIZE
+    n.initialize();
   #endif
   _bratio.allocate("_bratio");
   #ifndef NO_AD_INITIALIZE
@@ -219,8 +235,14 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
 void model_parameters::preliminary_calculations(void)
 {
 
+#if defined(USE_ADPVM)
+
   admaster_slave_variable_interface(*this);
+
+#endif
   
+   pen=0.0;
+   
    // Parameters
   _r    = _r_plui[4];
   _k    = _k_plui[4];
@@ -350,7 +372,7 @@ void model_parameters::userfunction(void)
   }
 }
 
-void model_parameters::report()
+void model_parameters::report(const dvector& gradients)
 {
  adstring ad_tmp=initial_params::get_reportfile_name();
   ofstream report((char*)(adprogram_name + ad_tmp));
@@ -363,6 +385,7 @@ void model_parameters::report()
   write_priors();
   summary.initialize();
   get_summary();
+  get_fit();
   report<<setprecision(12)
         <<"# r"      <<endl<<r      <<endl
         <<"# k"      <<endl<<k      <<endl
@@ -370,13 +393,13 @@ void model_parameters::report()
         <<"# p"      <<endl<<p      <<endl
         <<"# q"      <<endl<<q      <<endl
         <<"# s"      <<endl<<s      <<endl
-        <<"# RSS"    <<endl<<RSS    <<endl
+        <<"#-ll"     <<endl<<nll    <<endl
         <<"# neglogL"<<endl<<neglogL<<endl<<endl;
   report<<setprecision(12)
         <<"# Model summary"<<endl
         <<" year stock catch index hat stockHat stock F."<<endl
         <<summary<<endl;
- write_ll();
+  write_ll();
 }
 
 void model_parameters::get_fit(void)
@@ -393,6 +416,7 @@ void model_parameters::get_fit(void)
     q[j]   = _q[j];
     s[j]   = _s[j];
     }
+  pen=0.0;
   B[1] = k*a;
   for(int t=1; t<=nc; t++){
     if (_p_plui[1]<(-1)){
@@ -403,8 +427,8 @@ void model_parameters::get_fit(void)
        B[t+1]=((r-F[t]))*B[t]*exp((alpha))/(alpha+(r/k)*B[t]*(exp(alpha)-1));
        B[t+1]=sfabs(B[t+1]);
      }else{
-       F[t]  =C[t]/B[t];
-       B[t+1]=sfabs(B[t]-C[t])+r/p*B[t]*(1-pow(B[t]/k,p));
+       dvariable now=posfun(B[t]-C[t],.001,pen);
+       B[t+1]=now+r/p*B[t]*(1-pow(B[t]/k,p));
        }
     }
   // constricted likelihood
@@ -463,7 +487,6 @@ void model_parameters::get_fit(void)
     }
  bratio=bratio/_bratio;
  fratio=fratio/_fratio;
- 
   xy=0.0; 
   x =0.0;
    y=0.0; 
@@ -495,11 +518,10 @@ void model_parameters::get_fit(void)
 
 void model_parameters::get_neglogL(void)
 {
-  neglogL = halfnlog2pi;
+  neglogL = 0.5*ni*log(2*pi);
   for (int j=1; j<=ni; j++){
      if (lav==1)
-	 	  neglogL += log(s[Idx[j]])   
-	 		       	+  pow(log(I[j])-log(Ifit[j]),2.0)/(2*s[Idx[j]]*s[Idx[j]]);
+	 	  neglogL += pow(log(I[j])-log(Ifit[j]),2.0);
      if (lav!=1)
 	 	  neglogL += sfabs(log(I[j])-log(Ifit[j]));
 	 }
@@ -532,11 +554,8 @@ void model_parameters::get_neglogL(void)
       neglogL += bmsy_prior[1]*dnorm(_bmsy,a,a*bmsy_prior[2]); 
       }
   }
-  //penalty on catch, i.e. if catch cant be taken
-  if(true){
-     for (int t=1; t<=nc; t++){
-         neglogL += (B[t]*F[t]-C[t])*(B[t]*F[t]-C[t]);
-     }}
+  //penalty on catch, i.e. if catch cant be taken 
+  neglogL += pen;
 }
 
 void model_parameters::get_summary(void)
@@ -593,11 +612,21 @@ void model_parameters::write_bounds(void)
 
 void model_parameters::write_ll(void)
 {
-  get_neglogL();
-  dvariable ss=0.0;
-  for (int j=1; j<=ni; j++)
-       ss += pow(log(I[j])-log(Ifit[j]),2.0);
-  lls<<neglogL<<","<<ss<<endl;
+  for (int i=1; i<=nIdx; i++){
+      n[i]  =0;
+      rss[i]=0;
+      nll[i]=0;}
+  for (int i=1; i<=ni; i++){
+	n[  Idx[i]]+=1;
+    rss[Idx[i]]+=pow(log(I[i])-log(Ifit[i]),2.0);}
+  for (int i=1; i<=nIdx; i++)
+    nll[i] = halfnlog2pi*n[i]/2+
+              rss[i]/(2*_s[i]*_s[i])*n[i]/2+
+              (2*_s[i]*_s[i])*n[i]/2;
+  //  ll(i)= n/2*log(3.14159265359*2)
+  //        +n/2*(log(se*se))
+  //        +ss/(2*se*se);
+   lls<<nll<<n<<endl;
 }
 
 void model_parameters::write_debug(void)
@@ -610,7 +639,8 @@ void model_parameters::write_trace(void)
   get_neglogL();
   dvariable ss=0.0;
   for (int j=1; j<=ni; j++)
-       ss += pow(log(I[j])-log(Ifit[j]),2.0);
+      ss += pow(log(I[j])-log(Ifit[j]),2.0);
+  neglogL=ss;
   trace<<neglogL<<","<<ss<<","<<k<<","<<r<<","<<p<<endl;
 }
 

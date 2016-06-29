@@ -13,16 +13,17 @@
 #' @rdname feasible
 #' @examples
 #' \dontrun{
-#'     data(asp)
+#'     dat(asap)
 #'     asp=boot(asp)}
-setGeneric('feasible',    function(object,catch,...)  standardGeneric('feasible'))
-setGeneric('setFeasible', function(object,catch,...)  standardGeneric('setFeasible'))
+setGeneric('feasible',      function(object,catch,...)  standardGeneric('feasible'))
+setGeneric('setFeasible',   function(object,catch,...)  standardGeneric('setFeasible'))
+setGeneric('setFeasible<-', function(object,value,...)  standardGeneric('setFeasible<-'))
 
-setMethod('feasible', signature(object='biodyn',catch='missing'), function(object) feasibleFn(params(object),catch(object))
-setMethod('feasible', signature(object='FLPar', catch='FLQuant'), function(object) feasibleFn(object,catch))
+setMethod('feasible', signature(object='biodyn',catch='missing'), function(object) feasibleFn(params(object),catch(object)))
+setMethod('feasible', signature(object='FLPar', catch='FLQuant'), function(object,catch) feasibleFn(object,catch))
 
-setMethod('setFeasible<-', signature(object='FLPar', value='FLQuant'), function(object) feasibleFn2(object,catch))
-setMethod('setFeasible<-', signature(object='biodyn',value='missing'), function(object) feasibleFn3(params(object),catch(object))
+#setMethod('setFeasible<-', signature(object='FLPar', value='FLQuant'), function(object,value) feasibleFn2(object,catch))
+#setMethod('setFeasible<-', signature(object='biodyn',value='missing'), function(object,value) feasibleFn3(params(object),catch(object))
           
 feasibleFn2<-function(params,catch){
   
@@ -61,16 +62,16 @@ feasibleFn3<-function(object,catch){
 #' \dontrun{
 #'     data(asp)
 #'     asp=boot(asp)}
-setGeneric('nll', function(object,catch,...)  standardGeneric('nll'))
+setGeneric('nll', function(object,index,...)  standardGeneric('nll'))
 
 setMethod('nll', signature(object='biodyn',index='FLQuant'),  
-          function(object) nllFn(params(object),catch(object),index)
+          function(object,index) nllFn(params(object),catch(object),index))
 setMethod('nll', signature(object='biodyn',index='FLQuants'),  
-          function(object) nllFn(params(object),catch(object),index)
+          function(object,index) nllFn(params(object),catch(object),index))
 setMethod('nll', signature(object='FLPar',index='FLQuant'),  
-          function(object) nllFn(params(object),catch=catch,index)
+          function(object,index) nllFn(params(object),catch=catch,index))
 setMethod('nll', signature(object='FLPar',index='FLQuants'),  
-          function(object) nllFn(params(object),catch=catch,index)
+          function(object,index) nllFn(params(object),catch=catch,index))
                     
 nllFn<-function(object,catch,index){
   

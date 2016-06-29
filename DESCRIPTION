@@ -65,6 +65,20 @@ Collate:
     'biodyn-jackSummary.R'
     'biodyn-oem.R'
     'biodyn-hcr.R'
+    'FLStock-hcr.R'
+    'biodyn-boot.R'
+    'biodyn-feasible.R'
+    'biodyn-kobe.R'
+    'biodyn-nll.R'
+    'biodyn-profile-Cpp.R'
+    'biodyn-tmb.R'
+    'iRate.R'
+    'lk-methods.R'
+    'lk-mfcl.R'
+    'mng-methods.R'
+    'plural2iters.R'
+    'resample.R'
+    'rjm-series.R'
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1

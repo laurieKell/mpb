@@ -270,7 +270,7 @@ aspicInp =function(x){
   ctrl=suppressWarnings(aspicC(x))
   ops =strsplit(scan(x,sep="\n",what=character(),skip=2,nlines=1), " ")[[1]]
   ops =ops[nchar(ops)>0]
-  model(res)      =factor(ops[1])
+  res@model[1]    =factor(ops[1])
   res@conditioning=factor(ops[2])
   res@obj         =factor(ops[3])
   

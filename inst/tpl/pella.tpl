@@ -137,7 +137,6 @@ PARAMETER_SECTION
   init_bounded_number_vector _q(1,nIdx,qLo,qHi,qPh)  
   init_bounded_number_vector _s(1,nIdx,sLo,sHi,sPh)  
   
-  
   // Derived
   sdreport_number r
   sdreport_number k
@@ -166,12 +165,16 @@ PARAMETER_SECTION
   sdreport_number slopef;
   sdreport_vector ll(1,nIdx)
   
+  number pen
   number SS
   number s_
   vector nii(1,2)
   vector tmpn(1,nIdx)
   vector tmpq(1,nIdx)
   vector tmps(1,nIdx)
+  vector nll(1,nIdx)
+  vector rss(1,nIdx)
+  vector n(1,nIdx)
   
   number _bratio
   number _fratio
@@ -218,6 +221,8 @@ PARAMETER_SECTION
 
 PRELIMINARY_CALCS_SECTION
   
+   pen=0.0;
+   
    // Parameters
   _r    = _r_plui[4];
   _k    = _k_plui[4];
@@ -378,22 +383,24 @@ REPORT_SECTION
   
   summary.initialize();
   get_summary();
- 
+  get_fit();
+   
   report<<setprecision(12)
         <<"# r"      <<endl<<r      <<endl
         <<"# k"      <<endl<<k      <<endl
         <<"# b0"     <<endl<<a      <<endl
         <<"# p"      <<endl<<p      <<endl
         <<"# q"      <<endl<<q      <<endl
-        <<"# s"      <<endl<<s      <<endl
-        <<"# RSS"    <<endl<<RSS    <<endl
+        <<"# s"      <<endl<<_s      <<endl
+        <<"#-ll"     <<endl<<nll    <<endl
         <<"# neglogL"<<endl<<neglogL<<endl<<endl;
   report<<setprecision(12)
         <<"# Model summary"<<endl
         <<" year stock catch index hat stockHat stock F."<<endl
         <<summary<<endl;
 
- write_ll();
+  write_ll();
+ 
  
 FUNCTION get_fit
   //r = mfexp(logr);
@@ -403,7 +410,6 @@ FUNCTION get_fit
   a=_a;
   p=_p;
   
-  
   for (int j=1; j<=nIdx; j++){
     //change from log
     //q[j]   = mfexp(logq[j]);
@@ -412,6 +418,7 @@ FUNCTION get_fit
     s[j]   = _s[j];
     }
   
+  pen=0.0;
   B[1] = k*a;
   for(int t=1; t<=nc; t++){
     if (_p_plui[1]<(-1)){
@@ -425,8 +432,9 @@ FUNCTION get_fit
        B[t+1]=((r-F[t]))*B[t]*exp((alpha))/(alpha+(r/k)*B[t]*(exp(alpha)-1));
        B[t+1]=sfabs(B[t+1]);
      }else{
-       F[t]  =C[t]/B[t];
-       B[t+1]=sfabs(B[t]-C[t])+r/p*B[t]*(1-pow(B[t]/k,p));
+       dvariable now=posfun(B[t]-C[t],.001,pen);
+  
+       B[t+1]=now+r/p*B[t]*(1-pow(B[t]/k,p));
        }
     }
      
@@ -467,7 +475,6 @@ FUNCTION get_fit
   
   write_trace();
   
-   
   cnow =C[nc];
   fnow =C[nc]/B[nc];
   bnow =B[nc];
@@ -533,11 +540,10 @@ FUNCTION get_fit
   
 FUNCTION get_neglogL
 
-  neglogL = halfnlog2pi;
+  neglogL = 0.5*ni*log(2*pi);
   for (int j=1; j<=ni; j++){
      if (lav==1)
-	 	  neglogL += log(s[Idx[j]])   
-	 		       	+  pow(log(I[j])-log(Ifit[j]),2.0)/(2*s[Idx[j]]*s[Idx[j]]);
+	 	  neglogL += pow(log(I[j])-log(Ifit[j]),2.0);
 
      if (lav!=1)
 	 	  neglogL += sfabs(log(I[j])-log(Ifit[j]));
@@ -577,11 +583,8 @@ FUNCTION get_neglogL
       }
   }
 
-  //penalty on catch, i.e. if catch cant be taken
-  if(true){
-     for (int t=1; t<=nc; t++){
-         neglogL += (B[t]*F[t]-C[t])*(B[t]*F[t]-C[t]);
-     }}
+  //penalty on catch, i.e. if catch cant be taken 
+  neglogL += pen;
     
 FUNCTION get_summary
   summary.colfill(1,(dvector)Cyear);
@@ -630,14 +633,28 @@ FUNCTION write_bounds
         <<s<<endl;	
 
 FUNCTION write_ll
-  get_neglogL();
-
-  dvariable ss=0.0;
-  for (int j=1; j<=ni; j++)
-       ss += pow(log(I[j])-log(Ifit[j]),2.0);
+  
+  for (int i=1; i<=nIdx; i++){
+      n[i]  =0;
+      rss[i]=0;
+      nll[i]=0;}
        
-  lls<<neglogL<<","<<ss<<endl;
+  for (int i=1; i<=ni; i++){
+	n[  Idx[i]]+=1;
+    rss[Idx[i]]+=pow(log(I[i])-log(Ifit[i]),2.0);}
+    
+  for (int i=1; i<=nIdx; i++)
+    nll[i] = halfnlog2pi*n[i]/2+
+              rss[i]/(2*_s[i]*_s[i])*n[i]/2+
+              (2*_s[i]*_s[i])*n[i]/2;
+  
+  //  ll(i)= n/2*log(3.14159265359*2)
+  //        +n/2*(log(se*se))
+  //        +ss/(2*se*se);
+          
 
+   lls<<nll<<n<<endl;
+ 
 FUNCTION write_debug
   debug<<_p_plui[1]<<" "<<(_p_plui[1]<(-1))<<endl;
 
@@ -646,7 +663,9 @@ FUNCTION write_trace
 
   dvariable ss=0.0;
   for (int j=1; j<=ni; j++)
-       ss += pow(log(I[j])-log(Ifit[j]),2.0);
+      ss += pow(log(I[j])-log(Ifit[j]),2.0);
+  
+  neglogL=ss;
        
   trace<<neglogL<<","<<ss<<","<<k<<","<<r<<","<<p<<endl;
 

@@ -32,10 +32,10 @@
 setGeneric('hcr', function(object,refs,...) standardGeneric('hcr'))
 setMethod('hcr', signature(object='FLStock',refs='FLBRP'),
  function(object,refs, 
-           params=hcrParam(ftar =0.70*refpts(refs)["msy",'harvest'],
-                           btrig=0.80*refpts(refs)["msy",'ssb'],
-                           fmin =0.01*refpts(refs)["msy",'harvest'],
-                           blim =0.40*refpts(refs)["msy",'ssb']),
+           hpar=hcrParam(ftar =0.70*refpts(refs)["msy",'harvest'],
+                         btrig=0.80*refpts(refs)["msy",'ssb'],
+                         fmin =0.01*refpts(refs)["msy",'harvest'],
+                         blim =0.40*refpts(refs)["msy",'ssb']),
            yr =max(as.numeric(dimnames(catch(object))$year))-1,
            byr=yr,
            hyr=yr+2:4,
@@ -49,16 +49,18 @@ setMethod('hcr', signature(object='FLStock',refs='FLBRP'),
            maxF  =2,
            bEr   =NULL,
            tEr   =NULL,
-           ref   =NULL,
-          
+           params=NULL,
+           ref   =stock.n(refs)[,1],
+           mdd   =FALSE,
+           matdd =FALSE,  
            ...) {
   
   ## HCR use hockey stick in yr to set F
-  dimnames(params)$params=tolower(dimnames(params)$params)
-  params=as(params,'FLQuant')  
+  dimnames(hpar)$params=tolower(dimnames(hpar)$params)
+  hpar=as(hpar,'FLQuant')  
   #if (blim>=btrig) stop('btrig must be greater than blim')
-  a=(params['ftar']-params['fmin'])/(params['btrig']-params['blim'])
-  b=params['ftar']-a*params['btrig']
+  a=(hpar['ftar']-hpar['fmin'])/(hpar['btrig']-hpar['blim'])
+  b=hpar['ftar']-a*hpar['btrig']
 
   ## Calc F
   # bug
@@ -72,8 +74,8 @@ setMethod('hcr', signature(object='FLStock',refs='FLBRP'),
   rtn=FLCore::sweep(rtn,2:6,b,'+')
 
   # set all iter
-  fmin=as(params['fmin'],'FLQuant')
-  ftar=as(params['ftar'],'FLQuant')
+  fmin=as(hpar['fmin'],'FLQuant')
+  ftar=as(hpar['ftar'],'FLQuant')
   for (i in seq(dims(object)$iter)){
     FLCore::iter(rtn,i)[]=max(FLCore::iter(rtn,i),FLCore::iter(fmin,i))
     FLCore::iter(rtn,i)[]=min(FLCore::iter(rtn,i),FLCore::iter(ftar,i))} 
@@ -131,12 +133,31 @@ setMethod('hcr', signature(object='FLStock',refs='FLBRP'),
       if (!is.null(tEr))
         rtn=rtn*rlnorm(1,0,tEr)
       
-      if (tac){
-  
+      if (tac)
         res=FLash:::fwd(object,catch=rtn,sr=refs,sr.residuals=sr.residuals)
-      }else{ 
-        
+      else 
         res=FLash:::fwd(object,    f=rtn,sr=refs,sr.residuals=sr.residuals)
-      }
+  
+      if (mdd|matdd){
+
+        for (i in dimnames(rtn)$year){ 
+          scl=(stock.n(res)[,i]%-%scale)%/%scale
+          if(mdd){
+             m(res)[,i]=mdd(exp(log(stock.wt(res)[,i]%/%params["a"])%/%log(params["b"])),params[c("m1","m2","ddm")],scale=scl)
+             }
+          if(matdd)
+             mat(res)[,i]=matdd(ages(m(res)[,i]),params[c("a50","ato95","asym","ddmat")],scale=scl) 
+
+          if (tac) 
+             res=FLash:::fwd(res,catch=rtn[i],sr=refs,sr.residuals=sr.residuals)
+           else
+             res=FLash:::fwd(res,    f=rtn,sr=refs,sr.residuals=sr.residuals)
+          }
+      }  
   
      res})
+
+  #matdd(age,params,scale)
+  
+  #mdd(wt,params,scale) 
+  

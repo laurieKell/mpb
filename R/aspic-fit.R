@@ -161,7 +161,7 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
   #oldwd =setExe(exeNm,package,dir)
   oldwd=getwd()
   setwd(dir)
-  path=exe(package)
+  #path=exe(package)
   
   if (.Platform$OS.type == "windows" & copyExe) 
     file.copy(paste(paste(system.file("bin", "windows", package=package, mustWork=TRUE),exeNm, sep="/"),"exe",sep="."), dir)
@@ -181,7 +181,7 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
     object@ll=FLPar(array(NA,dim=unlist(lapply(dmns,length)),dimnames=dmns))
   
     object=chkIters(object)
-  
+    
     for (i in seq(dims(object)$iter)){  
         m_ply(c("prn","rdat","bio","inp","fit","sum","rdatb","det","sum","bot"), function(x)
            if (file.exists(paste(exeNm,".",x,sep=""))) system(paste("rm ",exeNm,".",x,sep="")))
@@ -196,9 +196,11 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
                        fl=paste(exeNm,".inp",sep=""))
          
         # run
+        exe=file.path(system.file("bin", "linux", package=package, mustWork=TRUE),"aspic")
+        inp=file.path(getwd(),"aspic.inp")
         #system(paste("./", exeNm, paste(" ",exeNm,".inp",sep=""),sep=""))
         #print(paste("aspic", paste(" ","aspic",".inp",sep=""),sep=""))
-        system(paste("aspic", paste(" ","aspic",".inp",sep=""),sep=""),ignore.stdout=TRUE)
+        system(paste(exe,inp),ignore.stdout=TRUE)
         #system(paste(exeNm, paste(" ",exeNm,".inp",sep=""),sep=""))
          
         rdat=dget(paste(exeNm,"rdat",sep="."))
@@ -216,8 +218,7 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
 
         #try(object@objFn[2,i]<-rdat$diagnostics$rsquare) 
         rtn=aspicPrn(paste(exeNm,"prn",sep=".")) 
-        object@diags=rtn
-
+        
         pos=seq(dim(params(object))[1])[substr(dimnames(params(object))[[1]],1,1)=="q"]
 #           object@diags=transform(object@diags,
 #                 stock.  =hat/c(object@params[pos,i])[name],
@@ -243,7 +244,8 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
           object@diags=merge(object@diags,model.frame(mcf(FLQuants(stock=object@stock,harvest=harvest(object))),drop=TRUE),all=T)
           #object@diags$stock=object@diags$stock.
           object@diags=object@diags[,-10]
-          try(object@objFn[1,i]<-sum(diags(object)$residual^2,na.rm=T))     
+          try(object@objFn[1,i]<-sum(diags(object)$residual^2,na.rm=T))
+
           object@diags=object@diags[!is.na(object@diags$name),]  
           }
         
@@ -255,7 +257,11 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
 #         
 #         try(object@ll@.Data[,"ss",i]<-daply(dgs, .(name), with, sum(residual^2)))
 #         try(object@ll@.Data[,"n", i]<-daply(dgs, .(name), function(x) dim(x)[1]))
-        }
+    #print(i)    
+    #print(daply(object@diags,.(name),with,sum(residual^2,na.rm=TRUE)))
+    object@ll[,"ss",i]=daply(object@diags,.(name),with,sum(residual^2,na.rm=TRUE))
+    #print(object@ll[,"ss",i])
+    }
   
     #if (dims(object)$iter!=1) object@diags=data.frame(NULL)
     setwd(oldwd)

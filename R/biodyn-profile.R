@@ -9,66 +9,66 @@ setMethod('profile', signature(fitted='biodyn'),
                fn   =function(x) cbind(model.frame(params(x)),
                                        ll     =model.frame(x@ll),
                                        model.frame(refpts(x))[,-4],
-                                       stock  =c(stock(  x)[,ac(range(x)['maxyear'])]%/%bmsy(x)),
-                                       harvest=c(harvest(x)[,ac(range(x)['maxyear'])]%/%fmsy(x))),
+                                       stock  =c(stock(  x)[,ac(range(x)['maxyear'])]%/%refpts(x)["bmsy"]),
+                                       harvest=c(harvest(x)[,ac(range(x)['maxyear'])]%/%refpts(x)["fmsy"])),
                    run  =TRUE,
                    comp =FALSE,...){
-        if (is.FLQuant(index)) index=FLQuants(index)
-        for (i in seq(length(index)))
-          if (dims(index[[i]])$maxyear>=dims(stock(fitted))$maxyear) stop('index years greater in length than stock')
+  
+  if (is.FLQuant(index)) index=FLQuants(index)
+  
+  for (i in seq(length(index)))
+    if (dims(index[[i]])$maxyear>=dims(stock(fitted))$maxyear) stop('index years greater in length than stock')
         
-        if (dims(catch(fitted))$iter>1) catch(fitted)=iter(catch(fitted),1) #stop('can only be done for a single iter')
+  if (dims(catch(fitted))$iter>1) catch(fitted)=iter(catch(fitted),1) #stop('can only be done for a single iter')
         
-        if (dim(fitted@control)[3]==1){
-           fitted@control=propagate(fitted@control,length(range)^length(which))
+  if (dim(fitted@control)[3]==1){
+     fitted@control=propagate(fitted@control,length(range)^length(which))
           
-           sq=list(range)
-           sq=do.call('expand.grid',sq[rep(1,length(which))])
+     sq=list(range)
+     sq=do.call('expand.grid',sq[rep(1,length(which))])
        
-           for (i in seq(length(which))){
-               fitted@control[which[i],'val']=     params(fitted)[which[i]]*sq[,i]
-               fitted@control[which[i],'min']=min(fitted@control[which[i],'val'])*range[1]
-               fitted@control[which[i],'max']=max(fitted@control[which[i],'val'])*range[2]*2}
+     for (i in seq(length(which))){
+       fitted@control[which[i],'val']=     params(fitted)[which[i]]*sq[,i]
+       fitted@control[which[i],'min']=min(fitted@control[which[i],'val'])*range[1]
+       fitted@control[which[i],'max']=max(fitted@control[which[i],'val'])*range[2]*2}
 
-           fitted@control[which,'phase']=-1
-           }
-        else{
-          
-           fitted@catch      =iter(catch(fitted),1)
-           fitted@stock      =iter(stock(fitted),1)
-           setControl(fitted)=params(fitted)
+     fitted@control[which,'phase']=-1
+  }else{
+  
+     fitted@catch      =iter(catch(fitted),1)
+     fitted@stock      =iter(stock(fitted),1)
+     setControl(fitted)=params(fitted)
            
-           params(fitted)    =iter(params(fitted),1)
+     params(fitted)    =iter(params(fitted),1)
 
-           fitted@control    =profileGrid(fitted@control,which,range)
+     fitted@control    =profileGrid(fitted@control,which,range)
            
-           vcov(fitted)      =propagate(iter(vcov(fitted),  1),dims(fitted@control)$iter)
-           fitted@hessian    =propagate(iter(fitted@hessian,1),dims(fitted@control)$iter)
-           fitted@mng        =propagate(iter(fitted@mng,    1),dims(fitted@control)$iter)
-           fitted@mngVcov    =propagate(iter(fitted@mngVcov,1),dims(fitted@control)$iter)
-           }
+     vcov(fitted)      =propagate(iter(vcov(fitted),  1),dims(fitted@control)$iter)
+     fitted@hessian    =propagate(iter(fitted@hessian,1),dims(fitted@control)$iter)
+     fitted@mng        =propagate(iter(fitted@mng,    1),dims(fitted@control)$iter)
+     fitted@mngVcov    =propagate(iter(fitted@mngVcov,1),dims(fitted@control)$iter)
+  }
         
-        if (!run) return(fitted)
+  if (!run) return(fitted)
         
-        f=fitted
-        f@catch=propagate(f@catch,dim(f@control)[3])
-        res=fit(f,index)
-        res@catch=FLCore::iter(res@catch,1)
-        rtn=fn(res)
-
-        
-        if (comp){
-          rsd=mdply(data.frame(iter=seq(dims(f)$iter)), 
-                    function(iter){
-                      ft =fit(iter(fitted,iter),index)
-                      dgs=ft@diags[,c(".id","year","residual")]
-                      names(dgs)=c("name","year","residual")
-                      
-                      dgs})
+  f=fitted
+  f@catch=propagate(f@catch,dim(f@control)[3])
+  res=fit(f,index)
+  res@catch=FLCore::iter(res@catch,1)
+  rtn=fn(res)
+      
+  if (comp){
+    rsd=mdply(data.frame(iter=seq(dims(f)$iter)), 
+            function(iter){
+              ft =fit(iter(fitted,iter),index)
+              dgs=ft@diags[,c(".id","year","residual")]
+              names(dgs)=c("name","year","residual")
+                    
+              dgs})
           
-          return(list(comp=rtn,residuals=rsd))}
+    return(list(comp=rtn,residuals=rsd))}
         
-        return(rtn)})
+  return(rtn)})
 
 # # CIs
 # cis <- max(surface) - qchisq(ci, 2)

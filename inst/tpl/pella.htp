@@ -113,12 +113,16 @@ private:
   param_stddev_number slopeb;
   param_stddev_number slopef;
   param_stddev_vector ll;
+  param_number pen;
   param_number SS;
   param_number s_;
   param_vector nii;
   param_vector tmpn;
   param_vector tmpq;
   param_vector tmps;
+  param_vector nll;
+  param_vector rss;
+  param_vector n;
   param_number _bratio;
   param_number _fratio;
   param_number xy;
@@ -156,7 +160,7 @@ private:
   objective_function_value neglogL;
 public:
   virtual void userfunction(void);
-  virtual void report(void);
+  virtual void report(const dvector& gradients);
   virtual void final_calcs(void);
   model_parameters(int sz,int argc, char * argv[]);
   virtual void initializationfunction(void){}
