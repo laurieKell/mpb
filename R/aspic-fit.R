@@ -185,7 +185,7 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
     for (i in seq(dims(object)$iter)){  
         m_ply(c("prn","rdat","bio","inp","fit","sum","rdatb","det","sum","bot"), function(x)
            if (file.exists(paste(exeNm,".",x,sep=""))) system(paste("rm ",exeNm,".",x,sep="")))
-    
+     
         if (jk){
                object@index=index
                object@index[j[i],"index"]=NA
@@ -204,7 +204,7 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
         #system(paste(exeNm, paste(" ",exeNm,".inp",sep=""),sep=""))
          
         rdat=dget(paste(exeNm,"rdat",sep="."))
-        
+         
         #rdat$estimates
         object@params[c("b0","msy","k"),i]=rdat$estimates[c("B1.K","MSY","K")]       
         object@params[4:dim(object@params)[1],i]=rdat$estimates[substr(names(rdat$estimates),1,2)=="q."]
@@ -218,27 +218,27 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
 
         #try(object@objFn[2,i]<-rdat$diagnostics$rsquare) 
         rtn=aspicPrn(paste(exeNm,"prn",sep=".")) 
-        
+
         pos=seq(dim(params(object))[1])[substr(dimnames(params(object))[[1]],1,1)=="q"]
+        object@diags<-rtn
 #           object@diags=transform(object@diags,
 #                 stock.  =hat/c(object@params[pos,i])[name],
 #                 stockHat=obs/c(object@params[pos,i])[name])
-         
+        
         object@diags$name=factor(unique(object@index$name)[as.integer(object@diags$name)])
         object@diags=merge(object@diags,model.frame(mcf(FLQuants(stock  =object@stock)),drop=TRUE),all=T)
-          
         object@diags$stock=object@diags$stock.
+  
         object@diags=object@diags[,-10]
         object@diags=object@diags[!is.na(object@diags$name),]
 
         } else {
           rtn=try(readAspic(paste(exeNm,"prn",sep="."))) 
-          
+
           if (is.data.frame(rtn)) object@diags=rtn[!is.na(rtn$residual),]
           
 #           object@diags=transform(object@diags,stock.  =hat/c(object@params[grep("q",dimnames(params(object))$params),i])[name],
 #                                               stockHat=obs/c(object@params[grep("q",dimnames(params(object))$params),i])[name])
-  
           object@diags$name=ac(factor(object@diags$name, labels=unique(object@index$name)))
            
           object@diags=merge(object@diags,model.frame(mcf(FLQuants(stock=object@stock,harvest=harvest(object))),drop=TRUE),all=T)
@@ -248,7 +248,6 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
 
           object@diags=object@diags[!is.na(object@diags$name),]  
           }
-        
         
 #         dgs=subset(object@diags,!is.na(object@diags$residual))
 #         try(object@ll@.Data[,"ll",i]<-daply(dgs, .(name), with,
@@ -260,6 +259,7 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
     #print(i)    
     #print(daply(object@diags,.(name),with,sum(residual^2,na.rm=TRUE)))
     object@ll[,"ss",i]=daply(object@diags,.(name),with,sum(residual^2,na.rm=TRUE))
+
     #print(object@ll[,"ss",i])
     }
   
