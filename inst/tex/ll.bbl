@@ -1,0 +1,14 @@
+\begin{thebibliography}{1}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Butterworth and Geromont(1999)]{butterworth1999some}
+D.~Butterworth and H.~Geromont.
+\newblock Some aspects of adapt vpa as applied to north atlantic bluefin tuna.
+\newblock \emph{Int. Commn Cons. Atl. Tunas, Coll. Vol. Sci. Pap}, 49\penalty0
+  (2):\penalty0 233--241, 1999.
+
+\end{thebibliography}

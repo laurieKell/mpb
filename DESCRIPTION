@@ -79,6 +79,7 @@ Collate:
     'plural2iters.R'
     'resample.R'
     'rjm-series.R'
+    'biodyn-mse.R'
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1

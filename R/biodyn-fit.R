@@ -223,18 +223,17 @@ setPella=function(obj, exeNm='pella', dir=tempdir(), lav=FALSE) {
   names(ctl)    = c('phase','lower','upper','guess')
 
   writeADMB(ctl, paste(dir, '/', exeNm, '.ctl', sep=''),append=TRUE)
-  
-  # prr file
+
+    # prr file
   prr = bd.@priors[c(nms,c('msy','bmsy','fmsy'),nmIdx),] 
   prr = alply(prr,1)
-
-  names(prr) = dimnames(bd.@priors)$params
+  names(prr) = dimnames(bd.@priors)$params[1:9]
   writeADMB(prr, paste(dir, '/', exeNm, '.prr', sep=''),append=FALSE)
-
+ 
   # ref file
   if (is.na(bd.@ref["yr"])) 
        bd.@ref["yr"]=as.integer(range(bd.)["maxyear"]-(range(bd.)["minyear"]+range(bd.)["maxyear"])/2)
-
+  
   writeADMB(bd.@ref, paste(dir, '/', exeNm, '.ref', sep=''),append=FALSE)
 
   # write data
@@ -252,7 +251,7 @@ setPella=function(obj, exeNm='pella', dir=tempdir(), lav=FALSE) {
 #   # stock
 #   stock(bd)  = FLQuant(dimnames=dimnames(stock(bd))[1:5], iter=its)
 #   
-
+  
   # vcov
   vcov(bd.)=FLPar(array(NA, dim     =c(dim(params(bd.))[1],dim(params(bd.))[1],1), 
                            dimnames=list(params=dimnames(params(bd.))[[1]],
@@ -263,24 +262,31 @@ setPella=function(obj, exeNm='pella', dir=tempdir(), lav=FALSE) {
 
 getPella=function(obj, exeNm='pella') {
   ow=options("warn");options(warn=-1)
-
+  
   t1 = read.table(paste(exeNm,'.rep',sep=''),skip =18,header=T) 
+
   # params
   t2 = unlist(c(read.table(paste(exeNm,'.rep',sep=''),nrows=4)))
   q. = unlist(c(read.table(paste(exeNm,'.rep',sep=''),nrows=1,skip=8)))
   s. = unlist(c(read.table(paste(exeNm,'.rep',sep=''),nrows=1,skip=10)))
-
+  
   nms=c('r','k','b0','p')
   obj@params[nms,] = t2
 
   obj@params[grep('q',dimnames(obj@params)$params),]=q. 
   obj@params[grep('s',dimnames(obj@params)$params),]=s. 
-  
-  err=try(t3<-unlist(c(read.table(paste(exeNm,'.rep',sep=''),skip=13,nrows=1,header=F))))
-
+    
+  err=try(t3<-t(array(read.table('lls.txt',sep="\n"))))
   if (!(any(is(err)=="try-error"))){
-    names(t3)=paste("u",seq(length(s.)),sep="") 
-    obj@ll =FLPar(t3)
+    
+    t3=t3[,length(t3)]
+    t3=as.numeric(unlist(strsplit(str_trim(t3)," ")))
+
+    obj@ll =FLPar(array(t(array(t3,c(length(s.),5))),
+                dim=c(5,length(s.),1),
+                dimnames=list(params=c("ll","rss","sigma","n","q"),
+                              index =seq(length(s.)),
+                              iter=1)))[-5,]
     }
 
   # stock biomass
@@ -301,7 +307,6 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
   ow=options("warn");options(warn=-1)
   
   first=TRUE   
-
   catch=NULL
   if ('FLQuant'%in%is(index))
     index=FLQuants(index)
@@ -314,8 +319,9 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
   if (!is.na(range(object)['maxyear'])) max=min(max,range(object)['maxyear']) 
   min=min(dims(catch(object))$minyear,max(laply(index,function(x) dims(x)$minyear)))
   if (!is.na(range(object)['minyear'])) min=max(min,range(object)['minyear'])
-  object=window(object,start=min,end=max)
 
+  object=window(object,start=min,end=max)
+  
   index=FLQuants(llply(index, window,start=min,end=max))
   
   slts=getSlots('biodyn')
@@ -325,7 +331,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
   oldwd=getwd()
   setwd(dir)
   #exe()
-
+  
   object=list(object,index)
   bd =object[[1]]
   its=max(maply(names(slts), function(x) { 
@@ -342,6 +348,11 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
 
   us=paste('u',seq(length(dimnames(params(bd))$params[grep('q',dimnames(params(bd))$params)])),sep='')
   bd@ll=FLPar(NA,dimnames=list(params=us,iter=seq(1)))
+
+  bd@ll=FLPar(array(NA,
+                 dim=c(4,length(index),its),
+                 dimnames=list(params=c("ll","rss","se","n"),
+                               index =seq(length(index)))))
   
   if (its>1){
    
@@ -357,16 +368,22 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
       
       if (dim(bd@stock)[6]==1) bd@stock=propagate(bd@stock, iter=its, fill.iter=TRUE)      
       if (dim(bd@catch)[6]==1) bd@stock=propagate(bd@catch, iter=its, fill.iter=TRUE)     
-      
-      pnms   <- getSlots(class(bd))
-      pnames <- names(pnms)[pnms == 'FLPar']
-      for(i in pnames){
-        slot(bd, i)=FLCore::iter(slot(bd, i),1)
-        slot(bd, i) <- propagate(slot(bd, i), its)}
-      
-      #bd=propagate(bd,its)      
-      }
 
+      for(i in c("params","control","vcov","hessian","objFn")){
+        slot(bd, i)=FLCore::iter(slot(bd, i),1)
+        slot(bd, i)<-propagate(slot(bd, i), its)}
+        }
+
+  slot(bd,"ll")=FLCore::iter(slot(bd, "ll"),1)
+  
+  dimnames(ll)[[3]]=1
+  bd@ll=FLPar(array(as.numeric(rep(NA,4)),dim=c(4,1,1),
+              dimnames=list('params'=c('ll','rss',"sigma","n"),
+                            'index' =1,
+                            'iter'  =1)))  
+  
+  slot(bd, "ll")<-propagate(slot(bd, "ll"), its)
+  
   #print(slot(object[[1]],'control'))
 
   cpue=object[[2]]
@@ -378,7 +395,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
      for (s in names(slts)[-(7:8)]){      
         slot(object[[1]],s) = FLCore::iter(slot(bd2,s),i) 
         }  
-     
+
      object[[1]]=setPella(object,exeNm,dir,lav=lav)
 
      exe = paste(system.file('bin', 'linux', package="mpb", mustWork=TRUE),exeNm, sep='/')      
@@ -394,11 +411,11 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
 
      # gets results
      object[[1]]=getPella(object[[1]], exeNm)     
-
+  
      s=names(slts)[slts%in%c('FLQuant','FLPar')]
     
      for (s in s[!("hessian"%in%s)]){
-       print(s)
+
        try(FLCore::iter(slot(bd,s),i) <- slot(object[[1]],s)) 
        }
 
@@ -443,9 +460,8 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
      bd@control@.Data[,,i] = object[[1]]@control
 
      bd@objFn@.Data[   ,i] = object[[1]]@objFn
-    
-     #FLParBug
-     bd@ll@.Data[,i][] = unlist(c(object[[1]]@ll))
+
+     #bd@ll@.Data[,,i] = object[[1]]@ll
 
      if (file.exists('pella.std')){
        err1=try(mng.<-read.table('pella.std',header=T)[,-1])
@@ -474,7 +490,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
 
   units(bd@mng)='NA'  
 
-  bd=fwd(bd,catch=catch(bd)[,rev(dimnames(catch(bd))$year)[1]],starvationRations=2) 
+  bd=mpb:::fwd(bd,catch=catch(bd)[,rev(dimnames(catch(bd))$year)[1]],starvationRations=2) 
 
   if (length(grep('-mcmc',cmdOps))>0 & length(grep('-mcsave',cmdOps))>0){
     #'-mcmc 100000 -mcsave 100'
@@ -514,19 +530,17 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
   if ("FLQuant"%in%class(index)) index=FLQuants("1"=index)
 
   if (its<=1){
-      i=0
-      bd@diags=ldply(index,function(index){
-        i<<-i+1
+      bd@diags=mdply(seq(length(index)),function(i,index){
         stockHat=(stock(bd)[,-dims(stock(bd))$year]+stock(bd)[,-1])/2
         hat     =stockHat*params(bd)[paste("q",i,sep="")]
         res=model.frame(mcf(FLQuants(
-          obs   =index,
+          obs   =index[[i]],
           #stock   =stock(bd),
           #stockHat=stockHat,
           hat     =hat,
-          residual=log(index/hat))),drop=T)
+          residual=log(index[[i]]/hat))),drop=T)
         
-        diagsFn(res)})
+        diagsFn(res)},index=index)
   
       names(bd@diags)[1]="name"
       }
@@ -704,3 +718,5 @@ fitFn=function(file){
 
 #file='/tmp/Rtmp6dBbkc/pella'
 #fitFn(file)
+
+#as.data.frame(t(array(read.csv("/tmp/RtmptQ93hN/lls.txt",sep=""))))

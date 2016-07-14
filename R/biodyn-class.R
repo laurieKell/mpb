@@ -106,5 +106,9 @@ validity<-function(object) {
     priors      =array(rep(c(0,0,0.3,1),       each=7), dim=c(7,4),   dimnames=list(params=c('r','k','p','b0','msy','bmsy','fmsy'),c('weight','a','b','type'))),
     vcov        =FLPar(array(as.numeric(NA), dim=c(4,4,1), dimnames=list(params=c('r','k','p','b0'),params=c('r','k','p','b0'),iter=1))),
     hessian     =FLPar(array(as.numeric(NA), dim=c(4,4,1), dimnames=list(params=c('r','k','p','b0'),params=c('r','k','p','b0'),iter=1))),
-    objFn       =FLPar(array(as.numeric(NA),dim=c(2,1),dimnames=list('value'=c('ll','rss'),iter=1)))),
+    objFn       =FLPar(array(as.numeric(NA),dim=c(2,1),dimnames=list('value'=c('ll','rss'),iter=1))),
+    ll          =FLPar(array(rep(as.numeric(NA),4),dim=c(4,1,1),
+                         dimnames=list('params'=c('ll','rss',"sigma","n"),
+                                       'index' =1,
+                                       'iter'  =1)))), 
 	validity=validity) 

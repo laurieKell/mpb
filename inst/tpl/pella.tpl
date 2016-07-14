@@ -13,7 +13,7 @@
 // Implementation notes
 //   Abundance index may not exist for all years
 //   Vectors that include all years: B, C
-//   Vectors that include abundance index years: I, Ifit, X
+//   Vectors that include abundance index years: u, X
 //   X links long and short vectors
 //=========================================================================================================================
 
@@ -48,20 +48,18 @@ DATA_SECTION
 
   //indices of abundance, multiple with missing years
   init_int ni
-  init_int nIdx
+  init_int nU
   init_matrix Idata(1,3,1,ni)  // Year | I
   
   // Vectors to hold catch and year after read in above
   ivector Cyear(1,nc)
-  vector      C(1,nc)
+   vector     C(1,nc)
 
   // Vectors to hold indices and year
   ivector Iyear(1,ni)
-  ivector   Idx(1,ni)
-  vector      I(1,ni)		
-  ivector     X(1,ni)  // years with abundance index: 1995 | 1998 | ...
-  vector   logI(1,ni)
-  vector   lhat(1,ni)
+   vector     u(1,ni)
+  ivector   uNm(1,ni)
+  ivector   uYr(1,ni)  // years with abundance index: 1995 | 1998 | ...
   
   // Constants for profile
   number stepN
@@ -82,15 +80,15 @@ DATA_SECTION
   init_vector p_plui(1,4)
   init_vector a_plui(1,4)
 
-  init_ivector qPh(1,nIdx)
-  init_vector  qLo(1,nIdx)
-  init_vector  qHi(1,nIdx)
-  init_vector  qPr(1,nIdx)
+  init_ivector qPh(1,nU)
+  init_vector  qLo(1,nU)
+  init_vector  qHi(1,nU)
+  init_vector  qPr(1,nU)
   
-  init_ivector sPh(1,nIdx)
-  init_vector  sLo(1,nIdx)
-  init_vector  sHi(1,nIdx)
-  init_vector  sPr(1,nIdx)
+  init_ivector sPh(1,nU)
+  init_vector  sLo(1,nU)
+  init_vector  sHi(1,nU)
+  init_vector  sPr(1,nU)
  
   // Switch to prior file
   !! change_datafile_name((adstring)run_name.c_str() + ".prr");
@@ -116,43 +114,46 @@ DATA_SECTION
   init_number lav
 
 PARAMETER_SECTION
+  
   // Estimated
-  !! phz = (int) _r_plui[1];
-  !! lb  =       _r_plui[2];
-  !! ub  =       _r_plui[3];
-  init_bounded_number _r(lb,ub,phz)
-  !! phz = (int) _k_plui[1];
-  !! lb  =       _k_plui[2];
-  !! ub  =       _k_plui[3];
-  init_bounded_number _k(lb,ub,phz)
-  !! phz = (int) _a_plui[1];
-  !! lb  =       _a_plui[2];
-  !! ub  =       _a_plui[3];
-  init_bounded_number _a(lb,ub,phz)
-  !! phz = (int) _p_plui[1];
-  !! lb  =       _p_plui[2];
-  !! ub  =       _p_plui[3];
-  init_bounded_number _p(lb,ub,phz)
+  !! phz = (int) r_plui[1];
+  !! lb  =       r_plui[2];
+  !! ub  =       r_plui[3];
+  init_bounded_number r(lb,ub,phz)
+  !! phz = (int) k_plui[1];
+  !! lb  =       k_plui[2];
+  !! ub  =       k_plui[3];
+  init_bounded_number k(lb,ub,phz)
+  !! phz = (int) a_plui[1];
+  !! lb  =       a_plui[2];
+  !! ub  =       a_plui[3];
+  init_bounded_number a(lb,ub,phz)
+  !! phz = (int) p_plui[1];
+  !! lb  =       p_plui[2];
+  !! ub  =       p_plui[3];
+  init_bounded_number p(lb,ub,phz)
   
   //init_bounded_number_vector F(1,nc,0,1)
 
-  init_bounded_number_vector q(1,nIdx,qLo,qHi,qPh)  
-  init_bounded_number_vector s(1,nIdx,sLo,sHi,sPh)  
-  
+  init_bounded_number_vector q(1,nU,qLo,qHi,qPh)  
+  init_bounded_number_vector s(1,nU,sLo,sHi,sPh)  
+
+  //likelihood stuff  
   number pen
-  
-  vector nll(1,nIdx)
-  vector rss(1,nIdx)
-  vector n(  1,nIdx)
-  vector inv(1,nIdx)
+
+  vector nll(1,nU)
+  vector  ss(1,nU)
+  vector   n(1,nU)
+  vector sm(1,nU)
+  vector  _q(1,nU)
   
   // Updated pop time series
-  vector B(   1,nc+1)
-  vector F(   1,nc)
-  vector Ihat(1,nc)
+  vector B(1,nc+1)
+  vector F(1,nc)
+  vector I(1,nc)
     
   // Report matrix
-  matrix summary(1,nc,1,4)  // Year | B | C | F | I 
+  matrix summary(1,nc,1,5)  // Year | B | C | F | I 
 
   // Objfun
   objective_function_value neglogL
@@ -162,10 +163,10 @@ PRELIMINARY_CALCS_SECTION
   pen=0.0;
    
   // Parameters
-  r    = r_plui[4];
-  k    = k_plui[4];
-  p    = p_plui[4];
-  a    = a_plui[4];
+  r = r_plui[4];
+  k = k_plui[4];
+  p = p_plui[4];
+  a = a_plui[4];
   
   stepN =50;
   stepSz=0.05;
@@ -174,33 +175,30 @@ PRELIMINARY_CALCS_SECTION
   Cyear = (ivector) row(Cdata,1);
   C     =           row(Cdata,2);
   
-  Iyear = (ivector) row(Idata,1);
-  I     =           row(Idata,2);
-  Idx   = (ivector) row(Idata,3);
-  logI  = log(I);
-
-  X     = Iyear - Cyear[1] + 1;
-
-
-  for(int i=1; i<=nc; i++) F[i]=_r*0.2;
+  Iyear = (ivector) row(Idata,1);  
+  u     = (dvector) row(Idata,2); //index
+  uNm   = (ivector) row(Idata,3); //name
+  uYr   = Iyear - Cyear[1] + 1;
+  
+  for(int i=1; i<=nc; i++) F[i]=r*0.2;
  
-  for (int j=1; j<=nIdx; j++){
+  for (int j=1; j<=nU; j++){
     q(j) = qPr[j];
     s(j) = sPr[j];
     }
 
-  trace<<"nll"<<" "<<"ss"<<" "<<"k"<<" "<<"r"<<endl;
+  trace<<"neglogL"<<"nll"<<" "<<"ss"<<" "<<"k"<<" "<<"r"<<endl;
  
 PROCEDURE_SECTION
   fwd();
   qs();
   ll();
   
-  trace<<neglogL<<" "<<rss<<" "<<r<<" "<<k<<endl;
+  trace<<neglogL<<" "<<nll<<" "<<ss<<" "<<r<<" "<<k<<endl;
 
 REPORT_SECTION
 
-  summary();
+  setSummary();
   
   report<<setprecision(12)
         <<"# r"      <<endl<<r      <<endl
@@ -208,135 +206,108 @@ REPORT_SECTION
         <<"# b0"     <<endl<<a      <<endl
         <<"# p"      <<endl<<p      <<endl
         <<"# q"      <<endl<<q      <<endl
-        <<"# s"      <<endl<<_s      <<endl
+        <<"# s"      <<endl<<s      <<endl
         <<"#-ll"     <<endl<<nll    <<endl
         <<"# neglogL"<<endl<<neglogL<<endl<<endl;
   report<<setprecision(12)
         <<"# Model summary"<<endl
-        <<" year stock catch index hat stockHat stock F."<<endl
+        <<" year stock catch F index"<<endl
         <<summary<<endl;
 
-  lls<<endl;
- 
+  lls<<setprecision(12)
+     <<nll<<ss<<s<<n<<endl;
  
 FUNCTION fwd
   
-  for (int j=1; j<=nIdx; j++){
-    //change from log
-    //q[j]   = mfexp(logq[j]);
-    //s[j]   = mfexp(logs[j]);
-    q[j]   = _q[j];
-    s[j]   = _s[j];
-    }
-  
-  pen=0.0;
-  B[1] = k*a;
+  pen  =0.0;
+  B[1] =k*a;
+
   for(int t=1; t<=nc; t++){
-    if (_p_plui[1]<(-1)){
+    //instantaneous
+    if (p_plui[1]<(-1)){
 
        F[t]=nr(-log(1-C[t]/B[t])*.5, C[t], B[t], r, k);
 
-       //(r-F[t])
-       //(sfabs(r-F[t])-sfabs(F[t]-r))
-       dvariable alpha=sfabs(r-F[t]);//-sfabs(F[t]-r));
+       dvariable alpha=sfabs(r-F[t]);
 
        B[t+1]=((r-F[t]))*B[t]*exp((alpha))/(alpha+(r/k)*B[t]*(exp(alpha)-1));
        B[t+1]=sfabs(B[t+1]);
-     }else{
+    }else{
+    // harvest rate
        dvariable now=posfun(B[t]-C[t],.001,pen);
   
        B[t+1]=now+r/p*B[t]*(1-pow(B[t]/k,p));
        }
+       
+    //index   
+    I(t)=0.5*(B[t]+B[t+1]);   
     }
 
 FUNCTION qs
-     
-  // constricted likelihood
-  bool flag=false;
-  
-  //initialise
-  for (int i=1; i<=nIdx; i++){
-    tmpn(i)=0;
-    tmpq(i)=0;
-    tmps(i)=0;
-    if ((qPh(i)< -1) || (sPh(i)< -1))
-       flag=true;
-    }
-
-  // calculate
-  if (flag){
-    for (int j=1; j<=ni; j++){
-      tmpn(Idx[j])=tmpn(Idx[j])+1;
-      tmpq(Idx[j])=tmpq(Idx[j])+log(I[Idx[j]])-log(0.5*(B(X[j])+B(X[j]+1)));
-      }
-
-    for (int i=1; i<=nIdx; i++)
-      tmpq(i)=exp(tmpq(i)/tmpn[i]);
     
-    for (int j=1; j<=ni; j++)
-      tmps[Idx[j]]=+log(I[Idx[j]])-log(0.5*(B(X[j])+B(X[j]+1))*tmpq(Idx[j]));
-
-    for (int i=1; i<=nIdx; i++){
-      if (qPh[i]<-1) q[i]=tmpq(i);
-      if (sPh[i]<-1) s[i]=pow((tmps(i)/tmpn[i]),.5);
-      }
+  //initialise
+  for (int i=1; i<=nU; i++){
+    nll(i)=0.0;
+     ss(i)=0.0;
+      n(i)=0.0;
+    sm(i)=0.0;
+     _q(i)=0.0;
     }
 
-  for (int j=1; j<=ni; j++)
-     //Ifit[j] = B(X[j])*q(Idx[j]);
-     Ifit[j] = 0.5*(B(X[j])+B(X[j]+1))*q(Idx[j]);
-  
+  for (int i=1; i<=ni; i++){
+       n(uNm[i])+=1;
+      _q(uNm[i])+=log(u(i)/I(uYr[i]));
+     }
+
+ for (int i=1; i<=nU; i++)
+     _q[i]= exp(_q(i)/n(i));
+
+  for (int i=1; i<=ni; i++)
+    ss(uNm[i]) +=pow(log(I(uYr[i])*q(uNm(i)))-log(u(i)),2);
+    
+ for (int i=1; i<=nU; i++){
+   if (qPh[i]<-1) q[i]=_q(i);
+   if (sPh[i]<-1) s[i]=pow((ss(i)/n[i]),.5);
+   }
+
 FUNCTION ll
 
-  neglogL = 0.5*ni*log(2*pi);
-  for (int j=1; j<=ni; j++){
-     if (lav==1)
-	 	  neglogL += pow(log(I[j])-log(Ifit[j]),2.0);
+  double halflog2pi = 0.5*log(2*pi);
 
-     if (lav!=1)
-	 	  neglogL += sfabs(log(I[j])-log(Ifit[j]));
+  if (lav!=1)
+	  for (int i=1; i<=ni; i++)
+   	  neglogL += sfabs((log(I(uYr(i))*q(uNm(i)))-log(u(i))));
+	else{
+  
+  
+    for (int i=1; i<=nU; i++){
+	    nll(i)=0;
+	    sm(i)=0;
+	    ss(i) =0;}
+	    
+	  for (int i=1; i<=ni; i++){
+	    sm(uNm(i))+=log(u(i));
+      ss[uNm(i)] +=pow(log(I(uYr[i])*q(uNm(i)))-log(u(i)),2.0);
+      }
+    
+    neglogL=pen;    
+    for (int i=1; i<=nU; i++){
+	    nll[i] = sm(i)+
+	             n[i]*log(2.0*pi)/2.0+
+	             n(i)*log(s(i))+
+	             ss(i)/(2.0*s(i));
+	             
+      neglogL+=nll[i];
+      //neglogL+=ss[i];
+      }               
 	 }
 
-
-  for (int i=1; i<=nIdx; i++){
-      n[i]  =0;
-      rss[i]=0;
-      nll[i]=0;}
-       
-  for (int i=1; i<=ni; i++){
-	n[  Idx[i]]+=1;
-    rss[Idx[i]]+=pow(log(I[i])-log(Ifit[i]),2.0);}
-    
-  for (int i=1; i<=nIdx; i++)
-    nll[i] = halfnlog2pi*n[i]/2+
-              rss[i]/(2*_s[i]*_s[i])*n[i]/2+
-              (2*_s[i]*_s[i])*n[i]/2;
-  
-  //  ll(i)= n/2*log(3.14159265359*2)
-  //        +n/2*(log(se*se))
-  //        +ss/(2*se*se);
-          
-
-   lls<<nll<<n<<endl;
-     
-  //halflog2pi = 0.5*log(2*pi);
-  
-    
-FUNCTION summary
-
+FUNCTION setSummary
   summary.colfill(1,(dvector)Cyear);
   summary.colfill(2,B);
   summary.colfill(3,C);
-  summary.colfill(8,F);
-
-  for(int i=1; i<=ni; i++)  // allow missing years in abundance index
-    {
-    summary(X[i],4) = I[i];
-    summary(X[i],5) = Ifit[i];
-    summary(X[i],6) = Ifit[i]/q(Idx(i));
-    summary(X[i],7) = (B[X[i]]+B[X[i]+1])/2.0;
-    }
-
+  summary.colfill(4,F);
+  summary.colfill(5,I);
 
 TOP_OF_MAIN_SECTION
   arrmblsize = 40000000L;

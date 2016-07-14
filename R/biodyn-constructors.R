@@ -186,6 +186,23 @@ setMethod('biodyn', signature(object='missing',params='missing'),
             
   return(res)})
 
+setMethod('biodyn', signature(object='FLStock',params='FLPar'),
+          function(object,params,
+                   model="pellat",min=.1,max=10,...){
+            args=list(...)
+
+            res=biodyn(factor(model),
+                       params=params,
+                       #catch=ifelse("catch"%in%names(args),args[["catch"]],NA),
+                       min=min,max=max,...)
+
+            res@catch=catch(object)
+            range(res)[c("minyear","maxyear")]=unlist(dims(catch(object)))[c("minyear","maxyear")]
+            res@catch=catch(object)
+            res@stock=object@stock
+            res@stock=window(stock(res),end=range(res)["maxyear"]+1)
+            
+            res})
 
 #' is.biodyn
 #'
