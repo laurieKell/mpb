@@ -218,3 +218,9 @@ setMethod('biodyn', signature(object='FLStock',params='FLPar'),
 #'  }
 is.biodyn = function(x)
   return(inherits(x, 'biodyn'))
+
+setMethod('biodyn', signature(object='missing',params='FLPar'),
+     function(params,model="pellat",...){
+
+     biodyn(factor("pellat"),params,...)
+     })

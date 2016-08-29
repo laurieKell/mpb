@@ -144,6 +144,7 @@ setMethod( 'sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
 setGeneric('oem',   function(object,...)     standardGeneric('oem'))
 setMethod( 'oem',   signature(object='FLStock'),
            function(object,
+                    timing    =0.5,
                     cv        =rlnorm(dim(stock(object))[6],FLQuant(0,dimnames=dimnames(stock(object))[-6]),0.3),
                     mult      =TRUE,
                     fishDepend=FALSE,
@@ -151,7 +152,10 @@ setMethod( 'oem',   signature(object='FLStock'),
                     mass      =TRUE,
                     q         =FLQuant(cumprod(1+rep(0,dim(fbar(object))[2])),
                                        dimnames=dimnames(fbar(object))),
-                    sel=FLQuant(FLQuant(1,dimnames=dimnames(harvest(object)[,1])))){
+                    sel=FLQuant(FLQuant(1,dimnames=dimnames(harvest(object)))),
+                    seed=NULL){
+             
+  if (!is.null(seed)) set.seed(seed)           
   
   nits=max(dims(stock(object))$iter,dims(catch(object))$iter)
   
@@ -159,11 +163,17 @@ setMethod( 'oem',   signature(object='FLStock'),
     cv=rlnorm(nits,FLQuant(0,dimnames=list(year=dims(object)$minyear:
                                                 dims(object)$maxyear)),cv)
   
-  yrs=dimnames(m(object))$year
+  timing=pmax(pmin(timing,1.0),0.0)
+  stock=(stock(object)[,-dim(stock(object))[2]]*timing+stock(object)[,-1]*(1.0-timing))
+  
+  yrs=dimnames(stock)$year
   yrs=yrs[yrs%in%dimnames(cv)$year]
+  sel=sel[,yrs]
+  
+  object=window(object,start=min(as.numeric(yrs)),end=max(as.numeric(yrs)))
   
   if (effort[1]=="h")
-    E=catch(object)%/%stock(object)
+    E=catch(object)%/%stock
   else  
     E=fbar(object)
   

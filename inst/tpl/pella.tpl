@@ -144,7 +144,7 @@ PARAMETER_SECTION
   vector nll(1,nU)
   vector  ss(1,nU)
   vector   n(1,nU)
-  vector sm(1,nU)
+  vector  se(1,nU)
   vector  _q(1,nU)
   
   // Updated pop time series
@@ -187,7 +187,7 @@ PRELIMINARY_CALCS_SECTION
     s(j) = sPr[j];
     }
 
-  trace<<"neglogL"<<"nll"<<" "<<"ss"<<" "<<"k"<<" "<<"r"<<endl;
+  trace<<"neglogL"<<" "<<"nll"<<" "<<"ss"<<" "<<"r"<<" "<<"k"<<endl;
  
 PROCEDURE_SECTION
   fwd();
@@ -233,10 +233,9 @@ FUNCTION fwd
        B[t+1]=((r-F[t]))*B[t]*exp((alpha))/(alpha+(r/k)*B[t]*(exp(alpha)-1));
        B[t+1]=sfabs(B[t+1]);
     }else{
-    // harvest rate
-       dvariable now=posfun(B[t]-C[t],.001,pen);
+       dvariable now=posfun(B[t]-C[t]+r/p*B[t]*(1-pow(B[t]/k,p)),.001,pen);
   
-       B[t+1]=now+r/p*B[t]*(1-pow(B[t]/k,p));
+       B[t+1]=now;
        }
        
     //index   
@@ -250,7 +249,7 @@ FUNCTION qs
     nll(i)=0.0;
      ss(i)=0.0;
       n(i)=0.0;
-    sm(i)=0.0;
+     se(i)=0.0;     
      _q(i)=0.0;
     }
 
@@ -274,33 +273,64 @@ FUNCTION ll
 
   double halflog2pi = 0.5*log(2*pi);
 
+  // least absolute value
   if (lav!=1)
-	  for (int i=1; i<=ni; i++)
+	for (int i=1; i<=ni; i++)
    	  neglogL += sfabs((log(I(uYr(i))*q(uNm(i)))-log(u(i))));
-	else{
-  
-  
+  // least squares 
+  else{
     for (int i=1; i<=nU; i++){
-	    nll(i)=0;
-	    sm(i)=0;
-	    ss(i) =0;}
-	    
-	  for (int i=1; i<=ni; i++){
-	    sm(uNm(i))+=log(u(i));
-      ss[uNm(i)] +=pow(log(I(uYr[i])*q(uNm(i)))-log(u(i)),2.0);
+	  nll(i)=0;
+	  se(i) =0;
+	  ss(i) =0;}
+
+	    	   
+	for (int i=1; i<=ni; i++){
+      ss[uNm(i)]+=pow(log(I(uYr[i])*q(uNm(i)))-log(u(i)),2.0);
       }
     
     neglogL=pen;    
     for (int i=1; i<=nU; i++){
-	    nll[i] = sm(i)+
-	             n[i]*log(2.0*pi)/2.0+
-	             n(i)*log(s(i))+
-	             ss(i)/(2.0*s(i));
-	             
+	  se[i] =exp(log(ss[i]/n[i])*0.5);
+  	  nll[i]=n[i]/2*log(3.14159265359*2)
+		    +n[i]*log(se[i])
+		    +ss[i]/(2*se[i]*se[i]);
+
       neglogL+=nll[i];
       //neglogL+=ss[i];
       }               
 	 }
+	 
+  // weighted likelihood priors
+  dvariable _msy  =r*k*pow(1/(1+p),1/p+1);
+  dvariable _bmsy =(k*pow((1/(1+p)),(1/p)));
+  dvariable _fmsy =_msy/_bmsy;
+ 
+  if (r_prior[1]>0)    neglogL += r_prior[1]*dnorm(r, r_prior[2], r_prior[3]); 
+  if (k_prior[1]>0)    neglogL += k_prior[1]*dnorm(k, k_prior[2], k_prior[3]);
+  if (p_prior[1]>0)    neglogL += p_prior[1]*dnorm(p, p_prior[2], p_prior[3]);
+  if (a_prior[1]>0)    neglogL += a_prior[1]*dnorm(a, a_prior[2], a_prior[3]);
+
+  if ( msy_prior[1]>0)  
+    neglogL +=  msy_prior[1]*dnorm(_msy,   msy_prior[2],  msy_prior[3]); 
+  if (bmsy_prior[1]>0)  
+    neglogL += bmsy_prior[1]*dnorm(_bmsy, bmsy_prior[2], bmsy_prior[3]); 
+  if (fmsy_prior[1]>0)  
+    neglogL += fmsy_prior[1]*dnorm(_fmsy, fmsy_prior[2], fmsy_prior[3]); 
+
+  //Reference year in "a" of priors slot if type==10
+  if ( msy_prior[1]==10) {
+      double a=value(C[(int)msy_prior[2]]);
+      neglogL +=  msy_prior[1]*dnorm(_msy,a,a*msy_prior[2]); 
+      }
+  if (fmsy_prior[1]==10) {
+      double a=value(C[(int)msy_prior[2]]/B[(int)  fmsy_prior[2]]);
+      neglogL +=  fmsy_prior[1]*dnorm(_fmsy,a,a*fmsy_prior[2]); 
+      }
+  if (bmsy_prior[1]==10) {
+      double a=value(B[(int)  bmsy_prior[2]]);
+      neglogL += bmsy_prior[1]*dnorm(_bmsy,a,a*bmsy_prior[2]); 
+      }
 
 FUNCTION setSummary
   summary.colfill(1,(dvector)Cyear);

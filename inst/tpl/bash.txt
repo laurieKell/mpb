@@ -1,5 +1,5 @@
-cd /home/laurie/Desktop/flr/git/mpb/inst/tpl
-export ADMB_HOME=/home/laurie/Desktop/admb/build/dist
+cd /home/laurie/Desktop/flr/mpb/inst/tpl
+export ADMB_HOME=/home/laurie/admb
 export PATH=$ADMB_HOME/bin:$PATH
 
 

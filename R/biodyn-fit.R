@@ -277,11 +277,12 @@ getPella=function(obj, exeNm='pella') {
   obj@params[grep('s',dimnames(obj@params)$params),]=s. 
     
   err=try(t3<-t(array(read.table('lls.txt',sep="\n"))))
+
   if (!(any(is(err)=="try-error"))){
     
     t3=t3[,length(t3)]
     t3=as.numeric(unlist(strsplit(str_trim(t3)," ")))
-
+t3<<-t3
     obj@ll =FLPar(array(t(array(t3,c(length(s.),5))),
                 dim=c(5,length(s.),1),
                 dimnames=list(params=c("ll","rss","sigma","n","q"),
@@ -324,6 +325,8 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
   
   index=FLQuants(llply(index, window,start=min,end=max))
   
+  its=max(its,dims(object@control)$iter)
+  
   slts=getSlots('biodyn')
   slts=slts[slts %in% c('FLPar','FLQuant')]
  
@@ -335,24 +338,17 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
   object=list(object,index)
   bd =object[[1]]
   its=max(maply(names(slts), function(x) { 
-          #print(x)
-          #print(dims(slot(bd,x))$iter)
           dims(slot(bd,x))$iter 
           }))
   
-  its=max(its,dims(bd@control)$iter)
-
   nms=dimnames(params(bd))$params
   bd@vcov   =FLPar(array(as.numeric(NA), dim=c(length(nms),length(nms),its), dimnames=list(params=nms,params=nms,iter=seq(its))))
   bd@hessian=bd@vcov
 
-  us=paste('u',seq(length(dimnames(params(bd))$params[grep('q',dimnames(params(bd))$params)])),sep='')
-  bd@ll=FLPar(NA,dimnames=list(params=us,iter=seq(1)))
+  bd@ll=FLPar(NA,dimnames=list(params=c("ll","rss","sigma","n"),
+                               index =paste('u',seq(length(dimnames(params(bd))$params[grep('q',dimnames(params(bd))$params)])),sep=''),
+                               iter  =seq(1)))
 
-  bd@ll=FLPar(array(NA,
-                 dim=c(4,length(index),its),
-                 dimnames=list(params=c("ll","rss","se","n"),
-                               index =seq(length(index)))))
   
   if (its>1){
    
@@ -374,17 +370,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
         slot(bd, i)<-propagate(slot(bd, i), its)}
         }
 
-  slot(bd,"ll")=FLCore::iter(slot(bd, "ll"),1)
-  
-  dimnames(ll)[[3]]=1
-  bd@ll=FLPar(array(as.numeric(rep(NA,4)),dim=c(4,1,1),
-              dimnames=list('params'=c('ll','rss',"sigma","n"),
-                            'index' =1,
-                            'iter'  =1)))  
-  
   slot(bd, "ll")<-propagate(slot(bd, "ll"), its)
-  
-  #print(slot(object[[1]],'control'))
 
   cpue=object[[2]]
   bd2 =object[[1]]
@@ -460,9 +446,9 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
      bd@control@.Data[,,i] = object[[1]]@control
 
      bd@objFn@.Data[   ,i] = object[[1]]@objFn
-
-     #bd@ll@.Data[,,i] = object[[1]]@ll
-
+     
+     bd@ll@.Data[,,i] = object[[1]]@ll
+     
      if (file.exists('pella.std')){
        err1=try(mng.<-read.table('pella.std',header=T)[,-1])
     
@@ -543,14 +529,17 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
         diagsFn(res)},index=index)
   
       names(bd@diags)[1]="name"
-      }
+  }else 
+    bd@diags=dgsFn(bd,index)
+    
   
   setwd(oldwd) 
 
 #  if (!is.null(catch)) catch(object)=catch
 
+  bd@stock=stock(mpb:::fwd(bd,catch=catch(bd)))
+  
   options(ow)
-
   return(bd)}
             
 #library(matrixcalc)
@@ -720,3 +709,121 @@ fitFn=function(file){
 #fitFn(file)
 
 #as.data.frame(t(array(read.csv("/tmp/RtmptQ93hN/lls.txt",sep=""))))
+
+dgsFn=function(bd,index){
+  
+  stockHat=(stock(bd)[,-dims(stock(bd))$year]+stock(bd)[,-1])/2
+  
+  itB=dims(stockHat)$iter
+  diags=mdply(seq(length(index)),function(i,index){
+    
+    itI=dims(index[[i]])$iter
+    mdply(data.frame(iter=seq(max(itB,itI))), function(iter) {
+      
+      obs=iter(index[[i]],min(iter,itB))
+      hat=iter(stockHat,min(iter,itB))*iter(params(bd),min(iter,itB))[paste("q",i,sep="")]
+      yrs=dimnames(obs)$year[dimnames(obs)$year%in%dimnames(hat)$year]
+      
+    res=as.data.frame(log(obs[,yrs]/hat[,yrs]),drop=T)})},index=index)
+  
+  res=transform(diags[!is.na(diags$data),],name=names(index)[X1])[,c("name","year","iter","data")]
+  names(res)[4]="residual"
+  res}
+
+
+logit<-function(min,x,max){
+  x=(x-min)/(max-min)
+  log(x/(1-x))}
+
+invLogit<-function(min,x,max){
+  x=1/(1+exp(-x))
+  return(x*(max-min)+min)}
+
+setControlFn<-function(params,min=0.01,max=100){
+  dmns=dimnames(params)[1]
+  dmns[["option"]]=c("phase","min", "val","max")
+  dmns[["iter"]]  =seq(dim(params)[2])
+  
+  control=FLPar(array(c(1,1,-1,-1,rep(NA,12)),dim=c(4,4,dim(params)[2]),dimnames=dmns))
+  control[1:4,"val"]=c(params)
+  control[,"min"]=control[,"val"]*min
+  control[,"max"]=control[,"val"]*max 
+  
+  control}
+
+setLogitFn<-function(control){
+  
+  control=aaply(control,3,function(x){
+    flg=x[,"phase"]>0
+    if (any(flg))
+      x[flg,"val"]=logit(x[flg,"min"],x[flg,"val"],x[flg,"max"])
+    x})
+  
+  FLPar(aperm(control,c(2:3,1)))}
+
+#control=setControlFn(params[,1],min=0.0001,max=10000)
+#control["r","phase"]=-1
+
+setMethod('fit',signature(object='FLPar',index='FLQuant'),
+  function(object,index=index,...){
+            
+  args=list(...)
+  catch=args[["catch"]]           
+  nits=max(dims(object)$iter,dims(catch)$iter,dims(index)$iter)
+  
+  #DATA_VECTOR(ctc);      nyr
+  #DATA_MATRIX(idx);      nyr, nidx
+  
+  nyr =dim(catch)[2]
+  if (nyr!=dim(index)[2]) stop("catch and index dont match")
+  
+  #DATA_MATRIX(ctl);      4,   3
+  if (dim(object)[1]!=4) stop("control needs 4 parameters")
+  if (dim(object)[2]!=4) stop("control needs 4 options")
+  
+  warn=options()$warn
+  options(warn=-1)
+  sink("/dev/null")
+              
+  res=mdply(seq(nits),function(i) {
+      print(i)
+        
+      params=FLPar(iter(object,i)[,"val",drop=TRUE])
+    
+      ctc=c(window(iter(catch,i)))
+      idx=matrix(iter(index,i),dim(index)[2],1)
+               
+      #cat(i,file="/home/laurie/Desktop/tmp/chk2.txt")
+                
+      flg=(iter(object[,"phase"],i)>0)[drop=T]
+        
+      if (any(flg))
+        val=c(logit(iter(object[flg,"min"],i),iter(object[flg,"val"],i),iter(object[flg,"max"],i)))
+                
+          
+      f=MakeADFun(data      =list(ctc=ctc,idx=idx,ctl=iter(object,i)[drop=TRUE]),
+                  parameters=list(par=val),
+                  DLL       ="pellaTmb")
+      hat=try(optimx(f$par,f$fn,f$gr,control=list(trace=0,fnscale=-1),method="BFGS"))
+                
+      if ("character" %in% mode(hat))
+        hat=try(optimx(f$par,f$fn,control=list(trace=0,fnscale=-1),method="BFGS"))
+      if ("character" %in% mode(hat))
+        return(NULL)
+                
+      if (sum(flg)>0){
+        params[flg]=invLogit(iter(object[flg,2],i),
+                             unlist(c(hat[seq(sum(flg))])),
+                             iter(object[flg,4],i))
+          }
+                
+      nms=c("value","fevals","gevals","niter","convcode","kkt1","kkt2","xtimes")
+      par=unlist(c(model.frame(params)[-5],hat[nms]))
+      names(par)[length(flg)+1]="ll"
+      par})
+            
+  sink();sink(); 
+  options(warn=warn)
+  
+  
+  res})

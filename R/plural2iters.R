@@ -1,8 +1,15 @@
-FLQuants2FLQuant<-function(object,flq){
+FLQuants2FLQuant<-function(object){
+  mat=ldply(object,as.data.frame)[,-7]
+  names(mat)[1]="iter"
+  mat$iter=as.numeric(as.factor((mat$iter)))
+  
+  as.FLQuant(mat)}
+
+flqs2flq<-function(object,flq){
   nit=laply(object,function(x) dims(x)$iter)
   nit=c(0,cumsum(nit))[seq(length(nit))]
   
-  mat=mdply(seq(length(nit)),function(i) {
+   mat=mdply(seq(length(nit)),function(i) {
     transform(as.data.frame(slot(object[[i]],flq)),
               iter=as.numeric(as.character(iter))+nit[i])})[,-1]
   
@@ -22,9 +29,13 @@ FLStocks2FLStock<-function(object){
   nts=length(object)
   res=propagate(FLStock(catch.n=FLQuant(NA,dimnames=dmns)),nts)
   
+  minyear=unique(laply(object,function(x) dims(x)$minyear))
+  if (length(minyear)>1)
+    object=FLStocks(llply(object,window,start=min(minyear)))
+  
   slt=getSlots("FLStock")  
   for (s in names(slt[slt%in%"FLQuant"]))
-    slot(res,s)=FLQuants2FLQuant(object,s)
+    slot(res,s)=flqs2flq(object,s)
   
   units(harvest(res))=units(harvest(object[[1]]))
   
@@ -46,10 +57,19 @@ FLBRPs2FLBRP<-function(object){
   dmns=list(age =min(dms$min):max(dms$max),
             year=min(dms$minyear):max(dms$maxyear))
   
+  obs=c("fbar.obs","landings.obs","discards.obs","rec.obs","ssb.obs","stock.obs","profit.obs")   
+  
+  minyear=unique(c(laply(object, function(x) maply(obs,function(y) dims(slot(x,y))$minyear))))
+  if (length(minyear)>1)
+    object=FLBRPs(llply(object,function(x) {
+        for (i in obs)
+           slot(x,i)=window(slot(x,i),start=min(minyear))
+      x}))
+  
   res=FLBRP()
   slt=getSlots("FLBRP")
   for (s in names(slt[slt%in%"FLQuant"]))
-    slot(res,s)=FLQuants2FLQuant(object,s)
+    slot(res,s)=flqs2flq(object,s)
   
   model(res)=model(object[[1]])
   

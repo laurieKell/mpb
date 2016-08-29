@@ -89,7 +89,7 @@ private:
   param_vector nll;
   param_vector ss;
   param_vector n;
-  param_vector sm;
+  param_vector se;
   param_vector _q;
   param_vector B;
   param_vector F;

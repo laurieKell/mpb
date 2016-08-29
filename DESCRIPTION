@@ -19,6 +19,7 @@ Imports:
     stringr,
     reshape,
     FLBRP
+LinkingTo: Rcpp
 Maintainer: Laurence Kell<laurie.kell@iccat.int>
 License: GPL-2
 Collate:
@@ -80,6 +81,7 @@ Collate:
     'resample.R'
     'rjm-series.R'
     'biodyn-mse.R'
+    'rwalk.R'
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1

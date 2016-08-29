@@ -335,4 +335,29 @@ setMethod('fwd', signature(object='biodyn',ctrl='FLQuants'),
 #   return(biodyns(res))})
       
 
-    
+setMethod( 'fwd', signature(object='FLPar',ctrl='missing'),function(object,...){
+   args=list(...)
+   if ("catch"%in%names(args)){
+     catch=args[["catch"]]
+     
+     if (any(dim(catch)[c(1,3:5)]!=1)) stop("Only for year and iter >1 in catch")
+     if (!all(c("r","k","p","b0")%in%dimnames(object)$params)) stop(cat(c("r","k","p","b0"), "not all in params"))
+     if (length(dim(object))!=2) stop("only params and iter allowed in params")
+
+     nits=c(dims(catch)$iter,dims(object)$iter)
+     if (length(unique(nits))==2&min(nits)!=1) stop("iter have to be 1 or n")
+
+     attributes(object)[["class"]]="matrix"
+     
+     res=fwdCpp(matrix(c(catch),nrow=dim(catch)[2],ncol=dim(catch)[6]),
+                object[c("r","k","p","b0"),])
+     res=FLQuant(unlist(c(res)),dimnames=dimnames(catch))
+     }
+          
+   res})
+           
+
+# names(parSim1)[15:16]=c("ref85","current")
+# parSim1=transform(parSim1,b85=ref85/current,
+#                   bref=ref85/bmsy)
+

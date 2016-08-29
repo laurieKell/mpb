@@ -3,8 +3,8 @@
 #' @description 
 #' Checks that the parameters can be taken given the catch time series
 #'       
-#' @param object an \code{FLQuant} with a time series of catch, iters must be equal to 1
-#' @param params an \code{FLPar} object with parameters for the production function, r, k, p and b0.
+#' @param object an \code{FLPar}, \code{FLBRP} or \code{data.frame} object with parameters for the production function, r, k, p and b0.
+#' @param catch an \code{FLQuant} with a time series of catch, iters must be equal to 1
 #' @params min, the minimum permissable population level, used to check that the catch can be taken.
 #' @params ...
 #' @return a \code{FLPar} a subset of params with parameter values that can explain the catch
@@ -16,20 +16,24 @@
 #' \dontrun{
 #' params=feasibleFn(catch,params)
 #' }
-setGeneric('feasible',  function(object,params,...) standardGeneric('feasible'))
+setGeneric('feasible',  function(object,catch,...) standardGeneric('feasible'))
 setGeneric('grid',      function(object,...)        standardGeneric('grid'))
 
-setMethod('feasible',  signature(object='FLQuant',params="FLPar"), 
-   function(object,params,min=0.01){
-     feasibleFn(object=object,params=params,min=min)})
+setMethod('feasible',  signature(object="FLPar",catch="FLQuant"), 
+   function(object,catch,min=0.01){
+     feasibleFn(params=object,catch=catch,min=min)})
 
-setMethod('feasible',  signature(object='biodyn',params="missing"), 
-    function(object,params,min=0.01)
-      feasibleFn(catch(object),params(object),min))
+setMethod('feasible',  signature(object='biodyn',catch="missing"), 
+    function(object=params(object),catch=catch(object),min=0.01)
+      feasibleFn(params=params(object),catch(object),min))
 
-feasibleFn<-function(object,params,min=0.01){          
+setMethod('feasible',  signature(object="data.frame",catch="FLQuant"), 
+          function(object,catch,min=0.01){
+            feasibleFn(params=as(object,"FLPar"),catch=catch,min=min)})
+
+feasibleFn<-function(params,catch,min=0.01){          
   
-  flg=feasibleCpp(object,t(params@.Data))>0
+  flg=feasibleCpp(catch,t(params@.Data))>0
   params[,flg]}
 
 setMethod('grid',  signature(object='FLQuant'), 
@@ -59,7 +63,7 @@ gridFn<-function(catch,
                  maxk=max(k),mult=1.0,step=signif(max(k)/100,1)) {
   
   par=as(data.frame(expand.grid(r=r,k=k),p=p,b0=b0),"FLPar")
-  par=feasible(catch,par)
+  par=feasible(par,catch)
   fsb=with(model.frame(par), coefficients(lm(1/k~r)))
   names(fsb)=c("intercept","slope")
   

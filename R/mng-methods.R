@@ -77,6 +77,16 @@ setMethod( 'ts', signature(object='biodyn',params="FLPar"), function(object,para
   })
 
 
+setMethod( 'ts', signature(object='FLStocks',params="FLBRP"), 
+           function(object,params,df=TRUE,ref="msy") {
+             mdply(data.frame(.id=names(object)),function(.id) 
+               ts(object[[.id]],refpts(params)[ref],df=TRUE))})
+
+setMethod( 'ts', signature(object='FLStocks',params="FLBRPs"), 
+           function(object,params,ref="msy") {
+             mdply(data.frame(.id=names(object)),function(.id) 
+               ts(object[[.id]],refpts(params[[.id]])[ref]))})
+
 #' mng
 #'
 #' @description calculates time series of quantities useful for management

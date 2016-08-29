@@ -113,6 +113,8 @@ setMethod('refpts', signature(object='factor',    params='FLPar'),   function(ob
 setMethod('refpts', signature(object='biodyn',    params='missing'), function(object)  {  model=model(object)
                                                                                           par  =params(object)
                                                                                           refptsFn(model,par)})
+setMethod('refpts', signature(object='FLPar', params='missing'),    function(object=params)  refptsFn(factor("pellaT"),params=object))
+
 setGeneric('refptSE',  function(object,params,...) standardGeneric('refptSE'))
 setMethod('refptSE', signature(object='character', params='FLPar'),   function(object=factor(object), params=params)         refptsFn(object, params))
 setMethod('refptSE', signature(object='factor',    params='FLPar'),   function(object=       object,  params=params)         refptsFn(object, params))
@@ -123,7 +125,7 @@ setMethod('refptSE', signature(object='biodyn',    params='missing'), function(o
 
 # Fox
 msyFox  <- function(params)
-  params['r']*(params['k']*exp(-1))*(1-(log(params['k'])-1)/log(params['k']))
+  params['r']*params['k']
 
 # Schaefer
 msySchaefer <- function(params)
@@ -180,6 +182,14 @@ bmsyGulland <-function(params)
 bmsyFletcher <- function(params)
   params['k']*(1/(params['p']+1)^(1/(params['p'])))
 
+fmsyPellaT  <-function(params) params['r']*(1/(1+params['p']))
+fmsyFox     <-function(params) params['r']*(1-(log(params['k'])-1)/log(params['k']))
+fmsySchaefer<-function(params) params['r']/2
+fmsyShepherd<-function(params) msyShepherd(params)/bmsyShepherd(params)
+fmsyGulland <-function(params) params['r']*params['k']/2
+fmsyFletcher<-function(params) msyFletcher(params)/bmsyFletcher(params)
+fmsyLogistic<-function(params) {r=4*params['msy']/params['k']; r/2}
+
 fmsyFn=function(object,params,probs=0.5){
   
   if (probs!=0.5){
@@ -187,14 +197,7 @@ fmsyFn=function(object,params,probs=0.5){
     return(res)}
   
   object=tolower(object)
-  fmsyPellaT  <-function(params) params['r']*(1/(1+params['p']))
-  fmsyFox     <-function(params) params['r']*(1-(log(params['k'])-1)/log(params['k']))
-  fmsySchaefer<-function(params) params['r']/2
-  fmsyShepherd<-function(params) msyShepherd(params)/bmsyShepherd(params)
-  fmsyGulland <-function(params) params['r']*params['k']/2
-  fmsyFletcher<-function(params) msyFletcher(params)/bmsyFletcher(params)
-  fmsyLogistic<-function(params) {r=4*params['msy']/params['k']; r/2}
-  
+
   res<-switch(as.character(object),
               
               fox     =fmsyFox(     params),
