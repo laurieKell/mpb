@@ -10,6 +10,9 @@
 #' 
 #' @export
 #' 
+#'@importFrom Rcpp evalCpp
+#'@useDynLib mpb
+#'
 #' @rdname feasible
 #' @examples
 #' \dontrun{
