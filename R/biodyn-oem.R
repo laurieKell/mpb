@@ -67,7 +67,6 @@ setMethod( 'sim',   signature(stock='missing',brp='missing'),
     slot(object, i) <- args[[i]]
   
   object <- fwd(object, harvest=harvest)
-  return()
   
   return(object)}) 
 

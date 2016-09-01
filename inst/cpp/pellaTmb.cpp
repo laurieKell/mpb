@@ -13,7 +13,6 @@
 //   return(x*(max-min)+min)}
 
 
-
 template<class Type>
 Type invLogit(Type x, Type min, Type max){
   x=1/(1+exp(-x));
