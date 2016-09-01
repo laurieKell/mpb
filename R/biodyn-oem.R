@@ -50,7 +50,6 @@ setMethod( 'sim',   signature(stock='missing',brp='missing'),
   nyr <- dims(harvest)$year
   object = biodyn('pellat',params=params,
                   stock=stock)
-  
   object@control['r',     'val']=params['r']
   object@control['k',     'val']=params['k']
   object@control['p',     'val']=params['p']
@@ -68,6 +67,7 @@ setMethod( 'sim',   signature(stock='missing',brp='missing'),
     slot(object, i) <- args[[i]]
   
   object <- fwd(object, harvest=harvest)
+  return()
   
   return(object)}) 
 
