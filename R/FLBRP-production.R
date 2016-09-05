@@ -77,7 +77,7 @@ productionFn=function(object,stk="missing",
     catch.obs(  object)[,-nyr]-
     biomass.obs(object)[,-1]
   
-  ref               =FLBRP:::refpts(object)[1,]
+  ref               =refpts(object)[1,]
   dimnames(ref)[[1]]="biomass"
   ref               =propagate(ref,nyr-1)
   ref[]             =NA
@@ -113,7 +113,7 @@ productionFn=function(object,stk="missing",
             as.data.frame(biomass.obs(object)[,-nyr]-
                             ssb.obs(    object)[,-nyr],drop=T)[,"data"],
             as.data.frame(prd,drop=T)[,"data"],
-            model.frame(FLBRP:::refpts(object)[,"yield"])[,"biomass"])
+            model.frame(refpts(object)[,"yield"])[,"biomass"])
   
   names(res)=c("year","biomass","ssb","catch","rec","juve","obs","hat")
   

@@ -20,7 +20,7 @@ library(knitr)
 opts_chunk$set(echo    =TRUE,
                eval    =TRUE,
                cache   =!FALSE,
-               cache.path="vignette/",
+               cache.path="cache/",
                prompt  =FALSE,
                comment =NA,
                message =FALSE,
@@ -530,7 +530,7 @@ pts =mdply(data.frame(Year=seq(33,49,3)),function(Year)
                  kobe(bd,year=Year,what="pts"))
 
 kobePhase()+    
-    geom_line(aes(stock,harvest),data=biodyn:::hcrPlot(bd.),
+    geom_line(aes(stock,harvest),data=hcrPlot(bd.),
               col="brown",size=1.5)                             +    
     geom_path( aes(stock,harvest),data=subset(trks,pctl=="50%"),col="blue")+
     geom_point(aes(stock,harvest),data=subset(pts,year>=33),size=.3,col="cyan")    +
@@ -541,7 +541,7 @@ kobePhase()+
 # MSE
 
 ```{r mse,eval=FALSE}
-biodyn:::mseBiodyn
+mseBiodyn
 ```
 \newpage
 

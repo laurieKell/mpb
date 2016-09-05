@@ -61,7 +61,7 @@ bd=window(bd,end=49)
 plot(bd)
 
 ## ----plotEql, fig.margin=TRUE, eval=FALSE, fig.height=6, fig.width=4, echo=FALSE, fig.cap="Simulated CPUE series"----
-## biodyn:::plotEql(bd)
+## plotEql(bd)
 
 ## ----plotPrd, fig.margin=TRUE, fig.cap="Simulated CPUE series"-----------
 library(reshape)
@@ -423,14 +423,14 @@ plot(bd)
 ##                  Year=year)[,c("stock","harvest","Year")]
 ## 
 ## kobePhase()+
-##     geom_line(aes(stock,harvest),data=biodyn:::hcrPlot(bd.),
+##     geom_line(aes(stock,harvest),data=hcrPlot(bd.),
 ##               col="brown",size=1.5)                             +
 ##     geom_path( aes(stock,harvest),data=subset(trks,pctl=="50%"))+
 ##     geom_point(aes(stock,harvest),data=subset(pts,Year>=33))    +
 ##     facet_wrap(~Year)
 
 ## ----mse,eval=FALSE------------------------------------------------------
-## biodyn:::mseBiodyn
+## mseBiodyn
 
 ## ----,eval=FALSE, results='asis'-----------------------------------------
 ## library(xtable)
