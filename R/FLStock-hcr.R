@@ -108,9 +108,9 @@ setMethod('hcr', signature(object='FLStock',refs='FLBRP'),
    
    ## TAC
    if (tac){
-      #object=FLash:::fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hyr)-1))])
-      #object=FLash:::fwd(object,f=fbar(object)[,ac(min(as.numeric(hyr)-1))],sr=eq)
-      rtn   =catch(FLash:::fwd(object, f=rtn, sr=refs))[,ac(hyr)]                                  
+      #object=fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hyr)-1))])
+      #object=fwd(object,f=fbar(object)[,ac(min(as.numeric(hyr)-1))],sr=eq)
+      rtn   =catch(fwd(object, f=rtn, sr=refs))[,ac(hyr)]                                  
       
       if (!is.null(bndTac)){  
         ref=FLCore::apply(catch(object)[,ac(byr)],6,mean)
@@ -133,9 +133,9 @@ setMethod('hcr', signature(object='FLStock',refs='FLBRP'),
         rtn=rtn*rlnorm(1,0,tEr)
       
       if (tac)
-        res=FLash:::fwd(object,catch=rtn,sr=refs,sr.residuals=sr.residuals)
+        res=fwd(object,catch=rtn,sr=refs,sr.residuals=sr.residuals)
       else 
-        res=FLash:::fwd(object,    f=rtn,sr=refs,sr.residuals=sr.residuals)
+        res=fwd(object,    f=rtn,sr=refs,sr.residuals=sr.residuals)
   
       if (mdd|matdd){
 
@@ -148,9 +148,9 @@ setMethod('hcr', signature(object='FLStock',refs='FLBRP'),
              mat(res)[,i]=matdd(ages(m(res)[,i]),params[c("a50","ato95","asym","ddmat")],scale=scl) 
 
           if (tac) 
-             res=FLash:::fwd(res,catch=rtn[i],sr=refs,sr.residuals=sr.residuals)
+             res=fwd(res,catch=rtn[i],sr=refs,sr.residuals=sr.residuals)
            else
-             res=FLash:::fwd(res,    f=rtn,sr=refs,sr.residuals=sr.residuals)
+             res=fwd(res,    f=rtn,sr=refs,sr.residuals=sr.residuals)
           }
       }  
   
