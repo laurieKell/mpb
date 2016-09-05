@@ -96,15 +96,15 @@ mseBiodyn<-function(om,eql,srDev,
     bd@control['q1','val']  =1
     
     ## fit
-    bd =biodyn:::fit(bd,cpue,cmdOps=cmdOps)
-    bd =biodyn:::fwd(bd,catch=catch(om)[,ac(iYr)])
+    bd =fit(bd,cpue,cmdOps=cmdOps)
+    bd =fwd(bd,catch=catch(om)[,ac(iYr)])
         
     ## HCR
     hcrPar=hcrParam(ftar =ftar *fmsy(bd),
                      btrig=btrig*bmsy(bd),
                      fmin =fmin *fmsy(bd), 
                      blim =blim *bmsy(bd))
-    hcrOutcome=biodyn:::hcr(bd,hcrPar,
+    hcrOutcome=hcr(bd,hcrPar,
                    hcrYrs=iYr+seq(interval),
                    bndF  =bndF,
                    bndTac=bndTac,
@@ -213,15 +213,15 @@ demoBiodyn<-function(om,mp,
     bd@control['q1','val']  =1
     
     ## fit
-    bd =biodyn:::fit(bd,cpue,cmdOps=cmdOps)
-    bd =biodyn:::fwd(bd,catch=catch(om)[,ac(iYr)])
+    bd =fit(bd,cpue,cmdOps=cmdOps)
+    bd =fwd(bd,catch=catch(om)[,ac(iYr)])
     
     ## HCR
     hcrPar=hcrParam(ftar =ftar *fmsy(bd),
                     btrig=btrig*bmsy(bd),
                     fmin =fmin *fmsy(bd), 
                     blim =blim *bmsy(bd))
-    hcrOutcome=biodyn:::hcr(bd,hcrPar,
+    hcrOutcome=hcr(bd,hcrPar,
                            hcrYrs=iYr+seq(interval),
                            bndF=bndF,
                            tac =TRUE)
@@ -307,14 +307,14 @@ demo<-function(om,mp,pe,
     ## fit
     mp =fit(window(mp,end=iYr-1),cpue,
             cmdOps=ifelse(nits>1,cmdOps,'-maxfn 500 -iprint 0'))
-    mp =biodyn:::fwd(mp,catch=catch(om)[,ac(iYr)],maxF=maxF)
+    mp =fwd(mp,catch=catch(om)[,ac(iYr)],maxF=maxF)
     
     ## HCR
     hcrPar=hcrParam(ftar =ftar *fmsy(mp),
                     btrig=btrig*bmsy(mp),
                     fmin =fmin *fmsy(mp), 
                     blim =blim *bmsy(mp))
-    hcrOutcome=biodyn:::hcr(mp,hcrPar,
+    hcrOutcome=hcr(mp,hcrPar,
                            hcrYrs=iYr+seq(interval),
                            bndF=bndF,
                            tac =TRUE,

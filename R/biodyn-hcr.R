@@ -261,7 +261,7 @@ setMethod('hcrPlot', signature(object='biodyn'),
   names(pts)[2:3]=c('stock','harvest')
   
   if (rel){
-    pts[,'stock']=pts[,'stock']/bmsy(object)
-    pts[,'harvest']=pts[,'harvest']/fmsy(object)}
+    pts[,'stock']=pts[,'stock']/mpb:::bmsy(object)
+    pts[,'harvest']=pts[,'harvest']/mpb:::fmsy(object)}
   
   pts})
