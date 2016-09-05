@@ -145,7 +145,7 @@ setGeneric('refptSE',  function(object,params,...)  standardGeneric('refptSE'))
 setGeneric('kobe',     function(object,method,...)  standardGeneric('kobe'))
 
 setGeneric('fwd',      function(object, ctrl, ...)    standardGeneric('fwd'))
-setGeneric('hcr',      function(object, ...)          standardGeneric('hcr'))
+setGeneric('hcr',      function(object,refs,...)      standardGeneric('hcr'))
 setGeneric('tac',      function(object, harvest, ...) standardGeneric('tac'))
 setGeneric('hcr<-',    function(object,value)         standardGeneric('hcr<-'))
 

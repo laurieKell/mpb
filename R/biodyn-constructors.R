@@ -1,8 +1,6 @@
-setMethod('biodyn', signature(),
-    function(model="pellat",
-             catch=NA,
-             r=0.5,p=1,k=guessK(r=r,catch=catch,p=p),b0=0.75,
-             params=NULL,
+setMethod('biodyn', signature(object='FLQuant',params='FLPar'),
+    function(object,
+             params,
              min=.1,max=10,...){
     
   model=tolower("pellat")
@@ -15,17 +13,20 @@ setMethod('biodyn', signature(),
   for(i in names(args))
     slot(res, i) = args[[i]]
      
-  if ("FLQuant"%in%is(catch))
-    res@catch=catch
+  res@catch =object
+  res@params=params
+ 
+  if (any(is.na(res@params["k"]))){
+    flag=is.na(res@params["k"])
+    k=  guessK(mean(c(res@params["r",,flag],na.rm=TRUE)),
+               mean(c(res@catch),na.rm=TRUE),
+               mean(c(res@params["p",,flag]),na.rm=TRUE))
+    
+    res@params["k",,is.na(res@params["k"])]=k
+    
+    
+    }
       
-  if (!("params" %in% names(args))|is.null(params)){
-    res@params=rbind(FLPar(r =FLPar(r),
-                           k =FLPar(k),
-                           p =FLPar(p),
-                           b0=FLPar(b0)))  
-  }else if (!is.null(params)) 
-    res@params=params
-
   res@control=propagate(res@control,dims(res@params)$iter)
   nms=dimnames(res@control)$param[dimnames(res@control)$param %in% dimnames(res@params)$param]
   res@control[nms,  'val']=res@params[nms,]
@@ -42,11 +43,11 @@ setMethod('biodyn', signature(),
 
   return(res)})
 
-guessK=function(r,catch,p=1,ratio=0.5)
-  1/ratio*mean(catch)*p/(r*(1-(ratio)^p))
+guessK=function(r,catch,p=1)
+    mean(catch)/(r*(1/(1+p))^(1/p+1))
 
 setMethod('biodyn', signature(object='missing',params='FLPar'),
-          function(object,params,model="pellat",min=.1,max=10,msy=NULL,r=NULL,...){
+  function(object,params,model="pellat",min=.1,max=10,msy=NULL,r=NULL,...){
   args=list(...)
           
   res=biodyn(object=factor(model),
@@ -56,6 +57,15 @@ setMethod('biodyn', signature(object='missing',params='FLPar'),
                                
   res})
 
+setMethod('biodyn', signature(object='FLQuant',params='missing'),
+  function(object,params=FLPar(r=0.5,k=NA,p=1,b0=1),model="pellat",min=.1,max=10,msy=NULL,r=NULL,...){
+    args=list(...)
+            
+    res=biodyn(object=object,
+               params=params,
+               min=min,max=max,...)
+            
+    res})
 
 setMethod('biodyn', signature(object='FLBRP',params='FLStock'),
           function(object,params,model="pellat",min=.1,max=10,msy=NULL,r=NULL,...){
@@ -96,7 +106,7 @@ setMethod('biodyn', signature(object='factor',params='FLPar'),
   if (model=='pellat')
       params=params[c('r','k','p','b0'),]
   
-  res        =biodyn()
+  res        =new("biodyn")
             
   if (!('factor' %in% is(model)))
       model=factor(model)

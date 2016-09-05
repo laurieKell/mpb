@@ -29,7 +29,6 @@
 #' for (i in seq(29,49,1))
 #' bd=fwd(bd,harvest=hcr(bd,byr=i,yrs=i+1)$hvt)
 #' }
-setGeneric('hcr', function(object,refs,...) standardGeneric('hcr'))
 setMethod('hcr', signature(object='FLStock',refs='FLBRP'),
  function(object,refs, 
            hpar=hcrParam(ftar =0.70*refpts(refs)["msy",'harvest'],

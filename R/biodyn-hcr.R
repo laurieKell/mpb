@@ -117,8 +117,7 @@ hcrParam=function(ftar,btrig,fmin,blim){
 #' for (i in seq(29,49,1))
 #' bd=fwd(bd,harvest=hcr(bd,yr=i,yr=i+1)$hvt)
 #' }
-setGeneric('hcr', function(object,...) standardGeneric('hcr'))
-setMethod('hcr', signature(object='biodyn'),
+setMethod('hcr', signature(object='biodyn',refs='missing'),
  function(object, 
            params=hcrParam(ftar =0.70*refpts(object)['fmsy'],
                            btrig=0.80*refpts(object)['bmsy'],
@@ -162,9 +161,10 @@ setMethod('hcr', signature(object='biodyn'),
   
   rtn=window(rtn,end=max(hyr))
   #dimnames(rtn)$year=min(hyr)  
-  if (length(hyr)>1){
-    rtn=window(rtn,end=max(hyr))
-    rtn[,ac(hyr)]=rtn[,dimnames(rtn)$year[1]]}
+  #if (length(hyr)>1){
+  rtn=window(rtn,end=max(hyr))
+  rtn[,ac(hyr)]=rtn[,dimnames(rtn)$year[1]]
+  #}
   
   ### Bounds ##################################################################################
   ## F
@@ -183,7 +183,7 @@ setMethod('hcr', signature(object='biodyn'),
             rtn[,ac(i)]=rtn[,ac(i-1)]}
   
       if (!is.null(maxF)) rtn=qmin(rtn,maxF)}}
-   
+ 
   hvt=rtn
    
    ## TAC
@@ -208,7 +208,7 @@ setMethod('hcr', signature(object='biodyn'),
               rtn[,ac(i)]=rtn[,ac(i-1)]}}
       }
       if (tacMn) rtn[]=c(apply(rtn,3:6,mean))}
-  
+     
   #if (tac) rtn=list(hvt=hvt,tac=rtn,stock=stk) else rtn=list(hvt=hvt,stock=stk)
   if (tac) {
     rtn=window(rtn,start=hyr[1]-1)
@@ -217,9 +217,10 @@ setMethod('hcr', signature(object='biodyn'),
   }else{
     hvt=hvt[,ac(c(hyr[1]-1,hyr))]
     hvt[,ac(hyr[1]-1)]=harvest(object)[,ac(hyr[1]-1)]
+
     return(hvt)}
   
-  return(rtn)})
+  return(hvt)})
 
 #' hcrPlot
 #'

@@ -70,7 +70,7 @@ setMethod( 'sim',   signature(stock='missing',brp='missing'),
   
   return(object)}) 
 
-setMethod( 'sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
+setMethod('sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
 
   bd=biodyn(stock)
   

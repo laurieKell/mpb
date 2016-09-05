@@ -171,7 +171,7 @@ setMethod('plot', signature(x='biodyns', y='missing'),
 #'  refpts('logistic',FLPar(msy=100,k=500))
 #' }
 setMethod('plotPrd',signature(data='biodyn',biomass='missing'),  
-          function(data,biomass,...) plotPrdfn(data,biomass=FLQuant(seq(0,max(params(x)['k']),length.out=101)),...))
+          function(data,biomass,...) plotPrdfn(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=101)),...))
 setMethod('plotPrd',signature(data='biodyn',biomass='FLQuant'),  
           function(data,biomass,...) plotPrdfn(data,biomass,...))
 # setMethod('plotPrd',signature(x='biodyn',biomass='FLBRP'),  

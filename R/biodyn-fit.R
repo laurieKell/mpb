@@ -12,7 +12,7 @@ setMethod('fit',signature(object='biodyn',index='FLQuant'),
                    lav=FALSE){
 
             #sink(file = "/home/laurie/Desktop/temp/output.txt")          
-            
+
             res=fitPella(object,index=index,exeNm=exeNm,package=package, 
                          dir=dir,cmdOps=cmdOps,lav=lav)
             #sink()
@@ -22,10 +22,10 @@ setMethod('fit',signature(object='biodyn',index='FLQuant'),
 setMethod('fit',signature(object='biodyn',index='FLQuants'),
           function(object,index=index,exeNm='pella',package='mpb', 
                    dir=tempdir(),
-                   cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE)
-            fitPella(object,index,exeNm,package, 
+                   cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE){
+          fitPella(object,index,exeNm,package, 
                      dir=dir,
-                     cmdOps=cmdOps,lav=lav))
+                     cmdOps=cmdOps,lav=lav)})
 
 setMethod('fit',signature(object='biodyn',index='FLQuantJKs'),
           function(object,index=index, 
@@ -282,7 +282,7 @@ getPella=function(obj, exeNm='pella') {
     
     t3=t3[,length(t3)]
     t3=as.numeric(unlist(strsplit(str_trim(t3)," ")))
-t3<<-t3
+
     obj@ll =FLPar(array(t(array(t3,c(length(s.),5))),
                 dim=c(5,length(s.),1),
                 dimnames=list(params=c("ll","rss","sigma","n","q"),
@@ -515,16 +515,17 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
 
   if ("FLQuant"%in%class(index)) index=FLQuants("1"=index)
 
+  bd=fwd(bd,catch=catch(bd)) 
+  #stock(bd)=fwd(params(bd),catch=catch(bd)) 
   if (its<=1){
       bd@diags=mdply(seq(length(index)),function(i,index){
-        stockHat=(stock(bd)[,-dims(stock(bd))$year]+stock(bd)[,-1])/2
-        hat     =stockHat*params(bd)[paste("q",i,sep="")]
-        res=model.frame(mcf(FLQuants(
-          obs   =index[[i]],
-          #stock   =stock(bd),
-          #stockHat=stockHat,
-          hat     =hat,
-          residual=log(index[[i]]/hat))),drop=T)
+          stockHat=(stock(bd)[,-dims(stock(bd))$year]+stock(bd)[,-1])/2
+          hat     =stockHat*params(bd)[paste("q",i,sep="")]
+        
+          res=model.frame(mcf(FLQuants(
+            obs     =index[[i]],
+            hat     =hat,
+            residual=log(index[[i]]/hat))),drop=T)
         
         diagsFn(res)},index=index)
   

@@ -6,11 +6,13 @@ setMethod('profile', signature(fitted='biodyn'),
                which,
                index="missing",
                range=seq(0.5,1.5,length.out=21),
-               fn   =function(x) cbind(model.frame(params(x)),
-                                       model.frame(x@ll),
-                                       model.frame(refpts(x))[,-4],
-                                       stock  =c(stock(  x)[,ac(range(x)['maxyear'])]%/%refpts(x)["bmsy"]),
-                                       harvest=c(harvest(x)[,ac(range(x)['maxyear'])]%/%refpts(x)["fmsy"])),
+               fn   =function(x) mdply(data.frame(index=dimnames(x@ll)$index),
+                                   function(index)      
+                                     cbind(model.frame(params(x)),
+                                           model.frame(x@ll[,index]),
+                                           model.frame(refpts(x))[,-4],
+                                           stock  =c(stock(  x)[,ac(range(x)['maxyear'])]%/%refpts(x)["bmsy"]),
+                                           harvest=c(harvest(x)[,ac(range(x)['maxyear'])]%/%refpts(x)["fmsy"]))),
                    run  =TRUE,
                    comp =FALSE,...){
   

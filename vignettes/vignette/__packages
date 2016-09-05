@@ -1,0 +1,12 @@
+base
+knitr
+ggplot2
+lattice
+MASS
+FLCore
+ggplotFL
+plyr
+reshape
+mpb
+diags
+kobe
