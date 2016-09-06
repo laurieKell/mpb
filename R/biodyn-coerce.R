@@ -132,7 +132,7 @@ FLBRP2biodyn=function(from,what=c("ssb","biomass","exploitable")[1],fix=c("bmsy"
                r  =r,
                k  =k)$minimum
   else  
-    p=getP(bmsy,k,p=c(0.001,5))
+    p=mpb:::getP(bmsy,k,p=c(0.001,5))
   
   bd=biodyn(catch=catch.obs(from))
   
