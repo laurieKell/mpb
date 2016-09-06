@@ -143,19 +143,16 @@ setMethod('sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
 setGeneric('oem',   function(object,...)     standardGeneric('oem'))
 setMethod( 'oem',   signature(object='FLStock'),
            function(object,
-                    timing    =0.5,
                     cv        =rlnorm(dim(stock(object))[6],FLQuant(0,dimnames=dimnames(stock(object))[-6]),0.3),
+                    timing    =0.5,
                     mult      =TRUE,
                     fishDepend=FALSE,
                     effort    =c("f","h"),
                     mass      =TRUE,
                     q         =FLQuant(cumprod(1+rep(0,dim(fbar(object))[2])),
                                        dimnames=dimnames(fbar(object))),
-                    sel=FLQuant(FLQuant(1,dimnames=dimnames(harvest(object)))),
-                    seed=NULL){
+                    sel=FLQuant(FLQuant(1,dimnames=dimnames(harvest(object))))){
              
-  if (!is.null(seed)) set.seed(seed)           
-  
   nits=max(dims(stock(object))$iter,dims(catch(object))$iter)
   
   if ("numeric"%in%is(cv))
@@ -287,3 +284,20 @@ oemFn<-function(flt,om,paa=paa,dev=uCV){
   
   res*dev[,dimnames(res)$year]}
 
+# cpue
+# /AvCatch(iAge,iYear,pTune->GetStartFishing(iFleet), pTune->GetEndFishing(iFleet));
+# 
+# AvCatch(iYear, double StartFishing, double EndFishing)
+# {
+#   //Equation (2) VPA User Guide
+#   double Z;
+#   
+#   Z = (GetM(iAge, iYear)+F[iAge][iYear]);                   
+#   
+#   if (StartFishing == 0.0 && EndFishing == 0.0)
+#     return 1.0;
+#   else if (StartFishing == EndFishing)
+#     EndFishing += 0.00001;
+#   
+#   return (exp(-StartFishing*Z) - exp(-EndFishing*Z))/((EndFishing-StartFishing)*Z); 
+# }

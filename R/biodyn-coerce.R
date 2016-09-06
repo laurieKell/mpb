@@ -138,23 +138,23 @@ FLBRP2biodyn=function(from,what=c("ssb","biomass","exploitable")[1],fix=c("bmsy"
   
   bd@params=FLPar(c(r=r,k=k,p=p,b0=b0))
   
-  control(bd)["r", c("min","val","max")]=params(bd)["r"]
-  control(bd)["k", c("min","val","max")]=params(bd)["k"]
-  control(bd)["p", c("min","val","max")]=params(bd)["p"]
-  control(bd)["b0",c("min","val","max")]=params(bd)["b0"]
+  bd@control["r", c("min","val","max")][]=c(params(bd)["r"])
+  bd@control["k", c("min","val","max")]=params(bd)["k"]
+  bd@control["p", c("min","val","max")]=params(bd)["p"]
+  bd@control["b0",c("min","val","max")]=params(bd)["b0"]
   
-  control(bd)[,"min"]=control(bd)[,"min"]*.1
-  control(bd)[,"max"]=control(bd)[,"max"]*10
+  bd@control[,"min"]=bd@control[,"min"]*.1
+  bd@control[,"max"]=bd@control[,"max"]*10
   
   bd@priors["r",   "a"]=params(bd)["r"]
   bd@priors["k",   "a"]=params(bd)["k"]
   bd@priors["p",   "a"]=params(bd)["p"]
   bd@priors["b0",  "a"]=params(bd)["b0"]
-  bd@priors[ "msy","a"]=refpts(bd)["msy"]
-  bd@priors["bmsy","a"]=refpts(bd)["bmsy"]
-  bd@priors["fmsy","a"]=refpts(bd)["fmsy"]
+  bd@priors[ "msy","a"]=mpb:::refpts(bd)["msy"]
+  bd@priors["bmsy","a"]=mpb:::refpts(bd)["bmsy"]
+  bd@priors["fmsy","a"]=mpb:::refpts(bd)["fmsy"]
   
-  bd=fwd(bd,catch=catch(bd))
+  bd=mpb:::fwd(bd,catch=catch(bd))
   
   range(bd)["minyear"]=dims(bd@catch)$minyear
   range(bd)["maxyear"]=dims(bd@catch)$maxyear

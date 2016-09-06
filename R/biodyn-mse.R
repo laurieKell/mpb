@@ -29,27 +29,52 @@ utils::globalVariables(c('eql','srDev'))
 #' 
 #' @examples
 #' \dontrun{
-#' sim()
-#'    }
-mseBiodyn<-function(om,eql,srDev,
-                    control,priors,
-                    start   =range(om)["maxyear"],          
-                    end     =start+30,         
+#' library(mpb)
+#' library(FLash)
+#' library(FLBRP)
+#' 
+#' load(om)
+#' load(eql)
+#' load("/home/laurie/Desktop/flr/mpb/data/om.RData")
+#' load("/home/laurie/Desktop/flr/mpb/data/eql.RData")
+#' 
+#' om=fwdWindow(om,eql,end=2030)
+#' om=propagate(om,100)
+#' 
+#' srDev=FLQuant(0,dimnames=list(year=2000:2030))
+#' srDev=rlnorm(100,srDev,0.3)
+#' 
+#' om=fwd(om,catch=catch(om)[,ac(2000:2011)],sr=eql,sr.residuals=srDev)
+#' om=fwdWindow(om,eql,end=2040)
+#' 
+#' uDev=FLQuant(0,dimnames=list(year=ac(dims(eql)["minyear"]):ac(dims(eql)["maxyear"])))
+#' uDev=rlnorm(100,uDev,0.3)
+#' 
+#' library(popbio)
+#' mp=FLBRP2biodyn(  eql,"biodyn")
+#' 
+#' modelParams=mpb:::modelParams
+#' setParams(mp)=ssb.obs(eql)%*%uDev
+#' setControl(mp)=params(mp)
+#' 
+#' }
+mseBiodyn<-function(om,eql,
+                    srDev,uDev,
+                    mp,
+                    end     =range(om)["maxyear"],         
+                    start   =end-30,          
                     interval=3,
-                    uDev  =0.2,
-                    u     =oem,
-                    ftar  =0.70,    btrig =0.60,
-                    fmin  =0.01,    blim  =0.01,
-                    what  ="msy",
-                    mult  =TRUE,
-                    bndF  =NULL,
-                    bndTac=NULL,
-                    maxF  =1.0,     
-                    phaseQ=1,
-                    cmdOps=paste('-maxfn 500 -iprint 0 -est'),
-                    omega =1,
-                    refB  =1,
-                    qTrend=0){
+                    hcrPar  =function(mp) 
+                                 hcrParam(ftar =0.70*mpb:::refpts(mp)['fmsy'],
+                                 btrig=0.80*mpb:::refpts(mp)['bmsy'],
+                                 fmin =0.01*mpb:::refpts(mp)['fmsy'],
+                                 blim =0.40*mpb:::refpts(mp)['bmsy']),
+                    bndF    =NULL,bndTac  =NULL,
+                    maxF    =1.0,     
+                    oem     =oem,
+                    qTrend  =0,
+                    omega   =1,
+                    refB    =1){
  
   ## Get number of iterations in OM
   nits=c(om=dims(om)$iter, eql=dims(params(eql))$iter, rsdl=dims(srDev)$iter)
@@ -71,8 +96,8 @@ mseBiodyn<-function(om,eql,srDev,
   cpue=cpue*qTrend[,dimnames(cpue)$year]
   
   ## Loop round years
-  mp =NULL
-  hcr=NULL
+  mpRes =NULL
+  hcrRes=NULL
   for (iYr in seq(start,range(om,'maxyear')-interval,interval)){
     #iYr = seq(start+rcvPeriod,range(om,'maxyear')-interval,interval)[1]
     cat('\n===================', iYr, '===================\n')
