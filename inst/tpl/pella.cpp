@@ -223,8 +223,8 @@ void model_parameters::fwd(void)
        B[t+1]=((r-F[t]))*B[t]*exp((alpha))/(alpha+(r/k)*B[t]*(exp(alpha)-1));
        B[t+1]=sfabs(B[t+1]);
     }else{
-       dvariable now=posfun(B[t]-C[t]+r/p*B[t]*(1-pow(B[t]/k,p)),.001,pen);
-       B[t+1]=now;
+       dvariable now=posfun(B[t]-C[t],.001,pen);
+       B[t+1]=now+r/p*B[t]*(1-pow(B[t]/k,p));
        }
     //index   
     I(t)=0.5*(B[t]+B[t+1]);   

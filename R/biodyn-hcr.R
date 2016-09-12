@@ -191,9 +191,10 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
       ref=FLCore::apply(catch(object)[,ac(yr)],6,mean)
 
       object=window(object, end=max(as.numeric(hyr)))
-      object=fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hyr)-1))])
+      
+      object=mpb:::fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hyr)-1))])
      
-      rtn   =catch(fwd(object, harvest=rtn))[,ac(hyr)]
+      rtn   =catch(mpb:::fwd(object, harvest=rtn))[,ac(hyr)]
 
       if (!is.null(bndTac)){  
         rtn[,ac(min(hyr))]=qmax(rtn[,ac(min(hyr))],ref*bndTac[1])

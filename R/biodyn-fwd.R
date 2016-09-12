@@ -347,11 +347,11 @@ setMethod( 'fwd', signature(object='FLPar',ctrl='missing'),function(object,...){
      nits=c(dims(catch)$iter,dims(object)$iter)
      if (length(unique(nits))==2&min(nits)!=1) stop("iter have to be 1 or n")
 
-     attributes(object)[["class"]]="matrix"
+     par=matrix(object[c("r","k","p","b0"),],nrow=4,            ncol=max(nits))
+     ctc=matrix(c(catch),                    nrow=dim(catch)[2],ncol=max(nits))
      
-     res=fwdCpp(matrix(c(catch),nrow=dim(catch)[2],ncol=dim(catch)[6]),
-                object[c("r","k","p","b0"),])
-     res=FLQuant(unlist(c(res)),dimnames=dimnames(catch))
+     res=fwdCpp(ctc,par)
+     res=FLQuant(unlist(c(res)),dimnames=list(year=dimnames(catch)$year,iter=seq(max(nits))))
      }
           
    res})

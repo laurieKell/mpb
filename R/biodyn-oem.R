@@ -151,7 +151,10 @@ setMethod( 'oem',   signature(object='FLStock'),
                     mass      =TRUE,
                     q         =FLQuant(cumprod(1+rep(0,dim(fbar(object))[2])),
                                        dimnames=dimnames(fbar(object))),
-                    sel=FLQuant(FLQuant(1,dimnames=dimnames(harvest(object))))){
+                    sel=FLQuant(FLQuant(1,dimnames=dimnames(harvest(object)))),
+                    seed=NULL){
+
+  if (!is.null(seed)) set.seed(seed)
              
   nits=max(dims(stock(object))$iter,dims(catch(object))$iter)
   

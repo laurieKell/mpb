@@ -50,7 +50,7 @@ setMethod( 'ts', signature(object='FLStock',params="FLPar"), function(object,par
 
 setMethod( 'ts', signature(object='FLStock',params="FLBRP"), 
       function(object,params,df=TRUE,ref="msy") {
-          ts(object,refpts(params)[ref])})
+          ts(object,FLBRP:::refpts(params)[ref])})
   
 setMethod( 'ts', signature(object='biodyn',params="FLPar"), function(object,params,df=TRUE) {
 
@@ -80,12 +80,12 @@ setMethod( 'ts', signature(object='biodyn',params="FLPar"), function(object,para
 setMethod( 'ts', signature(object='FLStocks',params="FLBRP"), 
            function(object,params,df=TRUE,ref="msy") {
              mdply(data.frame(.id=names(object)),function(.id) 
-               ts(object[[.id]],refpts(params)[ref],df=TRUE))})
+               ts(object[[.id]],FLBRP:::refpts(params)[ref],df=TRUE))})
 
 setMethod( 'ts', signature(object='FLStocks',params="FLBRPs"), 
            function(object,params,ref="msy") {
              mdply(data.frame(.id=names(object)),function(.id) 
-               ts(object[[.id]],refpts(params[[.id]])[ref]))})
+               ts(object[[.id]],FLBRP:::refpts(params[[.id]])[ref]))})
 
 #' mng
 #'
@@ -212,9 +212,9 @@ benchFn<-function(object,window=5){
                    apply(catch.sel(bry),c(2,6),max),6,sum)[,,,,,goodIts]
     
   r=mdply(goodIts,function(i)
-    lambda(leslie(iter(bry,i),c(refpts(bry)["crash","harvest",i]),exploitable=!TRUE)[drop=T])-1)
+    lambda(leslie(iter(bry,i),c(FLBRP:::refpts(bry)["crash","harvest",i]),exploitable=!TRUE)[drop=T])-1)
   rc=mdply(goodIts,function(i)
-    lambda(leslie(iter(bry,i),c(refpts(bry)["msy","harvest",i]),exploitable=TRUE)[drop=T])-1)
+    lambda(leslie(iter(bry,i),c(FLBRP:::refpts(bry)["msy","harvest",i]),exploitable=TRUE)[drop=T])-1)
 
   res=cbind(res,r=r[,"V1"],rc=rc[,"V1"],ek=c(ek))
 
@@ -275,7 +275,7 @@ bench<-function(object,window=5){
 
   rc=mdply(data.frame(iter=seq(window%/%2+1,n-window%/%2,1)),function(iter){ 
     data.frame(quantity="rc",msy=lambda(leslie(iter(bry,iter),
-                                               f=c(refpts(iter(bry,iter))["msy","harvest"]))[drop=TRUE])-1)
+                                               f=c(FLBRP:::refpts(iter(bry,iter))["msy","harvest"]))[drop=TRUE])-1)
     })
       
   bdt=melt(bdt)

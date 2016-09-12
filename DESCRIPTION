@@ -85,6 +85,9 @@ Collate:
     'biodyn-jack.R'
     'biodyn-mvn.R'
     'rwalk.R'
+    'data.R'
+    'econ-ee.R'
+    'r2b.R'
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1

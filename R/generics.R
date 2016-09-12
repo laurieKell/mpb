@@ -192,6 +192,7 @@ setGeneric('setControl<-',function(object,...,value)  standardGeneric('setContro
 setGeneric('setParams<-', function(object,value,...)     standardGeneric('setParams<-'))
            
 setGeneric('computePrd',function(object,biomass,...) standardGeneric('computePrd'))
+setGeneric('pellat',    function(object,...)         standardGeneric('pellat'))
 
 setGeneric('plot',       function(x,y)               standardGeneric('plot'))
 setGeneric('plotIndex',  function(data,...)          standardGeneric('plotIndex'))

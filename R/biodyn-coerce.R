@@ -11,6 +11,65 @@ globalVariables("ctrl")
 #' @rdname as
 
 
+rate2instananeous<-function(h) {
+  #h=(n1-n1*exp(-f))/n1
+  #h=(1-exp(-f))
+  
+  1-exp(-h)}
+
+msy2pellatFn=function(x,refs) {
+  r=x[1]
+  k=x[2]
+  p=x[3]
+  
+  msyFn  =function(r,k,p) r*k*(1/(1+p))^(1/p+1)
+  bmsyFn =function(r,k,p) k*(1/(1+p))^(1/p)
+  fmsyFn =function(r,  p) r*(1/(1+p))
+  ratioFn=function(    p) (1/(1+p))^(1/p)
+  
+  res=return(((refs["bmsy"] -bmsyFn(r,k,p))/refs["bmsy"])^2+
+             ((refs[ "msy"] -msyFn(r,k,p))/refs["msy"])^2+
+             ((refs["ratio"]-ratioFn(p))/refs["ratio"])^2)
+  
+  res}
+
+setMethod('pellat',  signature(object="FLPar"),  
+          function(object){})
+setMethod('pellat',  signature(object="FLBRP"),  
+          function(object){})
+
+setMethod('pellat',  signature(object="FLPar"),  
+  function(object,what="ssb"){
+    if (!(all(c("refpt","quantity")%in%names(object)))) stop("names of dims must include 'refpt' amd 'quantity'")
+    if (!("msy"%in%dimnames(object)$refpt)) stop("refpt dim must include 'msy'")
+    
+    fn=function(x,object){
+      optim(x,msy2pellatFn,refs=object,control=list(trace=0),
+              method="L-BFGS-B",
+              lower=c(0,0,1e-6),
+              upper=c(10,Inf,1))$par
+    
+    names(res)=c("r","k","p")
+    res}
+  
+  res=aaply(object,seq(length(dim(object)))[-1],function(x) fn(c(0.5,object["msy",what]*2,1),x))
+  dmns=dimnames(par)
+  dmns[[1]]=c("r","k","p")
+  names(dmns)[1]="params"
+  
+  if (class(res)=="numeric")
+    return(FLPar(res))
+  
+  if ((dims(par)$iter>1))
+    prm=c(length(dim(par)),seq(length(dim(par)))[-length(dim(par))])
+  else 
+    prm=2:1
+  
+  res=as(array(aperm(res,prm),
+               dim=unlist(laply(dmns,length)),dmns),"FLPar")
+  
+  res})
+
 FLStock2biodyn=function(from,
                         control=biodyn()@control,
                         mult   =FLPar(rep(c(0.5,1,1/0.5),each=4),
@@ -94,13 +153,13 @@ FLStock2biodynSimple=function(from){
 setAs('FLStock','biodyn',
       function(from) FLStock2biodyn(from))
 
-FLBRP2biodyn=function(from,what=c("ssb","biomass","exploitable")[1],fix=c("bmsy","msy")[1]){
+FLBRP2biodyn=function(from,what=c("ssb","biomass","exploitable")[1]){
   
   warn=options()$warn
   options(warn=-1)
   
-  r=lambda(leslie(from,f=c(refpts(from)["crash","harvest"]))[drop=T])-1
-  msy =c(from@refpts["msy",   "yield"])
+  r  =lambda(leslie(from,f=c(FLBRP:::refpts(from)["crash","harvest"]))[drop=T])-1
+  msy=from@refpts["msy","yield"]
   
   fbar(from)[,1]=0
   k=switch(tolower(substr(what[1],1,1)),
@@ -110,33 +169,35 @@ FLBRP2biodyn=function(from,what=c("ssb","biomass","exploitable")[1],fix=c("bmsy"
         apply(catch.sel(from),c(2,6),max),6,sum))
 
   b0=switch(tolower(substr(what[1],1,1)),
-        s=ssb.obs(from)[,1]%/%k,
+        s=from@ssb.obs[,1]%/%k,
         b=from@stock.obs[,1]%/%k,
         e=from@stock.obs[,1]%/%from@refpts["virgin","biomass"])
   
-  fbar(from)[,1]=from@refpts["msy","harvest"]  
+  from@fbar[,1]=from@refpts["msy","harvest"]  
   bmsy=switch(tolower(substr(what[1],1,1)),
            s=from@refpts["msy","ssb"],
            b=from@refpts["msy","biomass"],
            e=apply(stock.n(from)[,1]%*%stock.wt(from)[,1]%*%catch.sel(from)%/%
              apply(catch.sel(from),c(2,6),max),6,sum))
   
-  msy=from@refpts["msy","yield"]
-  
-  if (tolower(substr(fix,1,1))=="m")
-    p=optimise(function(p,msy,r,k) {
-              res=(msy/(r*k)-(1/(1+p))^(1/p+1))^2
-              res}, 
-               c(1e-12,1e12),    
-               msy=msy,
-               r  =r,
-               k  =k)$minimum
-  else  
-    p=mpb:::getP(bmsy,k,p=c(0.001,5))
+  # if (tolower(substr(fix,1,1))=="m")
+  #   p=optimise(function(p,msy,r,k) {
+  #             res=(msy/(r*k)-(1/(1+p))^(1/p+1))^2
+  #             res}, 
+  #              c(1e-12,1e12),    
+  #              msy=msy,
+  #              r  =r,
+  #              k  =k)$minimum
+  # else  
+  #   p=mpb:::getP(bmsy,k,p=c(0.001,5))
   
   bd=biodyn(catch=catch.obs(from))
-  
-  bd@params=FLPar(c(r=r,k=k,p=p,b0=b0))
+  tmp=cbind(params=c("bmsy","msy","ratio"),
+            rbind(as.data.frame(bmsy),as.data.frame(msy),as.data.frame(bmsy/k))[,-(1:2)])
+  par=as(tmp,"FLPar")          
+  par=m2p(par)
+
+  bd@params=FLPar(c(r=par["r"],k=par["k"],p=par["p"],b0=b0))
   
   bd@control["r", c("min","val","max")][]=c(params(bd)["r"])
   bd@control["k", c("min","val","max")]=params(bd)["k"]
@@ -154,7 +215,7 @@ FLBRP2biodyn=function(from,what=c("ssb","biomass","exploitable")[1],fix=c("bmsy"
   bd@priors["bmsy","a"]=mpb:::refpts(bd)["bmsy"]
   bd@priors["fmsy","a"]=mpb:::refpts(bd)["fmsy"]
   
-  bd=mpb:::fwd(bd,catch=catch(bd))
+  #bd=mpb:::fwd(bd,catch=catch(bd))
   
   range(bd)["minyear"]=dims(bd@catch)$minyear
   range(bd)["maxyear"]=dims(bd@catch)$maxyear
