@@ -10,12 +10,16 @@ globalVariables("ctrl")
 #'
 #' @rdname as
 
-
-rate2instananeous<-function(h) {
+setMethod('instantaneous',signature(object='FLQuant'),
+      function(object) {
   #h=(n1-n1*exp(-f))/n1
   #h=(1-exp(-f))
   
-  1-exp(-h)}
+  1-exp(-object)})
+
+setMethod('rate',signature(object='FLQuant'),
+          function(object) {
+    -log(1-object)})
 
 msy2pellatFn=function(x,refs) {
   r=x[1]
@@ -34,25 +38,18 @@ msy2pellatFn=function(x,refs) {
   res}
 
 setMethod('pellat',  signature(object="FLPar"),  
-          function(object){})
-setMethod('pellat',  signature(object="FLBRP"),  
-          function(object){})
+  function(object){
 
-setMethod('pellat',  signature(object="FLPar"),  
-  function(object,what="ssb"){
-    if (!(all(c("refpt","quantity")%in%names(object)))) stop("names of dims must include 'refpt' amd 'quantity'")
-    if (!("msy"%in%dimnames(object)$refpt)) stop("refpt dim must include 'msy'")
-    
     fn=function(x,object){
-      optim(x,msy2pellatFn,refs=object,control=list(trace=0),
+      res=optim(x,msy2pellatFn,refs=object,control=list(trace=0),
               method="L-BFGS-B",
-              lower=c(0,0,1e-6),
+              lower=c(0,0,1e-12),
               upper=c(10,Inf,1))$par
     
     names(res)=c("r","k","p")
     res}
   
-  res=aaply(object,seq(length(dim(object)))[-1],function(x) fn(c(0.5,object["msy",what]*2,1),x))
+  res=aaply(object,seq(length(dim(object)))[-1],function(x) fn(c(0.5,object["bmsy"]*2,1),x))
   dmns=dimnames(par)
   dmns[[1]]=c("r","k","p")
   names(dmns)[1]="params"
@@ -69,6 +66,21 @@ setMethod('pellat',  signature(object="FLPar"),
                dim=unlist(laply(dmns,length)),dmns),"FLPar")
   
   res})
+
+setMethod('pellat',  signature(object="FLBRP"),  
+   function(object,quantity="ssb"){
+     
+     require(FLBRP)
+      
+       par=c(c(FLBRP:::refpts(object)["msy","yield"]),
+             c(FLBRP:::refpts(object)["msy",quantity]),
+             c(FLBRP:::refpts(object)["msy",quantity]/FLBRP:::refpts(object)["virgin",quantity]))
+      
+       par=FLPar(array(par,dim=c(3,dim(FLBRP:::refpts(object))[3]),
+                              dimnames=list(params=c("msy","bmsy","ratio"),
+                                            iter=seq(dim(FLBRP:::refpts(object))[3]))))  
+       pellat(par)})
+
 
 FLStock2biodyn=function(from,
                         control=biodyn()@control,
@@ -153,28 +165,28 @@ FLStock2biodynSimple=function(from){
 setAs('FLStock','biodyn',
       function(from) FLStock2biodyn(from))
 
-FLBRP2biodyn=function(from,what=c("ssb","biomass","exploitable")[1]){
+FLBRP2biodyn=function(from,quantity=c("ssb","biomass","exploitable")[1]){
   
   warn=options()$warn
   options(warn=-1)
   
-  r  =lambda(leslie(from,f=c(FLBRP:::refpts(from)["crash","harvest"]))[drop=T])-1
+  #r  =lambda(leslie(from,f=c(FLBRP:::refpts(from)["crash","harvest"]))[drop=T])-1
   msy=from@refpts["msy","yield"]
   
   fbar(from)[,1]=0
-  k=switch(tolower(substr(what[1],1,1)),
+  k=switch(tolower(substr(quantity[1],1,1)),
       s=from@refpts["virgin","ssb"],
       b=from@refpts["virgin","biomass"],
       e=apply(stock.n(from)[,1]%*%stock.wt(from)[,1]%*%catch.sel(from)%/%
         apply(catch.sel(from),c(2,6),max),6,sum))
 
-  b0=switch(tolower(substr(what[1],1,1)),
+  b0=switch(tolower(substr(quantity[1],1,1)),
         s=from@ssb.obs[,1]%/%k,
         b=from@stock.obs[,1]%/%k,
         e=from@stock.obs[,1]%/%from@refpts["virgin","biomass"])
   
   from@fbar[,1]=from@refpts["msy","harvest"]  
-  bmsy=switch(tolower(substr(what[1],1,1)),
+  bmsy=switch(tolower(substr(quantity[1],1,1)),
            s=from@refpts["msy","ssb"],
            b=from@refpts["msy","biomass"],
            e=apply(stock.n(from)[,1]%*%stock.wt(from)[,1]%*%catch.sel(from)%/%
@@ -192,10 +204,7 @@ FLBRP2biodyn=function(from,what=c("ssb","biomass","exploitable")[1]){
   #   p=mpb:::getP(bmsy,k,p=c(0.001,5))
   
   bd=biodyn(catch=catch.obs(from))
-  tmp=cbind(params=c("bmsy","msy","ratio"),
-            rbind(as.data.frame(bmsy),as.data.frame(msy),as.data.frame(bmsy/k))[,-(1:2)])
-  par=as(tmp,"FLPar")          
-  par=m2p(par)
+  par=pellat(from)
 
   bd@params=FLPar(c(r=par["r"],k=par["k"],p=par["p"],b0=b0))
   

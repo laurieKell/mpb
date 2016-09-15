@@ -36,7 +36,7 @@ setMethod('stock', signature(object='biodyn'),
              
             (1-when)*stock(object)[,yrs1]+when*stock(object)[,yrs2]})
 
-#' computePrd
+#' production
 #'
 #' Calculates the surplus production for a biomass dynamic model given a level of stock biomass
 #' 
@@ -46,19 +46,19 @@ setMethod('stock', signature(object='biodyn'),
 #'
 #' @return an \code{FLPar} object
 #' 
-#' @seealso \code{\link{plotPrd}}
+#' @seealso \code{\link{plotProduction}}
 #' 
 #' @export
 #' @rdname sp
 #'
-#' @aliases computePrd,biodyn,FLQuant-method  computePrd,biodyn,missing-method  computePrd,biodyn,numeric-method
+#' @aliases production,biodyn,FLQuant-method  production,biodyn,missing-method  production,biodyn,numeric-method
 #' @examples
-#' \dontrun{ computePrd(bd,seq(0,params(bd)['k'])) }
+#' \dontrun{ production(bd,seq(0,params(bd)['k'])) }
 #'  
-setGeneric('computePrd',   function(object,biomass,...)        standardGeneric('computePrd'))
-setMethod( 'computePrd', signature(object='biodyn',   biomass='missing'),     function(object,biomass=stock(object))  prdFn(model(object),params(object),biomass))
-setMethod( 'computePrd', signature(object='biodyn',   biomass='numeric'),     function(object,biomass)                prdFn(model(object),params(object),biomass))
-setMethod( 'computePrd', signature(object='biodyn',   biomass='FLQuant'),     function(object,biomass)                prdFn(model(object),params(object),biomass))
+setGeneric('production',   function(object,biomass,...)        standardGeneric('production'))
+setMethod( 'production', signature(object='biodyn',   biomass='missing'),     function(object,biomass=stock(object))  prdFn(model(object),params(object),biomass))
+setMethod( 'production', signature(object='biodyn',   biomass='numeric'),     function(object,biomass)                prdFn(model(object),params(object),biomass))
+setMethod( 'production', signature(object='biodyn',   biomass='FLQuant'),     function(object,biomass)                prdFn(model(object),params(object),biomass))
 
 
 # calcLogLik

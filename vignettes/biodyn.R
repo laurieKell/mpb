@@ -63,10 +63,10 @@ plot(bd)
 ## ----plotEql, fig.margin=TRUE, eval=FALSE, fig.height=6, fig.width=4, echo=FALSE, fig.cap="Simulated CPUE series"----
 ## plotEql(bd)
 
-## ----plotPrd, fig.margin=TRUE, fig.cap="Simulated CPUE series"-----------
+## ----plotProduction, fig.margin=TRUE, fig.cap="Simulated CPUE series"-----------
 library(reshape)
 x=sim()
-plotPrd(x)+
+plotProduction(x)+
   geom_path( aes(stock,catch),
              model.frame(FLQuants(x,"stock","catch")))+
   geom_point(aes(stock,catch),

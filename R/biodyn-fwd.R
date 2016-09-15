@@ -266,10 +266,10 @@ fwdFn=function(object,
     
          ## sp & process error
          if (!is.null(pe)) {    
-            if (peMult) sp.=computePrd(object,object@stock[, ac(y)])%*%pe[, ac(y)] 
-            else        sp.=computePrd(object,object@stock[, ac(y)])%+%pe[, ac(y)]
-         } else sp.=computePrd(object,object@stock[, ac(y)])
-         #} else sp.=computePrd(object,object@stock[, ac(y)]*(1-ptYr)+object@stock[, ac(y+1)]*(ptYr))
+            if (peMult) sp.=production(object,object@stock[, ac(y)])%*%pe[, ac(y)] 
+            else        sp.=production(object,object@stock[, ac(y)])%+%pe[, ac(y)]
+         } else sp.=production(object,object@stock[, ac(y)])
+         #} else sp.=production(object,object@stock[, ac(y)]*(1-ptYr)+object@stock[, ac(y+1)]*(ptYr))
          
           ## targets, if lag<0 then the targets are relative 
           if (hcrTrgt)

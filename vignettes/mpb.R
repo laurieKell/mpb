@@ -47,8 +47,8 @@ bd=window(sim(),end=49)
 plot(bd)+
   theme_bw()
 
-## ----plotPrd, fig.margin=TRUE, fig.height=2.5, fig.cap="Simulated CPUE series"----
-plotPrd(bd)+
+## ----plotProduction, fig.margin=TRUE, fig.height=2.5, fig.cap="Simulated CPUE series"----
+plotProduction(bd)+
   geom_path( aes(stock,catch),
              model.frame(FLQuants(bd,"stock","catch")))+
   geom_point(aes(stock,catch),

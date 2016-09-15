@@ -191,16 +191,19 @@ setGeneric('setControl<-',function(object,...,value)  standardGeneric('setContro
 #' 
 setGeneric('setParams<-', function(object,value,...)     standardGeneric('setParams<-'))
            
-setGeneric('computePrd',function(object,biomass,...) standardGeneric('computePrd'))
+setGeneric('production',function(object,biomass,...) standardGeneric('production'))
 setGeneric('pellat',    function(object,...)         standardGeneric('pellat'))
 
 setGeneric('plot',       function(x,y)               standardGeneric('plot'))
 setGeneric('plotIndex',  function(data,...)          standardGeneric('plotIndex'))
 setGeneric('plotDiags',  function(data,...)          standardGeneric('plotDiags'))
 setGeneric('plotHcr',    function(data, ...)         standardGeneric('plotHcr'))
-setGeneric('plotPrd',    function(data,biomass,...)  standardGeneric('plotPrd'))
+setGeneric('plotProduction',    function(data,biomass,...)  standardGeneric('plotProduction'))
 setGeneric('plotEql',    function(data,biomass,...)  standardGeneric('plotEql'))
 setGeneric('plotMSE',    function(x,y,z,...)         standardGeneric('plotMSE'))
 
 setGeneric("profile", useAsDefault = profile)
+
+setGeneric("rate",         function(object,...)   standardGeneric('rate'))
+setGeneric("instantaneous",function(object,...)   standardGeneric('instantaneous'))
 

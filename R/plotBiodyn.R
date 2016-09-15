@@ -41,7 +41,7 @@ whooow<-function(x,fn,probs)
 #' 
 #' @return an \code{ggplot2} object
 #' 
-#' @seealso \code{\link{plotPrd}}, \code{\link{plotEql}}
+#' @seealso \code{\link{plotProduction}}, \code{\link{plotEql}}
 #' 
 #' @export
 #' @rdname plot
@@ -148,7 +148,7 @@ setMethod('plot', signature(x='biodyns', y='missing'),
 # @param \code{facet}, a layer that determines the facetting of the plot
 
 
-#' plotPrd
+#' plotProduction
 #' 
 #' Creates a \code{ggplot2} object that plots equilibrium values of biomass, harvest rate and catch against each other.
 #' The basic object can then be modified by adding ggpot2 layers.
@@ -162,26 +162,26 @@ setMethod('plot', signature(x='biodyns', y='missing'),
 #' @seealso \code{\link{plotMSE}}, \code{\link{plotEql}}
 #' 
 #' @export
-#' @rdname plotPrd
+#' @rdname plotProduction
 #'
-#' @aliases plotPrd,biodyn,FLBRP-method plotPrd,biodyn,FLQuant-method plotPrd,biodyn,missing-method
+#' @aliases plotProduction,biodyn,FLBRP-method plotProduction,biodyn,FLQuant-method plotProduction,biodyn,missing-method
 #' 
 #' @examples
 #' \dontrun{
 #'  refpts('logistic',FLPar(msy=100,k=500))
 #' }
-setMethod('plotPrd',signature(data='biodyn',biomass='missing'),  
-          function(data,biomass,...) plotPrdfn(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=101)),...))
-setMethod('plotPrd',signature(data='biodyn',biomass='FLQuant'),  
-          function(data,biomass,...) plotPrdfn(data,biomass,...))
-# setMethod('plotPrd',signature(x='biodyn',biomass='FLBRP'),  
+setMethod('plotProduction',signature(data='biodyn',biomass='missing'),  
+          function(data,biomass,...) plotProductionfn(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=101)),...))
+setMethod('plotProduction',signature(data='biodyn',biomass='FLQuant'),  
+          function(data,biomass,...) plotProductionfn(data,biomass,...))
+# setMethod('plotProduction',signature(x='biodyn',biomass='FLBRP'),  
 #           function(x,biomass,II=FALSE,...) plotProdfn(bd=x,brp=biomass,II=II,...))
 
-setMethod('plotPrd',signature(data='biodyns',biomass='missing'),  
+setMethod('plotProduction',signature(data='biodyns',biomass='missing'),  
           function(data,biomass,...) {
     res=ldply(data,function(x) {
            biomass=FLQuant(seq(0,max(params(x)['k']),length.out=101))
-           model.frame(FLQuants(stock=biomass, yield=FLQuant(computePrd(x,biomass))))})
+           model.frame(FLQuants(stock=biomass, yield=FLQuant(production(x,biomass))))})
  
     msy=ldply(data,function(x) 
          cast(as.data.frame(refpts(x)),iter~refpts,value='data'))
@@ -192,14 +192,14 @@ setMethod('plotPrd',signature(data='biodyns',biomass='missing'),
         xlab('Stock') + ylab('Surplus Production')})
                    
 
-plotPrdfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=101)),...) {
+plotProductionfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=101)),...) {
   warn=options()$warn
   options(warn=-1)
   
   if ((dims(data)$iter>1 | dims(params(data))$iter>1) & dims(biomass)$iter==1) 
     biomass=propagate(biomass,max(dims(data)$iter,dims(params(data))$iter))
   
-  p <-  ggplot(model.frame(FLQuants(stock=biomass, yield=FLQuant(computePrd(data,biomass))))) +
+  p <-  ggplot(model.frame(FLQuants(stock=biomass, yield=FLQuant(production(data,biomass))))) +
     geom_line(aes(stock, yield, group=iter, col=iter)) +
     geom_point(aes(bmsy,msy,col=iter),size=2,data=cast(as.data.frame(refpts(data)),iter~refpts,value='data')) +
     xlab('Stock') + ylab('Surplus Production')
@@ -218,7 +218,7 @@ plotProdfn=function(bd,brp,II=FALSE){
   if (!is.null(bd)){
     bm =FLQuant(seq(0, max(params(bd)['k']), length.out = 101))
     res=rbind(res,cbind(What='Biomass', 
-                        model.frame(mcf(FLQuants(catch=computePrd(bd,bm),stock=bm)),drop=T)))}
+                        model.frame(mcf(FLQuants(catch=production(bd,bm),stock=bm)),drop=T)))}
   
   ggplot(res)}
 
@@ -232,7 +232,7 @@ plotProdfn=function(bd,brp,II=FALSE){
 #'
 #' @return an \code{ggplot2} object
 #' 
-#' @seealso \code{\link{plotPrd}}\code{\link{plotMSE}}
+#' @seealso \code{\link{plotProduction}}\code{\link{plotMSE}}
 #' 
 #' @export
 #' @rdname plotEql
@@ -255,7 +255,7 @@ plotEqlfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=
     biomass=propagate(biomass,max(dims(data)$iter,dims(params(data))$iter))
   
   res=model.frame(FLQuants(stock=biomass, 
-                           yield=FLQuant(computePrd(data,biomass))))
+                           yield=FLQuant(production(data,biomass))))
   res=transform(res,harvest=yield/stock)
   
   res=rbind(cbind(pnl="Equilibrium Stock v Harvest Rate",
@@ -281,7 +281,7 @@ plotProdfn=function(bd,brp,II=FALSE){
   if (!is.null(bd)){
     bm =FLQuant(seq(0, max(params(bd)['k']), length.out = 101))
     res=rbind(res,cbind(What='Biomass', 
-                        model.frame(mcf(FLQuants(catch=computePrd(bd,bm),stock=bm)),drop=T)))}
+                        model.frame(mcf(FLQuants(catch=production(bd,bm),stock=bm)),drop=T)))}
   
   ggplot(res)}
 
@@ -299,7 +299,7 @@ plotProdfn=function(bd,brp,II=FALSE){
 #'
 #' @return an \code{ggplot2} object
 #' 
-#' @seealso \code{\link{plotPrd}}
+#' @seealso \code{\link{plotProduction}}
 #' 
 #' @export
 #' @rdname plotMSE

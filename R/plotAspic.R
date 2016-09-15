@@ -43,7 +43,7 @@ plotSP=function(object,biomass=FLQuant(seq(0,max(params(object)["k"]),length.out
   if ((dims(object)$iter>1 | dims(params(object))$iter>1) & dims(biomass)$iter==1) 
     biomass=propagate(biomass,max(dims(object)$iter,dims(params(object))$iter))
   
-  p=model.frame(FLQuants(stock=biomass, yield=FLQuant(computePrd(object,biomass))))
+  p=model.frame(FLQuants(stock=biomass, yield=FLQuant(production(object,biomass))))
   p=ggplot(p)+
     geom_line(aes(stock, yield, group=iter, col=iter)) +
     geom_point(aes(bmsy,msy,col=iter),size=4,

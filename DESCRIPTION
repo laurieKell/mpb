@@ -2,11 +2,7 @@ Package: mpb
 Title: Management Procedures
 Version: 1.0.0
 Author: Laurence Kell <laurie@iccat.int>
-Description: The biodyn class includes methods for fitting, examining goodness
-    of fit diagnostics, estimating uncertainly in stock status relative to reference
-    points, deriving quantities used in management, running projections, simulating
-    Harvest Control Rules (HCRs), conducting Management Strategy Evaluation (MSE)
-    and for plotting.
+Description: mpb is an R package for running and simulation testing biomass based stock assessment models.
 VignetteBuilder: knitr
 Suggests:
     knitr
