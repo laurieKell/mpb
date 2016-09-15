@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>plot,biodyn,missing-method. mpb 1.0.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="index.html">mpb 1.0.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="reference.html">Reference</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>plot</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><span class="comment"># S4 method for biodyn,missing</span>
+<span class="functioncall"><a href='http://www.rdocumentation.org/packages/graphics/topics/plot'>plot</a></span><span class="keyword">(</span><span class="symbol">x</span><span class="keyword">,</span> <span class="symbol">y</span><span class="keyword">,</span> <span class="argument">probs</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="functioncall"><a href='http://www.rdocumentation.org/packages/base/topics/c'>c</a></span><span class="keyword">(</span><span class="number">0.95</span><span class="keyword">,</span> <span class="number">0.75</span><span class="keyword">,</span> <span class="number">0.5</span><span class="keyword">,</span> <span class="number">0.25</span><span class="keyword">,</span> <span class="number">0.05</span><span class="keyword">)</span><span class="keyword">,</span>
+  <span class="argument">na.rm</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">FALSE</span><span class="keyword">,</span> <span class="argument">type</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">7</span><span class="keyword">,</span> <span class="argument">worm</span>&nbsp;<span class="argument">=</span>&nbsp;NULL<span class="keyword">,</span> <span class="argument">fn</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="functioncall"><a href='http://www.rdocumentation.org/packages/base/topics/list'>list</a></span><span class="keyword">(</span><span class="argument">Stock</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="keyword">function</span><span class="keyword">(</span><span class="formalargs">x</span><span class="keyword">)</span>
+  <span class="functioncall">stock</span><span class="keyword">(</span><span class="symbol">x</span><span class="keyword">)</span><span class="keyword">,</span> <span class="argument">Harvest</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="keyword">function</span><span class="keyword">(</span><span class="formalargs">x</span><span class="keyword">)</span> <span class="functioncall"><a href='hrate.html'>harvest</a></span><span class="keyword">(</span><span class="symbol">x</span><span class="keyword">)</span><span class="keyword">,</span> <span class="argument">Yield</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="keyword">function</span><span class="keyword">(</span><span class="formalargs">x</span><span class="keyword">)</span> <span class="functioncall">catch</span><span class="keyword">(</span><span class="symbol">x</span><span class="keyword">)</span><span class="keyword">)</span><span class="keyword">,</span>
+  <span class="argument">facet</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="functioncall"><a href='http://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap'>facet_wrap</a></span><span class="keyword">(</span><span class="keyword">~</span><span class="symbol">qname</span><span class="keyword">,</span> <span class="argument">scales</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="string">"free"</span><span class="keyword">,</span> <span class="argument">ncol</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">1</span><span class="keyword">)</span><span class="keyword">,</span> <span class="symbol">...</span><span class="keyword">)</span></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>x</dt>
+      <dd>an object of class <code>biodyn</code></dd>
+      <dt>y</dt>
+      <dd>second argument</dd>
+      <dt>probs</dt>
+      <dd>numeric vector of probabilities with values in [0,1]. (Values up to 2e-14 outside that range are accepted and moved to the nearby endpoint.)</dd>
+      <dt>na.rm</dt>
+      <dd>FALSE</dd>
+      <dt>type</dt>
+      <dd>an integer between 1 and 9 selecting one of the nine quantile algorithms detailed below to be used.</dd>
+      <dt>worm</dt>
+      <dd>iters</dd>
+      <dt>fn</dt>
+      <dd>functions</dd>
+      <dt>facet</dt>
+      <dd>facet for panels</dd>
+    </dl>
+    
+    <div class="Value">
+      <h2>Value</h2>
+
+      <p><dl>
+an <code>ggplot2</code> object
+</dl></p>
+
+    </div>
+
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Creates a <code>ggplot2</code> object that plots time series of biomass, harvest rate and catch. The basic object can then be modified by adding ggplot2 layers.</p>
+
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'><span class="comment">## Not run: ------------------------------------</span>
+<span class="comment"># </span>
+<span class="comment"># x =sim()</span>
+<span class="comment"># x =window(x,end=49)</span>
+<span class="comment"># bd1=fwd(x,harvest=rlnorm(200,log(harvest(x)[,-1]),.2))</span>
+<span class="comment"># bd2=fwd(x,harvest=rlnorm(200,log(harvest(x)[,-1])*1.5,.2))</span>
+<span class="comment"># plot(biodyns("1"=bd1,"2"=bd2))</span>
+<span class="comment">## --------------------------------------------- </span></div></pre>
+  </div>
+  <div class="span4 sidebar">
+    <!-- <ul>
+      <li>plot,biodyn,missing-method</li><li>plot,biodyns,missing-method</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+
+    <h2>See also</h2>
+      <p><code><a href='http://www.rdocumentation.org/packages/biodyn/topics/plotPrd'>plotPrd</a></code>, <code><a href='http://www.rdocumentation.org/packages/biodyn/topics/plotEql'>plotEql</a></code></p>
+
+    
+
+
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="https://getbootstrap.com/2.0.4/">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

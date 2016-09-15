@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>K. mpb 1.0.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="index.html">mpb 1.0.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="reference.html">Reference</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>Calculate Carrying Capacity</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><span class="functioncall"><a href='K.html'>K</a></span><span class="keyword">(</span><span class="symbol">msy</span><span class="keyword">,</span> <span class="argument">r</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">0.6</span><span class="keyword">,</span> <span class="argument">p</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">1</span><span class="keyword">,</span> <span class="argument">params</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="functioncall"><a href='http://www.rdocumentation.org/packages/FLCore/topics/FLPar-class'>FLPar</a></span><span class="keyword">(</span><span class="argument">r</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="symbol">r</span><span class="keyword">,</span> <span class="argument">p</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="symbol">p</span><span class="keyword">)</span><span class="keyword">)</span></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>msy</dt>
+      <dd>a guess for MSY</dd>
+      <dt>r</dt>
+      <dd>a guess for $r$ the population growth rate</dd>
+      <dt>p</dt>
+      <dd>a guess for $p$ the shape parameter</dd>
+      <dt>params</dt>
+      <dd>provide $r$ and $p$ as <code>FLPar</code></dd>
+    </dl>
+    
+    <div class="Value">
+      <h2>Value</h2>
+
+      <p><dl>
+an <code>FLPar</code> object with an estimate for $k$
+</dl></p>
+
+    </div>
+
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Calculates $k$ given msy, r and K for a Pella-Tomlinson biomass dynamic model</p>
+
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'><span class="comment">## Not run: ------------------------------------</span>
+<span class="comment">#  K(5000,r=.6,p=1.0)</span>
+<span class="comment">#  </span>
+<span class="comment">## ---------------------------------------------</span></div></pre>
+  </div>
+  <div class="span4 sidebar">
+    <!-- <ul>
+      <li>K</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+
+    <h2>See also</h2>
+      <p><code><a href='msy.html'>msy</a></code> and <code><a href='bmsy.html'>bmsy</a></code></p>
+
+    
+
+
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="https://getbootstrap.com/2.0.4/">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

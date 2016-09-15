@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>hcr. mpb 1.0.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="index.html">mpb 1.0.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="reference.html">Reference</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>hcr</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><span class="functioncall"><a href='hcr.html'>hcr</a></span><span class="keyword">(</span><span class="symbol">object</span><span class="keyword">,</span> <span class="symbol">refs</span><span class="keyword">,</span> <span class="symbol">...</span><span class="keyword">)</span>
+
+<span class="functioncall"><a href='hcr.html'>hcr</a></span><span class="keyword">(</span><span class="symbol">object</span><span class="keyword">,</span> <span class="symbol">refs</span><span class="keyword">,</span> <span class="symbol">...</span><span class="keyword">)</span></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>object</dt>
+      <dd>an object of class <code>biodyn</code> or</dd>
+      <dt>...</dt>
+      <dd>other parameters, i.e.
+params <code>FLPar</code> object with hockey stick HCR parameters, see hcrParam
+yr numeric vector with years used to values in HCR
+byr numeric vector with years used for bounds
+hyr numeric vector with years to use in projection
+tac <code>logical</code> should return value be TAC rather than F?
+bndF <code>vector</code> with bounds (i.e.min and max values) on iter-annual variability on  F
+bndTac <code>vector</code> with bounds (i.e. min and max values) on iter-annual variability on TAC</dd>
+      <dt>object</dt>
+      <dd>an object of class <code>FLStock</code> or</dd>
+      <dt>...</dt>
+      <dd>other parameters, i.e.
+params <code>FLPar</code> object with hockey stick HCR parameters, see hcrParam
+yr numeric vector with years used to values in HCR
+byr numeric vector with years used for bounds
+hyr numeric vector with years to use in projection
+tac <code>logical</code> should return value be TAC rather than F?
+bndF <code>vector</code> with bounds (i.e.min and max values) on iter-annual variability on  F
+bndTac <code>vector</code> with bounds (i.e. min and max values) on iter-annual variability on TAC</dd>
+    </dl>
+    
+    <div class="Value">
+      <h2>Value</h2>
+
+      <p><dl>
+<code>FLPar</code> object with value(s) for F or TAC if tac==TRUE</p>
+
+      <p><code>FLPar</code> object with value(s) for F or TAC if tac==TRUE
+</dl></p>
+
+    </div>
+
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Harvest Control Rule, calculates F, or Total Allowable Catch (TAC) based on a hockey stock harvest control rule.</p>
+
+      <p>Harvest Control Rule, calculates F, or Total Allowable Catch (TAC) based on a hockey stock harvest control rule.</p>
+
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'><span class="comment">## Not run: ------------------------------------</span>
+<span class="comment"># bd   =sim()</span>
+<span class="comment"># </span>
+<span class="comment"># bd=window(bd,end=29)</span>
+<span class="comment"># for (i in seq(29,49,1))</span>
+<span class="comment"># bd=fwd(bd,harvest=hcr(bd,yr=i,yr=i+1)$hvt)</span>
+<span class="comment">## ---------------------------------------------</span>
+<span class="comment">## Not run: ------------------------------------</span>
+<span class="comment"># bd   =sim()</span>
+<span class="comment"># </span>
+<span class="comment"># bd=window(bd,end=29)</span>
+<span class="comment"># for (i in seq(29,49,1))</span>
+<span class="comment"># bd=fwd(bd,harvest=hcr(bd,byr=i,yrs=i+1)$hvt)</span>
+<span class="comment">## ---------------------------------------------</span></div></pre>
+  </div>
+  <div class="span4 sidebar">
+    <!-- <ul>
+      <li>hcr</li><li>hcr,biodyn-method</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+
+    <h2>See also</h2>
+      <p><code><a href='bmsy.html'>bmsy</a></code>, <code><a href='fmsy.html'>fmsy</a></code>, <code><a href='fwd.html'>fwd</a></code> and <code><a href='hcrParam.html'>hcrParam</a></code></p>
+
+      <p><code><a href='bmsy.html'>bmsy</a></code>, <code><a href='fmsy.html'>fmsy</a></code>, <code><a href='fwd.html'>fwd</a></code> and <code><a href='hcrParam.html'>hcrParam</a></code></p>
+
+    
+
+
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="https://getbootstrap.com/2.0.4/">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

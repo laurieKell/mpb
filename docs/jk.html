@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>jk. mpb 1.0.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="index.html">mpb 1.0.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="reference.html">Reference</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>jk</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><span class="functioncall"><a href='jk.html'>jk</a></span><span class="keyword">(</span><span class="symbol">object</span><span class="keyword">,</span> <span class="symbol">index</span><span class="keyword">,</span> <span class="symbol">...</span><span class="keyword">)</span>
+
+<span class="comment"># S4 method for aspic</span>
+<span class="functioncall"><a href='jk.html'>jk</a></span><span class="keyword">(</span><span class="symbol">object</span><span class="keyword">,</span> <span class="argument">dir</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="functioncall"><a href='http://www.rdocumentation.org/packages/base/topics/tempfile'>tempdir</a></span><span class="keyword">(</span><span class="keyword">)</span><span class="keyword">,</span> <span class="argument">package</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="string">"mpb"</span><span class="keyword">,</span>
+  <span class="argument">exeNm</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="string">"aspic"</span><span class="keyword">)</span></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>object</dt>
+      <dd>either <em>biodyn</em> or <em>aspic</em> class</dd>
+      <dt>index</dt>
+      <dd>with relative abundance of type <em>FLQuantJK</em> or <em>FLQuantJKs</em>, if object is of type <em>biodyn</em></dd>
+      <dt>...</dt>
+      <dd>any other parameter</dd>
+      <dt>object;</dt>
+      <dd>an <code>aspic</code> object or</dd>
+      <dt>object;</dt>
+      <dd>a character string giving an aspic &quot;inp&quot; file</dd>
+      <dt>dir;</dt>
+      <dd>an optional <code>dir</code> where aspic text files used for fitting can be found</dd>
+    </dl>
+    
+    <div class="Value">
+      <h2>Value</h2>
+
+      <p><dl>
+An aspic object with fitted values and parameter estimates
+</dl></p>
+
+    </div>
+
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>A generic method for jack knifing a fit to catch and index of relative abundance for both <em>biodyn</em> and <em>aspic</em>.</p>
+
+      <p>Fits the aspic model to catch and catch per unit effort data removing 1 cpue observation at a time</p>
+
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'><span class="comment">## Not run: ------------------------------------</span>
+<span class="comment">#     data(asp)</span>
+<span class="comment">#     asp=jk(asp)</span>
+<span class="comment">## ---------------------------------------------</span></div></pre>
+  </div>
+  <div class="span4 sidebar">
+    <!-- <ul>
+      <li>jk</li><li>jk,aspic-method</li><li>jk,biodyn,FLQuant-method</li><li>jk,biodyn,FLQuants-method</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+
+    <h2>See also</h2>
+      <p><code><a href='aspic-constructors.html'>aspic</a></code>, <code><a href='biodyn-constructors.html'>biodyn</a></code>, <code><a href='fit.html'>fit</a></code>, <code><a href='boot.html'>boot</a></code></p>
+
+      <p><code><a href='biodyn-constructors.html'>biodyn</a>,<a href='boot.html'>boot</a>,<a href='fit.html'>fit</a></code></p>
+
+    
+
+
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="https://getbootstrap.com/2.0.4/">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

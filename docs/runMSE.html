@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>mseBiodyn. mpb 1.0.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="index.html">mpb 1.0.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="reference.html">Reference</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>mseBiodyn</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><span class="functioncall"><a href='runMSE.html'>mseBiodyn</a></span><span class="keyword">(</span><span class="symbol">om</span><span class="keyword">,</span> <span class="symbol">eql</span><span class="keyword">,</span> <span class="symbol">srDev</span><span class="keyword">,</span> <span class="symbol">control</span><span class="keyword">,</span> <span class="symbol">priors</span><span class="keyword">,</span> <span class="argument">start</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="functioncall"><a href='http://www.rdocumentation.org/packages/base/topics/range'>range</a></span><span class="keyword">(</span><span class="symbol">om</span><span class="keyword">)</span><span class="keyword">[</span><span class="string">"maxyear"</span><span class="keyword">]</span><span class="keyword">,</span>
+  <span class="argument">end</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="symbol">start</span> <span class="keyword">+</span> <span class="number">30</span><span class="keyword">,</span> <span class="argument">interval</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">3</span><span class="keyword">,</span> <span class="argument">uDev</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">0.2</span><span class="keyword">,</span> <span class="argument">u</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="symbol">oem</span><span class="keyword">,</span> <span class="argument">ftar</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">0.7</span><span class="keyword">,</span>
+  <span class="argument">btrig</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">0.6</span><span class="keyword">,</span> <span class="argument">fmin</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">0.01</span><span class="keyword">,</span> <span class="argument">blim</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">0.01</span><span class="keyword">,</span> <span class="argument">what</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="string">"msy"</span><span class="keyword">,</span> <span class="argument">mult</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">TRUE</span><span class="keyword">,</span>
+  <span class="argument">bndF</span>&nbsp;<span class="argument">=</span>&nbsp;NULL<span class="keyword">,</span> <span class="argument">bndTac</span>&nbsp;<span class="argument">=</span>&nbsp;NULL<span class="keyword">,</span> <span class="argument">maxF</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">1</span><span class="keyword">,</span> <span class="argument">phaseQ</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">1</span><span class="keyword">,</span>
+  <span class="argument">cmdOps</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="functioncall"><a href='http://www.rdocumentation.org/packages/base/topics/paste'>paste</a></span><span class="keyword">(</span><span class="string">"-maxfn 500 -iprint 0 -est"</span><span class="keyword">)</span><span class="keyword">,</span> <span class="argument">omega</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">1</span><span class="keyword">,</span> <span class="argument">refB</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">1</span><span class="keyword">,</span>
+  <span class="argument">qTrend</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">0</span><span class="keyword">)</span></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>om</dt>
+      <dd>an <code>FLStock</code> object</dd>
+      <dt>eql</dt>
+      <dd>an <code>FLBRP</code> object that holds the biological parameters for use in the projections</dd>
+      <dt>srDev</dt>
+      <dd>a <code>FLQuant</code> with recruitment deviates</dd>
+      <dt>uDev</dt>
+      <dd>an <code>FLQuant</code> or <code>FLQuants</code> with CPUE residuals</dd>
+      <dt>ftar</dt>
+      <dd>a <code>numeric</code> with target F in HCR</dd>
+      <dt>btrig</dt>
+      <dd>a <code>numeric</code> with biomass trigger (i.e. when to reduce F) in HCR</dd>
+      <dt>fmin</dt>
+      <dd>a <code>numeric</code> with minimum F in HCR</dd>
+      <dt>blim</dt>
+      <dd>a <code>numeric</code> with biomass limit for HCR</dd>
+      <dt>what</dt>
+      <dd>a <code>character</code> that specifies what is to be used for the reference point in the HCR, recycled as required</dd>
+      <dt>mult</dt>
+      <dd>a <code>logical</code> that specifies whether quantity in HCR options is a multiplier or probability, recycled as required</dd>
+      <dt>mp</dt>
+      <dd>an <code>biodyn</code> object that holds the options for the biomass dynamic assessment model</dd>
+      <dt>range</dt>
+      <dd>a <code>vector</code> the starting and end years for the projections, and the interval for running the MP</dd>
+    </dl>
+    
+    <div class="Value">
+      <h2>Value</h2>
+
+      <p><dl>
+a list of <code>data.frame</code>s with performance measures from OM and summaries from MP, if <code>con!=NULL</code> will
+also write to a MYSQL database
+</dl></p>
+
+    </div>
+
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Runs a full MSE using an <code>FLStock</code> object as the Operating Model and <code>biodyn</code> as the Mangement Procedure</p>
+
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'><span class="comment">## Not run: ------------------------------------</span>
+<span class="comment"># sim()</span>
+<span class="comment">#    </span>
+<span class="comment">## ---------------------------------------------</span></div></pre>
+  </div>
+  <div class="span4 sidebar">
+    <!-- <ul>
+      <li>mse</li><li>mseBiodyn</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+
+    <h2>See also</h2>
+      <p><code><a href='biodyn-constructors.html'>biodyn</a></code></p>
+
+    
+
+
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="https://getbootstrap.com/2.0.4/">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>profile,aspic-method. mpb 1.0.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="index.html">mpb 1.0.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="reference.html">Reference</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>profile</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><span class="comment"># S4 method for aspic</span>
+<span class="functioncall"><a href='http://www.rdocumentation.org/packages/stats/topics/profile'>profile</a></span><span class="keyword">(</span><span class="symbol">fitted</span><span class="keyword">,</span> <span class="symbol">which</span><span class="keyword">,</span> <span class="argument">range</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="functioncall"><a href='http://www.rdocumentation.org/packages/base/topics/seq'>seq</a></span><span class="keyword">(</span><span class="number">0.5</span><span class="keyword">,</span> <span class="number">1.5</span><span class="keyword">,</span> <span class="argument">length.out</span> <span class="argument">=</span>
+  <span class="number">21</span><span class="keyword">)</span><span class="keyword">,</span> <span class="argument">fn</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="keyword">function</span><span class="keyword">(</span><span class="formalargs">x</span><span class="keyword">)</span> <span class="functioncall"><a href='http://www.rdocumentation.org/packages/base/topics/cbind'>cbind</a></span><span class="keyword">(</span><span class="functioncall"><a href='http://www.rdocumentation.org/packages/stats/topics/model.frame'>model.frame</a></span><span class="keyword">(</span><span class="functioncall">params</span><span class="keyword">(</span><span class="symbol">x</span><span class="keyword">)</span><span class="keyword">)</span><span class="keyword">,</span> <span class="functioncall"><a href='http://www.rdocumentation.org/packages/stats/topics/model.frame'>model.frame</a></span><span class="keyword">(</span><span class="functioncall"><a href='refpts.html'>refpts</a></span><span class="keyword">(</span><span class="symbol">x</span><span class="keyword">)</span><span class="keyword">)</span><span class="keyword">,</span>
+  <span class="functioncall"><a href='http://www.rdocumentation.org/packages/stats/topics/model.frame'>model.frame</a></span><span class="keyword">(</span><span class="symbol">x</span><span class="keyword">@</span><span class="slot">objFn</span><span class="keyword">)</span><span class="keyword">[</span><span class="keyword">,</span> <span class="keyword">-</span><span class="number">3</span><span class="keyword">]</span><span class="keyword">)</span><span class="keyword">,</span> <span class="argument">run</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">TRUE</span><span class="keyword">,</span> <span class="argument">min</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">0.8</span><span class="keyword">,</span> <span class="argument">max</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="number">1</span><span class="keyword">/</span><span class="symbol">min</span><span class="keyword">,</span> <span class="symbol">...</span><span class="keyword">)</span></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>fitted:</dt>
+      <dd>an <code>aspic</code> object</dd>
+      <dt>which:</dt>
+      <dd><code>character</code> giving the parameters to do the profile for, i.e. to fix.</dd>
+      <dt>range;</dt>
+      <dd><code>numeric</code> relative values by which to vary parameter values, default seq(0.5,1.5,length.out=21).</dd>
+      <dt>fn:</dt>
+      <dd><code>function</code> that gives values to be profiled.</dd>
+      <dt>run:</dt>
+      <dd><code>logical</code> if <code>TRUE</code> then returns profile, otherwise it just sets the control object-</dd>
+    </dl>
+    
+    <div class="Value">
+      <h2>Value</h2>
+
+      <p><dl>
+a <code>data frame</code> with results turned by <code>fn</code> by values in <code>which</code>.
+</dl></p>
+
+    </div>
+
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Performs a profile using residual sum of squares, fixes some parameters for a range of values 
+and then estimate the others</p>
+
+    </div>
+      </div>
+  <div class="span4 sidebar">
+    <!-- <ul>
+      <li>profile,aspic-method</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+
+    <h2>See also</h2>
+      <p><code><a href='biodyn-constructors.html'>biodyn</a>,<a href='fit.html'>fit</a></code></p>
+
+    
+
+
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="https://getbootstrap.com/2.0.4/">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

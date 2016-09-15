@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>resample. mpb 1.0.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="index.html">mpb 1.0.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="reference.html">Reference</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>resample</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><span class="functioncall"><a href='lk-methods.html'>resample</a></span><span class="keyword">(</span><span class="symbol">x</span><span class="keyword">,</span> <span class="symbol">...</span><span class="keyword">)</span>
+
+<span class="functioncall"><a href='lk-methods.html'>mixnorm</a></span><span class="keyword">(</span><span class="symbol">n</span><span class="keyword">,</span> <span class="symbol">mn</span><span class="keyword">,</span> <span class="symbol">sd</span><span class="keyword">,</span> <span class="symbol">bin</span><span class="keyword">,</span> <span class="argument">left</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="symbol">T</span><span class="keyword">)</span>
+
+<span class="functioncall"><a href='lk-methods.html'>resample</a></span><span class="keyword">(</span><span class="symbol">x</span><span class="keyword">,</span> <span class="symbol">...</span><span class="keyword">)</span>
+
+<span class="functioncall"><a href='lk-methods.html'>mixnorm</a></span><span class="keyword">(</span><span class="symbol">n</span><span class="keyword">,</span> <span class="symbol">mn</span><span class="keyword">,</span> <span class="symbol">sd</span><span class="keyword">,</span> <span class="symbol">bin</span><span class="keyword">,</span> <span class="argument">left</span>&nbsp;<span class="argument">=</span>&nbsp;<span class="symbol">T</span><span class="keyword">)</span></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>mn</dt>
+      <dd>an <code>FLQuant</code> with means</dd>
+      <dt>sd</dt>
+      <dd>an <code>FLQuant</code> with standard deviation</dd>
+      <dt>object</dt>
+      <dd>an <code>FLQuant</code></dd>
+      <dt>dim</dt>
+      <dd>dimensions of <code>FLQuant</code> to sample within, i.e. if equal to <code>2</code> then sampling is within <code>year</code></dd>
+      <dt>size</dt>
+      <dd>sum of frequency disribution</dd>
+      <dt>replace</dt>
+      <dd>sample with replacement?, defaults to <code>FALSE</code> only useful if values in <code>object</code> are integers</dd>
+      <dt>object</dt>
+      <dd>an <code>FLQuant</code></dd>
+      <dt>dim</dt>
+      <dd>dimensions of <code>FLQuant</code> to sample within, i.e. if equal to <code>2</code> then sampling is within <code>year</code></dd>
+      <dt>size</dt>
+      <dd>sum of frequency disribution</dd>
+      <dt>replace</dt>
+      <dd>sample with replacement?, defaults to <code>FALSE</code> only useful if values in <code>object</code> are integers</dd>
+      <dt>mn</dt>
+      <dd>an <code>FLQuant</code> with means</dd>
+      <dt>sd</dt>
+      <dd>an <code>FLQuant</code> with standard deviation</dd>
+    </dl>
+    
+    <div class="Value">
+      <h2>Value</h2>
+
+      <p><dl>
+a <code>FLQuant</code> with simulated frequency distribution</p>
+
+      <p>an <code>FLPar</code> with expected probability for lengths-at-age</p>
+
+      <p>a <code>FLQuant</code> with simulated frequency distribution</p>
+
+      <p>an <code>FLPar</code> with expected probability for lengths-at-age
+</dl></p>
+
+    </div>
+
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Resamples from a distribution to generate a frequency table</p>
+
+      <p>Simulates a normal density function from an <code>FLQuant</code></p>
+
+      <p>Resamples from a distribution to generate a frequency table</p>
+
+      <p>Simulates a normal density function from an <code>FLQuant</code></p>
+
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'><span class="comment">## Not run: ------------------------------------</span>
+<span class="comment">#   library(FLCore)</span>
+<span class="comment">#   data(ple4sex)</span>
+<span class="comment">#   </span>
+<span class="comment">#   apply(resample(catch.n(ple4sex)[,1:4],2,  100),2,  sum)</span>
+<span class="comment">#   apply(resample(catch.n(ple4sex)[,1:4],2:3,100),2:3,sum)</span>
+<span class="comment">#   apply(resample(catch.n(ple4sex)[,1:4],1:2,100),1:2,sum)</span>
+<span class="comment">#   </span>
+<span class="comment">## ---------------------------------------------</span>
+<span class="comment">## Not run: ------------------------------------</span>
+<span class="comment"># mn=FLQuant( 1:5,     dimnames=list(age=1:5,year=1991:2000,unit=1:2))</span>
+<span class="comment"># sd=FLQuant((1:5)/5,dimnames=list(age=1:5,year=1991:2000))</span>
+<span class="comment"># md=mixnorm(mn,sd,(1:20)/4)</span>
+<span class="comment"># ggplot(as.data.frame(md))+</span>
+<span class="comment">#    geom_line(aes(len,data,group=age))+</span>
+<span class="comment">#    facet_wrap(year~unit)</span>
+<span class="comment"># ggplot(as.data.frame(apply(md,1,sum)))+</span>
+<span class="comment">#    geom_line(aes(as.numeric(as.character(params)),data))     </span>
+<span class="comment">#  </span>
+<span class="comment">## ---------------------------------------------</span>
+<span class="comment">## Not run: ------------------------------------</span>
+<span class="comment">#   library(FLCore)</span>
+<span class="comment">#   data(ple4sex)</span>
+<span class="comment">#   </span>
+<span class="comment">#   apply(resample(catch.n(ple4sex)[,1:4],2,  100),2,  sum)</span>
+<span class="comment">#   apply(resample(catch.n(ple4sex)[,1:4],2:3,100),2:3,sum)</span>
+<span class="comment">#   apply(resample(catch.n(ple4sex)[,1:4],1:2,100),1:2,sum)</span>
+<span class="comment">#   </span>
+<span class="comment">## ---------------------------------------------</span>
+<span class="comment">## Not run: ------------------------------------</span>
+<span class="comment"># mn=FLQuant( 1:5,     dimnames=list(age=1:5,year=1991:2000,unit=1:2))</span>
+<span class="comment"># sd=FLQuant((1:5)/5,dimnames=list(age=1:5,year=1991:2000))</span>
+<span class="comment"># md=mixnorm(mn,sd,(1:20)/4)</span>
+<span class="comment"># ggplot(as.data.frame(md))+</span>
+<span class="comment">#    geom_line(aes(len,data,group=age))+</span>
+<span class="comment">#    facet_wrap(year~unit)</span>
+<span class="comment"># ggplot(as.data.frame(apply(md,1,sum)))+</span>
+<span class="comment">#    geom_line(aes(as.numeric(as.character(params)),data))     </span>
+<span class="comment">#  </span>
+<span class="comment">## ---------------------------------------------</span></div></pre>
+  </div>
+  <div class="span4 sidebar">
+    <!-- <ul>
+      <li>mixnorm</li><li>resample</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+
+
+
+
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="https://getbootstrap.com/2.0.4/">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>
