@@ -1,23 +1,3 @@
-
-setMethod('setParams<-', signature(object='aspic',value="data.frame"), 
-          function(object,value) {
-  #LOGISTIC 
-  nms=c("b0","msy","k")
-  
-  object@params=object@params[nms]
-  
-  params =setQ(object,value)
-  
-  params =params[dimnames(params)$params[substr(dimnames(params)$params,1,5)!="sigma"]]
-  
-  qs=substr(dimnames(params)$params,1,1)=="q"
-  dimnames(params)$params[seq(length(qs))[qs]]=
-    paste(substr(dimnames(params)$params[seq(length(qs))[qs]],1,1),seq(sum(qs)),sep="")
-  
-  object@params=params
-  
-  return(object)})
-
 setIndexFn=function(object,value){
   res=aspic()
   

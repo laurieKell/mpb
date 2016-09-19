@@ -26,7 +26,6 @@ utils::globalVariables('feasibleCpp')
 #' \dontrun{
 #' params=feasibleFn(catch,params)
 #' }
-
 setMethod('feasible',  signature(object="FLPar",catch="FLQuant"), 
    function(object,catch,min=0.01){
      feasibleFn(params=object,catch=catch,min=min)})

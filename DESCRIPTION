@@ -12,12 +12,12 @@ Depends:
     ggplotFL(>= 2.5.2)
 Imports:
     methods,
-    plyr,
     stringr,
     reshape,
     Rcpp
 Suggests: rmarkdown,
           knitr,
+          plyr,
           FLBRP
 LinkingTo: Rcpp
 Maintainer: Laurence Kell<laurie.kell@iccat.int>
