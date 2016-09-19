@@ -3,15 +3,13 @@
 \docType{class}
 \name{aspics-class}
 \alias{aspics-class}
-\title{aspics list}
-\value{
-aspics object
-}
+\title{aspics a class that contains a list of ASPIC biomass dynamic stock assessment model classes}
 \description{
-A class that contains a list of ASPIC biomass dynamic stock assessment model classes
+aspics a class that contains a list of ASPIC biomass dynamic stock assessment model classes
 }
-\examples{
-\dontrun{aspics()}
+\section{Slots}{
 
-}
+\describe{
+\item{\code{object}}{}
+}}
 

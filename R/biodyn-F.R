@@ -106,13 +106,11 @@ slv<-function(C,r,k,b0){
   
   return(FLQuants(F=F,B=B))}
 
-setGeneric('f', function(object,...) standardGeneric('f'))
 setMethod( 'f',signature(object='biodyn'),
       function(object,tolVal=1e-10,niter=200){
           fCPP(catch(object),params(object)[c("r","k","b"),tolVal,niter])
         })
 
-setGeneric('computeStock', function(object,...) standardGeneric('computeStock'))
 setMethod( 'computeStock',signature(object='biodyn'),
            function(object,tolVal=1e-10,niter=200){
              stockCPP(harvest(object),catch(object),stock(object),

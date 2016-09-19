@@ -1,3 +1,8 @@
+utils::globalVariables('end')
+utils::globalVariables('fwdCpp')
+utils::globalVariables('optim')
+utils::globalVariables('par')
+
 # fwd.R - 
 # biodyn/R/fwd.R
 
@@ -125,7 +130,11 @@ iavFn=function(val,bnd,lag=1){
 # @param peMult  logical, i.e. by default equals true so multiplicative, otherwise additive
 #' @param ... any other parameters
 #'
-#' @aliases fwd-method fwd,biodyn,FLQuants-method  fwd,biodyn,missing-method 
+#' @aliases 
+#' fwd-method 
+#' fwd,biodyn,FLQuants-method  
+#' fwd,biodyn,missing-method 
+#' fwd,FLPar,missing-method
 #' 
 #' @export
 #' @rdname fwd
@@ -140,7 +149,6 @@ iavFn=function(val,bnd,lag=1){
 #' plot(bdHat,worm=c(2,8))+
 #' theme(legend.position="bottom")
 #'  }
-setGeneric('fwd', function(object,ctrl,...) standardGeneric('fwd'))
 setMethod( 'fwd', signature(object='biodyn',ctrl='missing'),
    function(object, catch  =NULL, 
                     harvest=NULL, 
@@ -335,7 +343,8 @@ setMethod('fwd', signature(object='biodyn',ctrl='FLQuants'),
 #   return(biodyns(res))})
       
 
-setMethod( 'fwd', signature(object='FLPar',ctrl='missing'),function(object,...){
+setMethod( 'fwd', signature(object='FLPar',ctrl='missing'),
+  function(object,...){
    args=list(...)
    if ("catch"%in%names(args)){
      catch=args[["catch"]]

@@ -1,4 +1,8 @@
 utils::globalVariables(c("aspicCtl","k","iUAspic","value","."))
+utils::globalVariables('read.table')
+utils::globalVariables('read.table')
+utils::globalVariables('qqnorm')
+
 
 checkFile=function(x){
   
@@ -7,6 +11,9 @@ checkFile=function(x){
   if (any(maply(data.frame(pattern=c("trial","loss","msy","bmsy","brel","frel"),stringsAsFactors=F), grep, x=ln)>0))
     return("det")
 }
+
+#setMethod('writeAspic',    signature(object="aspic"),       
+#          function(object,index=object@index,what="FIT",niter=1,fl="aspic.inp",...)        .writeAspicInp(object,index,what,niter,fl=fl,...))
 
 .writeAspicInp<-function(object,index=object@index,what="FIT",niter=ifelse(what=="FIT",1,501),fl="aspic.inp"){
   dgts=options()$digits

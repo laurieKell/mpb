@@ -2,9 +2,20 @@
 % Please edit documentation in R/aspic-class.R
 \docType{class}
 \name{aspic-class}
+\alias{aspic,FLQuant-method}
+\alias{aspic,FLStock,missing-method}
+\alias{aspic,biodyn,FLQuant-method}
+\alias{aspic,biodyn,FLQuants,FLQuant-method}
+\alias{aspic,biodyn,FLQuants-method}
+\alias{aspic,character,missing,FLQuant-method}
+\alias{aspic,character,missing-method}
+\alias{aspic,data.frame,missing,FLQuant-method}
+\alias{aspic,data.frame,missing-method}
+\alias{aspic,missing,missing,FLQuant-method}
+\alias{aspic,missing,missing-method}
 \alias{aspic-class}
 \alias{catch,aspic-method}
-\alias{catch<-,aspic,FLQuant-method}
+\alias{catch<-}
 \title{ASPIC Biomass Dynamic Model Class}
 \value{
 aspics object

@@ -1,16 +1,35 @@
+utils::globalVariables('FLBRP')
+utils::globalVariables('computeRefpts')
+utils::globalVariables('rbind.fill')
+utils::globalVariables('data')
+utils::globalVariables('quantity')
+utils::globalVariables('FLBRP')
+utils::globalVariables('computeRefpts')
+utils::globalVariables('optimise')
+utils::globalVariables('catch.obs')
+utils::globalVariables('ages')
+
+
 #' ts
 #'
 #' @description calculates time series of quantities useful for management
 #' 
 #' @param object either  \emph{FLStock} \emph{biodyn} or \emph{aspic} classes
 #' 
-#' @rdname ts
+#' @rdname timeSeries-2
+#' 
+#' @aliases 
+#' ts,FLStock,FLBRP-method 
+#' ts,FLStock,FLPar-method 
+#' ts,FLStocks,FLBRP-method 
+#' ts,FLStocks,FLBRPs-method 
+#' ts,biodyn,FLPar-method
 #'
 #' @export
 #' 
 #' 
-setGeneric('ts', function(object,params,...)   standardGeneric('ts'))
-setMethod( 'ts', signature(object='FLStock',params="FLPar"), function(object,params,df=TRUE) {
+setMethod( 'timeSeries', signature(object='FLStock',params="FLPar"), 
+  function(object,params,df=TRUE) {
 
   object=window(object,start=range(object)["minyear"],end=range(object)["maxyear"])
   maxyr=unlist(dims(object)["year"])
@@ -48,11 +67,12 @@ setMethod( 'ts', signature(object='FLStock',params="FLPar"), function(object,par
   else return(list(relative=rel,absolute=abs))
   })
 
-setMethod( 'ts', signature(object='FLStock',params="FLBRP"), 
+setMethod( 'timeSeries', signature(object='FLStock',params="FLBRP"), 
       function(object,params,df=TRUE,ref="msy") {
-          ts(object,FLBRP:::refpts(params)[ref])})
+          ts(object,FLBRP::refpts(params)[ref])})
   
-setMethod( 'ts', signature(object='biodyn',params="FLPar"), function(object,params,df=TRUE) {
+setMethod( 'timeSeries', signature(object='biodyn',params="FLPar"), 
+  function(object,params,df=TRUE) {
 
   object=window(object,start=range(object)["minyear"],end=range(object)["maxyear"])
 
@@ -77,15 +97,15 @@ setMethod( 'ts', signature(object='biodyn',params="FLPar"), function(object,para
   })
 
 
-setMethod( 'ts', signature(object='FLStocks',params="FLBRP"), 
+setMethod( 'timeSeries', signature(object='FLStocks',params="FLBRP"), 
            function(object,params,df=TRUE,ref="msy") {
              mdply(data.frame(.id=names(object)),function(.id) 
-               ts(object[[.id]],FLBRP:::refpts(params)[ref],df=TRUE))})
+               ts(object[[.id]],FLBRP::refpts(params)[ref],df=TRUE))})
 
-setMethod( 'ts', signature(object='FLStocks',params="FLBRPs"), 
+setMethod( 'timeSeries', signature(object='FLStocks',params="FLBRPs"), 
            function(object,params,ref="msy") {
              mdply(data.frame(.id=names(object)),function(.id) 
-               ts(object[[.id]],FLBRP:::refpts(params[[.id]])[ref]))})
+               ts(object[[.id]],FLBRP::refpts(params[[.id]])[ref]))})
 
 #' mng
 #'
@@ -93,12 +113,11 @@ setMethod( 'ts', signature(object='FLStocks',params="FLBRPs"),
 #' 
 #' @param object either  \emph{FLStock} \emph{biodyn} or \emph{aspic} classes
 #' 
-#' @rdname ts
+#' @rdname timeSeries-1
 #'
 #' @export
 #' 
 #' 
-setGeneric('mng', function(object,params,...)   standardGeneric('mng'))
 
 # mngFn<-function(object,lyr=NULL,ryr=-(10:12),syr=-(0:4)) {
 #   
@@ -212,9 +231,9 @@ benchFn<-function(object,window=5){
                    apply(catch.sel(bry),c(2,6),max),6,sum)[,,,,,goodIts]
     
   r=mdply(goodIts,function(i)
-    lambda(leslie(iter(bry,i),c(FLBRP:::refpts(bry)["crash","harvest",i]),exploitable=!TRUE)[drop=T])-1)
+    lambda(leslie(iter(bry,i),c(FLBRP::refpts(bry)["crash","harvest",i]),exploitable=!TRUE)[drop=T])-1)
   rc=mdply(goodIts,function(i)
-    lambda(leslie(iter(bry,i),c(FLBRP:::refpts(bry)["msy","harvest",i]),exploitable=TRUE)[drop=T])-1)
+    lambda(leslie(iter(bry,i),c(FLBRP::refpts(bry)["msy","harvest",i]),exploitable=TRUE)[drop=T])-1)
 
   res=cbind(res,r=r[,"V1"],rc=rc[,"V1"],ek=c(ek))
 
@@ -275,7 +294,7 @@ bench<-function(object,window=5){
 
   rc=mdply(data.frame(iter=seq(window%/%2+1,n-window%/%2,1)),function(iter){ 
     data.frame(quantity="rc",msy=lambda(leslie(iter(bry,iter),
-                                               f=c(FLBRP:::refpts(iter(bry,iter))["msy","harvest"]))[drop=TRUE])-1)
+                                               f=c(FLBRP::refpts(iter(bry,iter))["msy","harvest"]))[drop=TRUE])-1)
     })
       
   bdt=melt(bdt)

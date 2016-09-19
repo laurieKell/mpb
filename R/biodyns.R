@@ -1,31 +1,14 @@
-#' biodyns
+#' biodyns creates a list of biodyn objects
 #' 
-#' @description Create a list of biodyn objects
+#' @slot object
 #' 
-#' #'  biodyns-method biodyns,biodyn-method  biodyns,list-method  biodyns,missing-method biodyns,aspics-method
-#' @name biodyns
-#' @param object can be \code{biodyn} object or a \code{list} of \code{biodyn} objects
-#' @param ... additional \code{biodyn} objects
-#' 
-#' @return \code{biodyns} object
-#' 
-#' @export
-#' @rdname biodyns
-#' 
-#' 
-#' @examples 
-#' \dontrun{
-#'    biodyns(biodyn())
-#'    }
-
-setGeneric('biodyns',   function(object,...)  standardGeneric('biodyns'))
-
-# constructor
-setMethod('biodyns', signature(object='biodyn'), function(object) {
+setMethod('biodyns', signature(object='biodyn'), 
+          function(object) {
   lst <- c(object, list(...))
   biodyns(lst)})
 
-setMethod('biodyns', signature(object='missing'),function(object,...) {
+setMethod('biodyns', signature(object='missing'),
+          function(object,...) {
             # empty
             if(missing(...)){
               new('biodyns')
@@ -39,7 +22,8 @@ setMethod('biodyns', signature(object='missing'),function(object,...) {
           }
 )
 
-setMethod('biodyns', signature(object='list'),    function(object, ...) {
+setMethod('biodyns', signature(object='list'),    
+          function(object, ...) {
             
             args <- list(...)
             
@@ -99,7 +83,6 @@ as2bs<-function(object, ...) {
 #)
    
 
-setGeneric('biodyns', function(object, ...) standardGeneric('biodyns'))
 biodyns <- setClass('biodyns', contains='FLComps',
                     validity=function(object) {
                       # All items are biodyn

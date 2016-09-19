@@ -9,7 +9,6 @@
 #' 
 #' @aliases hrate hrate,biodyn-method  hrate,aspic-method 
 #' 
-setGeneric('hrate',   function(object)  standardGeneric('hrate'))
 setMethod('hrate', signature(object='biodyn'),
   function(object){
     yrs=dimnames(stock(object))$year

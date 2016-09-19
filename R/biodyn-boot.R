@@ -15,8 +15,6 @@
 #' \dontrun{
 #'     data(asp)
 #'     asp=boot(asp)}
-setGeneric('boot',  function(object,...)  standardGeneric('boot'))
-
 setMethod('boot', signature(object='biodyn'),
           function(object,run=TRUE)
             bootFn(object=object, n=500, run=run))

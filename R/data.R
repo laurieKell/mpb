@@ -8,8 +8,12 @@
 #'   \item{stock.wt}{mass-at-age, \code{FLQuant}}
 #'   ...
 #' }
-#' @source \url{http://http://iccat.int/Documents/CVSP/CV070_2014/n_4/CV070041365.pdf/}
-"om"
+#' @references \url{http://http://iccat.int/Documents/CVSP/CV070_2014/n_4/CV070041365.pdf/}
+#' @name om
+#' @docType data
+#' @author Laurence Kell \email{laurie@@kell.es}
+#' @keywords data
+NULL
 
 #' Reference points and expected dynamics, for Operating Model based on North Atlantic Albacore
 #'
@@ -21,5 +25,9 @@
 #'   \item{stock.wt}{mass-at-age, \code{FLQuant}}
 #'   ...
 #' }
-#' @source \url{http://http://iccat.int/Documents/CVSP/CV070_2014/n_4/CV070041365.pdf/}
-"eql"
+#' @references \url{http://http://iccat.int/Documents/CVSP/CV070_2014/n_4/CV070041365.pdf/}
+#' @name om
+#' @docType data
+#' @author Laurence Kell \email{laurie@@kell.es}
+#' @keywords data
+NULL

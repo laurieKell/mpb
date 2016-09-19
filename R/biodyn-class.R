@@ -1,3 +1,7 @@
+#' @useDynLib mpb
+#' @importFrom Rcpp sourceCpp
+NULL
+
 utils::globalVariables('validParams')
 models=factor(c('fox',      'schaefer',
                 'pellat',   'gulland',
@@ -64,13 +68,23 @@ validity<-function(object) {
 #' @importFrom plyr ddply ldply laply mdply maply alply mlply llply daply d_ply dlply
 #' @importFrom stringr str_trim
 #' @importFrom reshape melt
-#' @import FLCore FLBRP
+#' @import FLCore 
 #' @import methods
 #'
-#' @aliases biodyn-class
+#' @aliases 
+#' biodyn-class
+#' biodyn,FLQuant,FLPar-method
+#' biodyn,FLQuant,missing-method 
+#' biodyn,FLStock,FLPar-method 
+#' biodyn,FLStock,missing-method 
+#' biodyn,character,FLPar-method 
+#' biodyn,character,missing-method 
+#' biodyn,factor,FLPar-method 
+#' biodyn,factor,missing-method 
+#' biodyn,missing,FLPar-method 
+#' biodyn,missing,missing-method 
 #' 
 #' @rdname biodyn-class
-#' @docType class
 #'  
 #' @examples
 #' \dontrun{biodyn()}

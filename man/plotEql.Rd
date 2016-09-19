@@ -28,6 +28,6 @@ Creates a \code{ggplot2} object that plots time series of biomass, harvest rate 
 }
 }
 \seealso{
-\code{\link{plotPrd}}\code{\link{plotMSE}}
+\code{\link{plotProduction}}\code{\link{plotMSE}}
 }
 

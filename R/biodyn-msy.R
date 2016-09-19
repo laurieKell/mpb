@@ -2,126 +2,36 @@ utils::globalVariables(c('refJacobian'))
 utils::globalVariables(c('jacobian', 'swon'))
 utils::globalVariables(c('data.x','data.y','X..x'))
 globalVariables("paramas")
+utils::globalVariables('qnorm')
+utils::globalVariables('fnJ')
+utils::globalVariables('data')
 
+setMethod('msy', signature(object='biodyn'), function(object,...)                             
+  msyPellaT(params(object)))
+setMethod('fmsy', signature(object='biodyn'), function(object,...)                             
+  fmsyPellaT(params(object)))
+setMethod('bmsy', signature(object='biodyn'), function(object,...)                             
+  bmsyPellaT(params(object)))
 
-#' msy
-#'
-#' Calculates MSY given the model parameters, can be done for a biodyn class, or by specifying the model and parameters
-#'
-#' @param object an object of class \code{biodyn} or a string or factor that species the model
-#' @param params an \code{FLPar} object with model parameters
-#' @param ... any other parameters
-#' 
-#' @return an \code{FLPar} object with value(s) of MSY
-#' 
-#' @seealso \code{\link{bmsy}}, \code{\link{fmsy}} 
-#'
-#' @aliases msy,biodyn,missing-method  msy,biodyn,numeric-method msy,character,FLPar-method msy,factor,FLPar-method
-#'  
-#' @export
-#' @rdname msy
-#'
-#' @examples \dontrun{ msy('logistic',FLPar(msy=100,k=500))}
-#'   
-setGeneric('msy', function(object,params,...) standardGeneric('msy')) 
-setMethod('msy',   signature(object='character', params='FLPar'),   function(object=factor(object), params=params)            msyFn(   object, params))
-setMethod('msy',   signature(object='factor',    params='FLPar'),   function(object=       object,  params=params)            msyFn(   object, params))
-setMethod('msy',   signature(object='biodyn',    params='missing'), function(object,                params=paramas, probs=0.5) msyFn(model(object), params(object),probs=probs))
-setMethod('msy',   signature(object='biodyn',    params='numeric'), function(object,                params=params)            msyFn(object, params(object), probs=params))
+setMethod('refpts', signature(object='character', params='FLPar'),   
+          function(object=factor(object), params=params)          refptsFn(object, params))
+setMethod('refpts', signature(object='factor',    params='FLPar'),   
+          function(object=       object,  params=params)          refptsFn(object, params))
+setMethod('refpts', signature(object='biodyn',    params='missing'), 
+          function(object)  {  model=model(object)
+                               par  =params(object)
+                               refptsFn(model,par)})
+setMethod('refpts', signature(object='FLPar', params='missing'),    
+          function(object=params)  refptsFn(factor("pellaT"),params=object))
 
-
-#' fmsy
-#'
-#' Calculates FMSY given the model parameters, can be done for a biodyn class, or by specifying the model and parameters
-#'
-#' @param object an object of class \code{biodyn} or a string or factor that species the model
-#' @param params an \code{FLPar} object with model parameters
-#' @param ... any other parameters
-#'
-#' @aliases fmsy,fmsy-method fmsy,biodyn,missing-method  fmsy,biodyn,numeric-method fmsy,character,FLPar-method fmsy,factor,FLPar-method
-#' 
-#' @return an \code{FLPar} object with value(s) of FMSY
-#' 
-#' @seealso \code{\link{msy}}, \code{\link{bmsy}} 
-#' 
-#' @export
-#' @rdname fmsy
-#'
-#' @examples
-#' \dontrun{
-#' fmsy('logistic',FLPar(msy=100,k=500))
-#' } 
-setGeneric('fmsy', function(object,params,...) standardGeneric('fmsy')) 
-setMethod('fmsy',  signature(object='biodyn',    params='missing'), function(object,probs=0.5)                             fmsyFn(model(object), params(object),probs=probs))
-setMethod('fmsy',  signature(object='character', params='FLPar'),   function(object=factor(object), params=params)         fmsyFn(object,params))
-setMethod('fmsy',  signature(object='factor',    params='FLPar'),   function(object=       object,  params=params)         fmsyFn(object,params))
-setMethod('fmsy',  signature(object='biodyn',    params='numeric'), function(object,                params=params)         fmsyFn(object,params(object)))
-
-#' bmsy
-#'
-#' Calculates BMSY given the model parameters, can be done for a biodyn class, or by specifying the model and parameters
-#'
-#' @param object an object of class \code{biodyn} or a string or factor that species the model
-#' @param params an \code{FLPar} object with model parameters
-#' @param ... any other parameters
-#'  
-#' @aliases bmsy,biodyn,missing-method  bmsy,biodyn,numeric-method bmsy,character,FLPar-method bmsy,factor,FLPar-method
-#' 
-#' @return an \code{FLPar} object with value(s) of MSY, B_MSY and B_MSY
-#' 
-#' @seealso \code{\link{msy}}, \code{\link{fmsy}} and  \code{\link{bmsy}}
-#' 
-#' @export
-#' @rdname bmsy
-#'
-#' @examples
-#' \dontrun{ 
-#' refpts('logistic',FLPar(msy=100,k=500))
-#' } 
-setGeneric('bmsy', function(object,params,...) standardGeneric('bmsy')) 
-setMethod('bmsy',  signature(object='character', params='FLPar'),   function(object=factor(object), params=params)         bmsyFn(  object, params))
-setMethod('bmsy',  signature(object='factor',    params='FLPar'),   function(object=       object,  params=params)         bmsyFn(  object, params))
-setMethod('bmsy',  signature(object='biodyn',    params='missing'), function(object,probs=0.5)                              bmsyFn(model(object), params(object), probs=probs))
-setMethod('bmsy',  signature(object='biodyn',    params='numeric'), function(object,params=params)                         bmsyFn(object, params(object), probs=params))
-
-##############################################################
-#' Maximum Sustainable Yield reference points
-#'
-#' Calculates MSY, B_MSY and F_MSY given the model parameters, can be done for a biodyn class, or by specifying the model and parameters
-#'
-#' @param object an object of class \code{biodyn} or a string or factor that species the model
-#' @param params an \code{FLPar} object with model parameters
-#' @param ... any other arguments
-#'
-#' @return an \code{FLPar} object with value(s) of F_MSY
-#' 
-#' @seealso \code{\link{msy}}, \code{\link{bmsy}} 
-#' 
-#' @export
-#' @rdname refpts
-#'
-#' @aliases refpts refpts-method  refpts,biodyn,missing-method  refpts,factor,FLPar-method   refpts,character,FLPar-method refpts,ANY
-#'
-#' @examples
-#' \dontrun{
-#' refpts('logistic',FLPar(msy=100,k=500))
-#' } 
-
-setGeneric('refpts',   function(object,params,...) standardGeneric('refpts'))
-setMethod('refpts', signature(object='character', params='FLPar'),   function(object=factor(object), params=params)          refptsFn(object, params))
-setMethod('refpts', signature(object='factor',    params='FLPar'),   function(object=       object,  params=params)          refptsFn(object, params))
-setMethod('refpts', signature(object='biodyn',    params='missing'), function(object)  {  model=model(object)
-                                                                                          par  =params(object)
-                                                                                          refptsFn(model,par)})
-setMethod('refpts', signature(object='FLPar', params='missing'),    function(object=params)  refptsFn(factor("pellaT"),params=object))
-
-setGeneric('refptSE',  function(object,params,...) standardGeneric('refptSE'))
-setMethod('refptSE', signature(object='character', params='FLPar'),   function(object=factor(object), params=params)         refptsFn(object, params))
-setMethod('refptSE', signature(object='factor',    params='FLPar'),   function(object=       object,  params=params)         refptsFn(object, params))
-setMethod('refptSE', signature(object='biodyn',    params='missing'), function(object)  {  model=model(object)
-                                                                                           par  =params(object)
-                                                                                           refptsFn(model,par)})
-
+setMethod('refptSE', signature(object='character', params='FLPar'),   
+          function(object=factor(object), params=params)         refptsFn(object, params))
+setMethod('refptSE', signature(object='factor',    params='FLPar'),   
+          function(object=       object,  params=params)         refptsFn(object, params))
+setMethod('refptSE', signature(object='biodyn',    params='missing'), 
+          function(object)  {  model=model(object)  
+                               par  =params(object)
+                               refptsFn(model,par)})
 
 # Fox
 msyFox  <- function(params)

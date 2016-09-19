@@ -94,10 +94,18 @@ validAspic <- function(object) {
 #' @slot desc         { \code{character}}      
 #' @slot range        { \code{numeric}}      
 #' 
-#' @aliases catch,aspic-method catch<-,aspic,FLQuant-method
+#' @aliases catch,aspic-method catch<- aspic,FLQuant-method aspic,FLStock,missing-method
+#' aspic,biodyn,FLQuant-method aspic,biodyn,FLQuants,FLQuant-method
+#' aspic,character,missing,FLQuant-method aspic,data.frame,missing,FLQuant-method
+#' aspic,missing,missing,FLQuant-method
+#' aspic,FLStock,missing-method 
+#' aspic,biodyn,FLQuant-method 
+#' aspic,biodyn,FLQuants-method 
+#' aspic,character,missing-method 
+#' aspic,data.frame,missing-method 
+#' aspic,missing,missing-method 
+# 
 #' @rdname aspic-class
-#' @docType class
-#'  
 setClass('aspic', representation(
     "biodyn",
     conditioning  ="factor",

@@ -1,6 +1,6 @@
 utils::globalVariables(c("gam","geom_smooth","theme_bw"))
+utils::globalVariables('hat')
 
-setGeneric('plotIndex',  function(data,...)     standardGeneric('plotIndex'))
 setMethod('plotIndex', signature(data='FLQuants'),
           function(data,
                    facet=facet_wrap(~qname,ncol=1,scale="free_y"),...){

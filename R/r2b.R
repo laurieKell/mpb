@@ -1,17 +1,22 @@
-#' 
-#' @description Biomass dynamic and age based model are equivalent if they provide similar advice on 
-#' the response of a stock to exploitation and management, i.e. are 
-#'   i) limit and target reference points  and 
-#'   ii) the properties of the predicted time series
-#' comparable.   
-#'   
-#' The main processes influencing the dynamics of exploited populations are gains due to growth and 
-#' recruitment and losses due to fishing and natural mortality. In a biomass dynamic model recruitment, 
-#' growth and natural mortality are simplified into a single production function, i.e. that of Pella 
-#' and Tomlinson, which is parameterised by population growth rate, carrying capacity and its shape. The 
-#' later is determined by density dependence.
-#' 
-#'
+utils::globalVariables('fbar<-')
+utils::globalVariables('what')
+utils::globalVariables('ssb.obs')
+utils::globalVariables('fix')
+utils::globalVariables('optimise')
+utils::globalVariables('catch.obs')
+
+# @description Biomass dynamic and age based model are equivalent if they provide similar advice on 
+# the response of a stock to exploitation and management, i.e. are 
+#   i) limit and target reference points  and 
+#   ii) the properties of the predicted time series
+# comparable.   
+#   
+# The main processes influencing the dynamics of exploited populations are gains due to growth and 
+# recruitment and losses due to fishing and natural mortality. In a biomass dynamic model recruitment, 
+# growth and natural mortality are simplified into a single production function, i.e. that of Pella 
+# and Tomlinson, which is parameterised by population growth rate, carrying capacity and its shape. The 
+# later is determined by density dependence.
+#
 r2b=function(from){
   
   warn=options()$warn
@@ -53,7 +58,7 @@ r2b=function(from){
       r  =r,
       k  =k)$minimum
   else  
-    p=mpb:::getP(bmsy,k,p=c(0.001,5))
+    p=mpb::getP(bmsy,k,p=c(0.001,5))
   
   bd=biodyn(catch=catch.obs(from))
   
@@ -71,11 +76,11 @@ r2b=function(from){
   bd@priors["k",   "a"]=params(bd)["k"]
   bd@priors["p",   "a"]=params(bd)["p"]
   bd@priors["b0",  "a"]=params(bd)["b0"]
-  bd@priors[ "msy","a"]=mpb:::refpts(bd)["msy"]
-  bd@priors["bmsy","a"]=mpb:::refpts(bd)["bmsy"]
-  bd@priors["fmsy","a"]=mpb:::refpts(bd)["fmsy"]
+  bd@priors[ "msy","a"]=mpb::refpts(bd)["msy"]
+  bd@priors["bmsy","a"]=mpb::refpts(bd)["bmsy"]
+  bd@priors["fmsy","a"]=mpb::refpts(bd)["fmsy"]
   
-  bd=mpb:::fwd(bd,catch=catch(bd))
+  bd=mpb::fwd(bd,catch=catch(bd))
   
   range(bd)["minyear"]=dims(bd@catch)$minyear
   range(bd)["maxyear"]=dims(bd@catch)$maxyear

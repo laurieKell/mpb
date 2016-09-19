@@ -5,9 +5,16 @@
 #'       
 #' @param object an \code{FLQuant} with a time series of catch, iters must be equal to 1
 #' @param params an \code{FLPar} object with parameters for the production function, r, k, p and b0.
-#' @params min, the minimum permissable population level, used to check that the catch can be taken.
-#' @params ...
+#' @param min, the minimum permissable population level, used to check that the catch can be taken.
+#' @param ... any other parameters
 #' @return a \code{FLPar} a subset of params with parameter values that can explain the catch
+#' 
+#' @aliases
+#' nll,FLQuant,FLQuant,FLPar-method
+#' nll,FLQuant,FLQuants,FLPar-method
+#' nll,biodyn,FLQuant,missing-method
+#' nll,biodyn,FLQuants,missing-method
+#' 
 #' @export
 #' @docType methods
 #' @rdname nll
@@ -16,9 +23,6 @@
 #' \dontrun{
 #' params=nllFn(catch,params)
 #' }
-setGeneric('nll',  function(object,index,params,...) 
-  standardGeneric('nll'))
-
 setMethod('nll',  signature(object='FLQuant',index="FLQuant",params="FLPar"), 
    function(object,index,params,min=0.01)
      nllFn(object,index,params,min))

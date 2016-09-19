@@ -19,7 +19,7 @@
 #' @seealso \code{\link{bmsy}}, \code{\link{fmsy}}, \code{\link{fwd}} and \code{\link{hcrParam}}
 #' 
 #' @export
-#' @rdname hcr
+#' @rdname hcr-flstock
 #'
 #' @examples
 #' \dontrun{

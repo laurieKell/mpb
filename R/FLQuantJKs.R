@@ -29,16 +29,11 @@ vFLQs <- function(object){
 #' }
 #' 
 #' @keywords classes
-# class
+#' 
 setClass("FLQuantJKs", contains="FLlst",
          validity=vFLQs
 )
 
-# constructor
-setGeneric("FLQuantJKs", function(object, ...){
-  standardGeneric("FLQuantJKs")
-}
-)
 
 setMethod("FLQuantJKs", signature(object="ANY"), function(object, ...){
   lst1 <- list(...)

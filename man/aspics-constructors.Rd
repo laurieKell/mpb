@@ -2,6 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{aspics}
 \alias{aspics}
+\alias{aspics,aspic-method}
 \alias{aspics,list-method}
 \alias{aspics,missing-method}
 \alias{aspics-method}

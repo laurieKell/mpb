@@ -1,5 +1,6 @@
 utils::globalVariables('read.fit')
 utils::globalVariables(c("ow"))
+utils::globalVariables('read.table')
 
 # io.ADMB.R - 
 # FLCore/R/io.ADMB.R

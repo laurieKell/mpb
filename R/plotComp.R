@@ -1,4 +1,6 @@
 utils::globalVariables(c('geom_path','scale_size_manual','scale_linetype_manual'))
+utils::globalVariables('data')
+utils::globalVariables('data')
 
 # plotComp.R - 
 # ggplotFL/R/plotComp.R

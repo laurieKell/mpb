@@ -1,6 +1,3 @@
-setGeneric("jackSummary", function(object, ...)
-  standardGeneric("jackSummary"))
-
 setMethod("jackSummary", signature(object="FLQuant"),
   function(object,sim,...) {
             

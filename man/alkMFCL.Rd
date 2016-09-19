@@ -16,6 +16,10 @@ alkMFCL(lfile, ffile, i = 1, df = TRUE)
 \value{
 a list with elements \code{caa} numbers by age, len, season and year, \code{laa} length by age season and year, 
 \code{obs} observed length samples by season and year and \code{hat} fitted lengths by season and year,
+
+lfile="/home/laurie/Desktop/gcode/mse4mfcl/ALB/papers/SCRS/SCRS2013-ALK/Inputs/length09.fit"
+rfile="/home/laurie/Desktop/gcode/mse4mfcl/ALB/papers/CSRS/SCRS2013-ALK/Inputs/plot-09.par.rep"
+ffile="/home/laurie/Desktop/Dropbox/collaboration/Shelton/ALBN/4B/2009/albN.frq"
 }
 \description{
 Returns length age data from Multifan-CL as a list with four data frames

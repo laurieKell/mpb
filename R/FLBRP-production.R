@@ -1,4 +1,10 @@
-productionFn=function(object,stk="missing",
+utils::globalVariables('biomass.obs')
+utils::globalVariables('catch.obs')
+utils::globalVariables('refpts<-')
+utils::globalVariables('computeRefpts')
+utils::globalVariables('ssb.obs')
+
+productionFn=function(object,biomass="missing",
                       slots=c("landings.sel","discards.sel",
                               "stock.wt","landings.wt","discards.wt",
                               "m","mat",
@@ -17,23 +23,23 @@ productionFn=function(object,stk="missing",
   ref[,"biomass"]   =biomass.obs(object)[,-nyr]
   refpts(object)    =ref
   
-  if (!missing(stk)){
+  if (!missing(biomass)){
     for (i in slots[!(slots%in%c("landings.sel","discards.sel"))]){
       slot(object,i)=propagate(slot(object,i),dims(ref)$iter)
-      slot(object,i)[]=slot(stk,i)[,-nyr]
+      slot(object,i)[]=slot(biomass,i)[,-nyr]
     }
     
     if (any(c("landings.sel","discards.sel")%in%slots)){
-      sel=harvest(stk)[,-nyr]
-      sel=sel%/%apply(sel[ac(range(stk)["minfbar"]:range(stk)["maxfbar"])],2,mean)
+      sel=harvest(biomass)[,-nyr]
+      sel=sel%/%apply(sel[ac(range(biomass)["minfbar"]:range(biomass)["maxfbar"])],2,mean)
       
       if ("landings.sel"%in%slots){
         landings.sel(object)  =propagate(landings.sel(object),dims(ref)$iter)
-        landings.sel(object)[]=sel*landings.n(stk)[,-nyr]/catch.n(stk)[,-nyr]}
+        landings.sel(object)[]=sel*landings.n(biomass)[,-nyr]/catch.n(biomass)[,-nyr]}
       
       if ("discards.sel"%in%slots){
         discards.sel(object)  =propagate(discards.sel(object),dims(ref)$iter)
-        discards.sel(object)[]=sel*discards.n(stk)[,-nyr]/catch.n(stk)[,-nyr]}
+        discards.sel(object)[]=sel*discards.n(biomass)[,-nyr]/catch.n(biomass)[,-nyr]}
     }
   }
   
@@ -53,19 +59,17 @@ productionFn=function(object,stk="missing",
   res[,c("year","biomass","ssb","juve","rec","catch","obs","hat")]}
 
 
-setGeneric('production',   function(object,stk,...) standardGeneric('production'))
+setMethod('production', signature(object='FLBRP',biomass='missing'),
+          function(object,biomass) productionFn(object,biomass))
 
-setMethod('production', signature(object='FLBRP',stk='missing'),
-          function(object,stk) productionFn(object,stk))
-
-setMethod('production', signature(object='FLBRP',stk='FLStock'),
-         function(object,stk,slots=c("landings.sel","discards.sel",
-                                     "stock.wt","landings.wt","discards.wt",
-                                     "m","mat",
-                                     "harvest.spwn","m.spwn"))
-         productionFn(object,stk,slots))
+setMethod('production', signature(object='FLBRP',biomass='FLStock'),
+         function(object,biomass,slots=c("landings.sel","discards.sel",
+                                         "stock.wt","landings.wt","discards.wt",
+                                         "m","mat",
+                                         "harvest.spwn","m.spwn"))
+         productionFn(object,biomass,slots))
           
-productionFn=function(object,stk="missing",
+productionFn=function(object,biomass="missing",
                       slots=c("landings.sel","discards.sel",
                               "stock.wt","landings.wt","discards.wt",
                               "m","mat",
@@ -84,23 +88,23 @@ productionFn=function(object,stk="missing",
   ref[,"biomass"]   =biomass.obs(object)[,-nyr]
   refpts(object)    =ref
   
-  if (!missing(stk)){
+  if (!missing(biomass)){
     for (i in slots[!(slots%in%c("landings.sel","discards.sel"))]){
       slot(object,i)=propagate(slot(object,i),dims(ref)$iter)
-      slot(object,i)[]=slot(stk,i)[,-nyr]
+      slot(object,i)[]=slot(biomass,i)[,-nyr]
     }
     
     if (any(c("landings.sel","discards.sel")%in%slots)){
-      sel=harvest(stk)[,-nyr]
-      sel=sel%/%apply(sel[ac(range(stk)["minfbar"]:range(stk)["maxfbar"])],2,mean)
+      sel=harvest(biomass)[,-nyr]
+      sel=sel%/%apply(sel[ac(range(biomass)["minfbar"]:range(biomass)["maxfbar"])],2,mean)
       
       if ("landings.sel"%in%slots){
         landings.sel(object)  =propagate(landings.sel(object),dims(ref)$iter)
-        landings.sel(object)[]=sel*landings.n(stk)[,-nyr]/catch.n(stk)[,-nyr]}
+        landings.sel(object)[]=sel*landings.n(biomass)[,-nyr]/catch.n(biomass)[,-nyr]}
       
       if ("discards.sel"%in%slots){
         discards.sel(object)  =propagate(discards.sel(object),dims(ref)$iter)
-        discards.sel(object)[]=sel*discards.n(stk)[,-nyr]/catch.n(stk)[,-nyr]}
+        discards.sel(object)[]=sel*discards.n(biomass)[,-nyr]/catch.n(biomass)[,-nyr]}
     }
   }
   
@@ -119,39 +123,18 @@ productionFn=function(object,stk="missing",
   
   res[,c("year","biomass","ssb","juve","rec","catch","obs","hat")]}
 
-#' production
-#'
-#' @description Estimates estimates surplus production based on equilibrium analysis 
-#' 
-#' @param   object an object of class \code{FLBRP}
-#' @param   stk an \code{FLStock}
-#' @param   slots if provides then allows for non-stationarity by using the observed 
-#' parameters each year, rather than the averages in  \code{FLBRP}
-#'
-#' @export
-#' @rdname production
-#'
-#' @details Returns a data.frame with catch, biomass, observed (obs) and
-#' expected (hat) production by year 
-#' @examples
-#' \dontrun{
-#'    prd=production(x)
-#' }
+setMethod('production', signature(object='FLBRP',biomass='missing'),
+          function(object,biomass) productionFn(object,biomass))
 
-setGeneric('production',   function(object,stk,...) standardGeneric('production'))
-
-setMethod('production', signature(object='FLBRP',stk='missing'),
-          function(object,stk) productionFn(object,stk))
-
-setMethod('production', signature(object='FLBRP',stk='FLStock'),
-          function(object,stk,slots=c("landings.sel","discards.sel",
+setMethod('production', signature(object='FLBRP',biomass='FLStock'),
+          function(object,biomass,slots=c("landings.sel","discards.sel",
                                       "stock.wt","landings.wt","discards.wt",
                                       "m","mat",
                                       "harvest.spwn","m.spwn"))
-            productionFn(object,stk,slots))
+            productionFn(object,biomass,slots))
 
-setMethod('production', signature(object='FLStock',stk='missing'),
-          function(object,stk)  {
+setMethod('production', signature(object='FLStock',biomass='missing'),
+          function(object,biomass)  {
             
             object=window(object,start=range(object)["minyear"],
                           end  =range(object)["maxyear"])

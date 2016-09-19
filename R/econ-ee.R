@@ -1,3 +1,5 @@
+globalVariables('fuel')
+
 ee<-function(i,e,B,price,irate,fcost,vcost,age){
   #fleet exit/entering responding to biomass y-1
   x1 = exp((-81.0017961) + 

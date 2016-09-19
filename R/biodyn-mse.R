@@ -1,4 +1,14 @@
 utils::globalVariables(c('eql','srDev'))
+utils::globalVariables('priors')
+utils::globalVariables('mou')
+utils::globalVariables('rcvPeriod')
+utils::globalVariables('priors')
+utils::globalVariables('cmdOps')
+utils::globalVariables('ftar')
+utils::globalVariables('btrig')
+utils::globalVariables('fmin')
+utils::globalVariables('blim')
+
 
 ## MSE function
 #' mseBiodyn

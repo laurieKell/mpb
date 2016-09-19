@@ -45,6 +45,6 @@ plot(biodyns("1"=bd1,"2"=bd2))
 } 
 }
 \seealso{
-\code{\link{plotPrd}}, \code{\link{plotEql}}
+\code{\link{plotProduction}}, \code{\link{plotEql}}
 }
 

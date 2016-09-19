@@ -1,3 +1,7 @@
+utils::globalVariables('FLBRPs')
+utils::globalVariables('FLBRP')
+utils::globalVariables('refpts<-')
+
 FLQuants2FLQuant<-function(object){
   mat=ldply(object,as.data.frame)[,-7]
   names(mat)[1]="iter"

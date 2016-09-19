@@ -1,4 +1,5 @@
 utils::globalVariables('laply')
+utils::globalVariables('ages')
 
 #' tac , 
 #' 
@@ -21,7 +22,6 @@ utils::globalVariables('laply')
 #' \dontrun{
 #' tac(bd,FLQuant(0.1,dimnames=list(year=dims(bd)$maxyear)))
 #' }
-setGeneric('tac',      function(object, harvest, ...) standardGeneric('tac'))
 setMethod( 'tac', signature(object='biodyn'),
            function(object,harvest,...){
 
@@ -29,7 +29,7 @@ setMethod( 'tac', signature(object='biodyn'),
              #maxY =max(as.numeric(yr))
           
              #stock(object)=window(stock(object),end=maxY)
-             #stock(object)[,ac(maxY)]=stock(object)[,ac(maxY-1)]-catch(object)[,ac(maxY-1)]+computePrd(object,stock(object)[,ac(maxY-1)])
+             #stock(object)[,ac(maxY)]=stock(object)[,ac(maxY-1)]-catch(object)[,ac(maxY-1)]+production(object,stock(object)[,ac(maxY-1)])
              
              #catch(object)=propagate(catch(object),dims(object)$iter)  
              #harvest      =window(harvest,start=dims(object)$year-1)
@@ -192,9 +192,9 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
 
       object=window(object, end=max(as.numeric(hyr)))
       
-      object=mpb:::fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hyr)-1))])
+      object=mpb::fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hyr)-1))])
      
-      rtn   =catch(mpb:::fwd(object, harvest=rtn))[,ac(hyr)]
+      rtn   =catch(mpb::fwd(object, harvest=rtn))[,ac(hyr)]
 
       if (!is.null(bndTac)){  
         rtn[,ac(min(hyr))]=qmax(rtn[,ac(min(hyr))],ref*bndTac[1])
@@ -223,7 +223,7 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
   
   return(hvt)})
 
-#' hcrPlot
+#' plotHcr
 #'
 #' Calculates break pointts for a hockey stick HCR
 #'
@@ -236,16 +236,15 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
 #' 
 #' @seealso \code{\link{hcr}},  \code{\link{msy}},  \code{\link{bmsy}}, \code{\link{fmsy}} 
 #' 
-#' @rdname hcrPlot
-#' @aliases hcrPlot-method  hcrPlot,biodyn-method
+#' @rdname plotHcr
+#' @aliases plotHcr-method  plotHcr,biodyn-method
 #'
 #' @examples
 #' \dontrun{
 #' simBiodyn()
 #' }
 #' 
-setGeneric('hcrPlot', function(object,...) standardGeneric('hcrPlot'))
-setMethod('hcrPlot', signature(object='biodyn'),
+setMethod('plotHcr', signature(object='biodyn'),
  function(object,params=FLPar(ftar=0.7, btrig=0.7, fmin=0.01, blim=0.20),maxB=1,rel=TRUE){
   
   pts=rbind(cbind(refpt='Target',model.frame(rbind(bmsy(object)*c(params['btrig']),
@@ -262,7 +261,7 @@ setMethod('hcrPlot', signature(object='biodyn'),
   names(pts)[2:3]=c('stock','harvest')
   
   if (rel){
-    pts[,'stock']=pts[,'stock']/mpb:::bmsy(object)
-    pts[,'harvest']=pts[,'harvest']/mpb:::fmsy(object)}
+    pts[,'stock']=pts[,'stock']/mpb::bmsy(object)
+    pts[,'harvest']=pts[,'harvest']/mpb::fmsy(object)}
   
   pts})

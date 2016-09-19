@@ -1,3 +1,19 @@
+utils::globalVariables(c('par','polygon','lines','segments','box','text','ploc','axis','dev.copy'))
+utils::globalVariables('X2')
+utils::globalVariables('X1')
+utils::globalVariables('as.FLPar')
+utils::globalVariables('par')
+utils::globalVariables('polygon')
+utils::globalVariables('lines')
+utils::globalVariables('segments')
+utils::globalVariables('box')
+utils::globalVariables('text')
+utils::globalVariables('ploc')
+utils::globalVariables('axis')
+utils::globalVariables('dev.copy')
+utils::globalVariables('getfrqfile')
+utils::globalVariables('getoutputparfile')
+utils::globalVariables('getfrqsampledat')
 
 getfrqheader <-function (frqfile = getfrqfile("plot.rep")) 
   {
@@ -178,8 +194,7 @@ mfclLfd=function(ffile){
 #' 
 #' @return a list with elements \code{caa} numbers by age, len, season and year, \code{laa} length by age season and year, 
 #' \code{obs} observed length samples by season and year and \code{hat} fitted lengths by season and year,
-#'  
-#' @export
+#' 
 alkMFCL=function(lfile,ffile,i=1,df=TRUE){
 
   require(plyr)
@@ -261,6 +276,7 @@ alkMFCL=function(lfile,ffile,i=1,df=TRUE){
 #' @return a numeric vector
 #' 
 #' @export
+#' 
 mfclGrw=function(parfile = getoutputparfile("plot.rep")){
   #==============================================================
   # Get avg size in 1st and last age classes plus the Brody rho

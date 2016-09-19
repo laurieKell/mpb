@@ -1,6 +1,6 @@
-setGeneric("setIndex<-",    function(object,value)   standardGeneric('setIndex<-'))
 
-setMethod('setParams<-', signature(object='aspic',value="data.frame"), function(object,value) {
+setMethod('setParams<-', signature(object='aspic',value="data.frame"), 
+          function(object,value) {
   #LOGISTIC 
   nms=c("b0","msy","k")
   
@@ -113,7 +113,8 @@ setIndexFn=function(object,value){
   
   res}
 
-setMethod('setIndex<-', signature(object='aspic',value="data.frame"), function(object,value) 
+setMethod('setIndex<-', signature(object='aspic',value="data.frame"), 
+          function(object,value) 
   setIndexFn(object,value))
 setMethod('setIndex<-', signature(object='aspic',value="FLQuants"), 
   function(object,value) {

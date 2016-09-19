@@ -2,6 +2,16 @@
 % Please edit documentation in R/biodyn-class.R
 \docType{class}
 \name{biodyn-class}
+\alias{biodyn,FLQuant,FLPar-method}
+\alias{biodyn,FLQuant,missing-method}
+\alias{biodyn,FLStock,FLPar-method}
+\alias{biodyn,FLStock,missing-method}
+\alias{biodyn,character,FLPar-method}
+\alias{biodyn,character,missing-method}
+\alias{biodyn,factor,FLPar-method}
+\alias{biodyn,factor,missing-method}
+\alias{biodyn,missing,FLPar-method}
+\alias{biodyn,missing,missing-method}
 \alias{biodyn-class}
 \title{biodyn class}
 \description{

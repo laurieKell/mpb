@@ -1,23 +1,31 @@
+utils::globalVariables('feasibleCpp')
+
 #' feasible
 #' 
-#' @description 
-#' Checks that the parameters can be taken given the catch time series
+#' Checks that parameters are feasible given data.
+#' 
+#' @description Checks that the parameters can be taken given the catch time series
 #'       
-#' @param object an \code{FLPar}, \code{FLBRP} or \code{data.frame} object with parameters for the production function, r, k, p and b0.
+#' @param object an \code{FLPar} or \code{data.frame} object with parameters for the production function, r, k, p and b0.
 #' @param catch an \code{FLQuant} with a time series of catch, iters must be equal to 1
-#' @params min, the minimum permissable population level, used to check that the catch can be taken.
-#' @params ...
+#' @param min the minimum permissable population level, used to check that the catch can be taken.
+#' @param ... any other parameters
+#' 
 #' @return a \code{FLPar} a subset of params with parameter values that can explain the catch
+#' 
+#' @aliases 
+#' feasible,FLPar,FLQuant-method
+#' feasible,biodyn,missing-method
+#' feasible,data.frame,FLQuant-method
+#' 
 #' @export
 #' @docType methods
 #' @rdname feasible
 #' 
-#' @examplesc('feasible',  function(objec
+#' @examples
 #' \dontrun{
 #' params=feasibleFn(catch,params)
 #' }
-setGeneric('feasible',  function(object,catch,...) standardGeneric('feasible'))
-setGeneric('grid',      function(object,...)        standardGeneric('grid'))
 
 setMethod('feasible',  signature(object="FLPar",catch="FLQuant"), 
    function(object,catch,min=0.01){

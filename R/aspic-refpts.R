@@ -21,8 +21,7 @@ setMethod('refpts', signature(object='aspic', params='missing'),
      
   res})
 
-setGeneric('msy', function(object,params,...) standardGeneric('msy')) 
-setMethod('msy', signature(object='aspic', params='missing'),  
+setMethod('msy', signature(object='aspic'),  
           function(object,params=NULL){
             
             if (object@model=="LOGISTIC"){
@@ -32,8 +31,7 @@ setMethod('msy', signature(object='aspic', params='missing'),
             
             msy})
 
-setGeneric('fmsy', function(object,params,...) standardGeneric('fmsy')) 
-setMethod('fmsy', signature(object='aspic', params='missing'),  
+setMethod('fmsy', signature(object='aspic'),  
           function(object,params=NULL){
             
             if (object@model=="LOGISTIC"){
@@ -48,8 +46,7 @@ setMethod('fmsy', signature(object='aspic', params='missing'),
             
             fmsy})
 
-setGeneric('bmsy', function(object,params,...) standardGeneric('bmsy')) 
-setMethod('bmsy', signature(object='aspic', params='missing'),  
+setMethod('bmsy', signature(object='aspic'),  
           function(object,params=NULL){
             
             if (object@model=="LOGISTIC"){

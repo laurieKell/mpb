@@ -1,4 +1,5 @@
 utils::globalVariables(c('ddply','.','year','pctl','cast','kobeP','sims'))
+utils::globalVariables('dnorm')
 
 #' kobe
 #' 
@@ -25,8 +26,6 @@ utils::globalVariables(c('ddply','.','year','pctl','cast','kobeP','sims'))
 #' }
 
 #if (!isGeneric('kobe')) 
-setGeneric('kobe',  function(object,method,...) standardGeneric('kobe'))
-
 setMethod('kobe', signature(object='biodyn',method='missing'),
           function(object,what=c('sims','trks','pts','smry','wrms')[1],probs=c(0.75,0.5,.25),
                    year=NULL,nwrms=10,sim=NULL,drop=TRUE){

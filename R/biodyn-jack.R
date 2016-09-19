@@ -15,8 +15,15 @@
 #' @export
 #' @rdname randJack
 #'
-#' @aliases randJack-method randJack,numeric,biodyn-method randJack, numeric,FLPar,FLPar-method randJack, numeric,FLQuant,FLQuant-method randJack, numeric,biodyn,biodyn-method
-#'
+#' @aliases 
+#' randJack-method 
+#' randJack,numeric,biodyn-method 
+#' randJack, numeric,FLPar,FLPar-method 
+#' randJack, numeric,FLQuant,FLQuant-method 
+#' randJack, numeric,biodyn,biodyn-method
+#' randJack,numeric,biodyn,biodyn-method
+#' 
+#' 
 #' @examples
 #' \dontrun{
 #' #simulate an object with known properties
@@ -42,12 +49,10 @@
 #' 
 #' plot(randJack(100,stock(bd)[,40:45],stock(bdJK)[,40:45]))
 #' }
-setGeneric('randJack',   function(n,object,sim,...)    standardGeneric('randJack'))
-
 randJackFn<-function(n,object,sim){
   res=jackSummary(params(object),params(sim))
   
-  cov=res$cov[modelParams(model(object)),biodyn:::modelParams(model(object))]
+  cov=res$cov[modelParams(model(object)),mpb::modelParams(model(object))]
   object@params=propagate(object@params,n)
   object@catch =propagate(object@catch, n)
   object@catch[]=object@catch[,,,,,1]

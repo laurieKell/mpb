@@ -4,6 +4,15 @@ utils::globalVariables(c("%dopar%","foreach","i"))
 
 utils::globalVariables(c('laply','llply','maply','mlply'))
 utils::globalVariables('alply')
+utils::globalVariables('coefficients')
+utils::globalVariables('lm')
+utils::globalVariables('X1')
+utils::globalVariables('qqnorm')
+utils::globalVariables('read.table')
+utils::globalVariables('hat')
+utils::globalVariables('read.table')
+utils::globalVariables('MakeADFun')
+utils::globalVariables('optimx')
 
 setMethod('fit',signature(object='biodyn',index='FLQuant'),
           function(object,index=index,exeNm='pella',package='mpb', 
@@ -70,6 +79,9 @@ setMethod('fit',signature(object='biodyn',index='FLQuantJK'),
 #'
 #' @export
 #' @rdname fit-biodyn
+#' 
+#' @aliases fit,FLPar,FLQuant-method fit,aspics,missing-method fit,biodyn,FLQuantJK-method
+#'          fit,biodyn,FLQuantJKs-method
 #' 
 #' @examples
 #' \dontrun{
@@ -476,7 +488,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
 
   units(bd@mng)='NA'  
 
-  bd=mpb:::fwd(bd,catch=catch(bd)[,rev(dimnames(catch(bd))$year)[1]],starvationRations=2) 
+  bd=mpb::fwd(bd,catch=catch(bd)[,rev(dimnames(catch(bd))$year)[1]],starvationRations=2) 
 
   if (length(grep('-mcmc',cmdOps))>0 & length(grep('-mcsave',cmdOps))>0){
     #'-mcmc 100000 -mcsave 100'
@@ -538,7 +550,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
 
 #  if (!is.null(catch)) catch(object)=catch
 
-  bd@stock=stock(mpb:::fwd(bd,catch=catch(bd)))
+  bd@stock=stock(mpb::fwd(bd,catch=catch(bd)))
   
   options(ow)
   return(bd)}

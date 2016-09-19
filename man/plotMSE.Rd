@@ -26,6 +26,6 @@ ssb, biomass, harvest rate and catch for  \code{FLStock} and  \code{biodyn}  obj
 The basic object can then be modified by adding ggpot2 layers.
 }
 \seealso{
-\code{\link{plotPrd}}
+\code{\link{plotProduction}}
 }
 

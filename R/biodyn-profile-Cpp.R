@@ -1,5 +1,9 @@
 utils::globalVariables(c('profileGrid'))
 utils::globalVariables('maply')
+utils::globalVariables('ctc')
+utils::globalVariables('idx')
+utils::globalVariables('nllCpp')
+utils::globalVariables('par')
 
 profileFn<-function(r=0.5,k=1000,p=0.001,b0=0.75,min=0.1,max=10){
   

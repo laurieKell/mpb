@@ -1,9 +1,30 @@
+utils::globalVariables('rbind.fill')
+
+#' profile
+#'
+#' @description 
+#' Performs a profile using residual sum of squares, fixes some parameters for a range of values 
+#' and then estimate the others 
+#'
+#' @param fitted: an \code{aspic} object
+#' @param which: \code{character} giving the parameters to do the profile for, i.e. to fix.
+#' @param range; \code{numeric} relative values by which to vary parameter values, default seq(0.5,1.5,length.out=21). 
+#' @param fn: \code{function} that gives values to be profiled.
+#' @param run: \code{logical} if \code{TRUE} then returns profile, otherwise it just sets the control object-
+#' 
+#' @return a \code{data frame} with results turned by \code{fn} by values in \code{which}. 
+#' @seealso \code{\link{biodyn},\link{fit}}
+#'
+#' @export
+#' @docType methods
+#' @rdname profile
+#'
 profileFn=function(fitted,which,
                    range=seq(0.5,1.5,length.out=21),
                    fn   =function(x) cbind(model.frame(params(x)), 
                                            model.frame(refpts(x)),
                                            model.frame(x@objFn)[,-3]),
-                                           #ll=x@ll[,2,drop=T]/(x@ll[,3,drop=T]-1)),
+                   #ll=x@ll[,2,drop=T]/(x@ll[,3,drop=T]-1)),
                    run=TRUE,
                    min=0.8,max=1/min,...){
   
@@ -40,33 +61,7 @@ profileFn=function(fitted,which,
     fitted@control=profileGrid(fitted@control,which,range)
   
   return(fitted)}
-  
-# refpts<-function(object){
-#   msy=fmsy(object)*bmsy(object)
-#   dimnames(msy)$params="msy"
-#   rbind(msy,
-#         bmsy(object),
-#         fmsy(object))}
 
-#' profile
-#'
-#' @description 
-#' Performs a profile using residual sum of squares, fixes some parameters for a range of values 
-#' and then estimate the others 
-#'
-#' @param fitted: an \code{aspic} object
-#' @param which: \code{character} giving the parameters to do the profile for, i.e. to fix.
-#' @param range; \code{numeric} relative values by which to vary parameter values, default seq(0.5,1.5,length.out=21). 
-#' @param fn: \code{function} that gives values to be profiled.
-#' @param run: \code{logical} if \code{TRUE} then returns profile, otherwise it just sets the control object-
-#' 
-#' @return a \code{data frame} with results turned by \code{fn} by values in \code{which}. 
-#' @seealso \code{\link{biodyn},\link{fit}}
-#'
-#' @export
-#' @docType methods
-#' @rdname profile
-#'
 setMethod("profile", signature(fitted="aspic"), 
           function(fitted,which,
                    range=seq(0.5,1.5,length.out=21),
@@ -175,3 +170,12 @@ fnProfile=function(x) {
 # 
 #   fn=function(x) ddply(x@diags, .(name), with, sum(residual^2,na.rm=T)/sum(count(!is.na(residual))))
 # }       
+
+# refpts<-function(object){
+#   msy=fmsy(object)*bmsy(object)
+#   dimnames(msy)$params="msy"
+#   rbind(msy,
+#         bmsy(object),
+#         fmsy(object))}
+
+

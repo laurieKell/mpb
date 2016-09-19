@@ -1,6 +1,8 @@
 utils::globalVariables(c('ldply','melt','variable'))
 globalVariables("lambda")
 utils::globalVariables(c("eql"))
+utils::globalVariables('optimise')
+
 
 setMethod('setParams<-', signature(object='biodyn',value='data.frame'), function(object,value) {
   nms=c(modelParams(as.character(object@model)),'b0')
@@ -88,7 +90,11 @@ setMethod('setParams<-', signature(object='biodyn',value='FLBRP'), function(obje
 #' @export
 #' @rdname setControl
 #'
-#' @aliases setControl<-,biodyn,FLPar-method  setControl<-,biodyn,FLQuant-method  setControl<-,biodyn,FLQuants-method
+#' @aliases 
+#' setControl<-,biodyn,FLPar-method  
+#' setControl<-,biodyn,FLQuant-method  
+#' setControl<-,biodyn,FLQuants-method
+#' setControl<-,aspic,FLPar-method 
 #' 
 #' @examples
 #' \dontrun{
@@ -96,7 +102,6 @@ setMethod('setParams<-', signature(object='biodyn',value='FLBRP'), function(obje
 #' setControl(bd)=params(bd)
 #' }
 #'  
-setGeneric('setControl<-',function(object,...,value)  standardGeneric('setControl<-'))
 setMethod( 'setControl<-', signature(object='biodyn',value='FLPar'), function(object,value,min=0.1,max=10.0) {
   
   if (dims(value)$iter>1 & dims(object@control)$iter==1)

@@ -70,7 +70,6 @@ validity<-function(object) {
 #' @export
 #' @examples
 #' \dontrun{control(biodyn())}
-setGeneric('control',     function(object,...)        standardGeneric('control'))
 setMethod( 'control',   signature(object='biodyn'),function(object, ...)   object@control)
    
 #' control<-
@@ -86,7 +85,6 @@ setMethod( 'control',   signature(object='biodyn'),function(object, ...)   objec
 #' @examples
 #'  
 #' \dontrun{control(biodyn())}
-setGeneric('control<-',   function(object,value)      standardGeneric('control<-'))
 setMethod('control<-', signature(object='biodyn', value='FLPar'),
              function(object, value){
                updateFLComp(object, 'control', value)

@@ -1,4 +1,10 @@
 globalVariables("ctrl")
+utils::globalVariables('fbar<-')
+utils::globalVariables('catch.obs')
+utils::globalVariables('FLBRP')
+utils::globalVariables('brp')
+utils::globalVariables('optimise')
+utils::globalVariables('qnorm')
 
 #' as("biodyn", "FLStock")
 #'
@@ -201,7 +207,7 @@ FLBRP2biodyn=function(from,quantity=c("ssb","biomass","exploitable")[1]){
   #              r  =r,
   #              k  =k)$minimum
   # else  
-  #   p=mpb:::getP(bmsy,k,p=c(0.001,5))
+  #   p=mpb::getP(bmsy,k,p=c(0.001,5))
   
   bd=biodyn(catch=catch.obs(from))
   par=pellat(from)
@@ -220,11 +226,11 @@ FLBRP2biodyn=function(from,quantity=c("ssb","biomass","exploitable")[1]){
   bd@priors["k",   "a"]=params(bd)["k"]
   bd@priors["p",   "a"]=params(bd)["p"]
   bd@priors["b0",  "a"]=params(bd)["b0"]
-  bd@priors[ "msy","a"]=mpb:::refpts(bd)["msy"]
-  bd@priors["bmsy","a"]=mpb:::refpts(bd)["bmsy"]
-  bd@priors["fmsy","a"]=mpb:::refpts(bd)["fmsy"]
+  bd@priors[ "msy","a"]=mpb::refpts(bd)["msy"]
+  bd@priors["bmsy","a"]=mpb::refpts(bd)["bmsy"]
+  bd@priors["fmsy","a"]=mpb::refpts(bd)["fmsy"]
   
-  #bd=mpb:::fwd(bd,catch=catch(bd))
+  #bd=mpb::fwd(bd,catch=catch(bd))
   
   range(bd)["minyear"]=dims(bd@catch)$minyear
   range(bd)["maxyear"]=dims(bd@catch)$maxyear

@@ -1,10 +1,13 @@
+utils::globalVariables('dnorm')
+utils::globalVariables('dnorm')
+
 #' harvest
 #'
 #' @description harvest rate
 #' 
 #' @param object either \emph{biodyn} or \emph{aspic} classes
 #' 
-#' @rdname hrate
+#' @rdname harvest
 #'
 #' @export
 #' 
@@ -51,17 +54,24 @@ setMethod('stock', signature(object='biodyn'),
 #' @export
 #' @rdname sp
 #'
-#' @aliases production,biodyn,FLQuant-method  production,biodyn,missing-method  production,biodyn,numeric-method
+#' @aliases 
+#' production,biodyn,FLQuant-method  
+#' production,biodyn,missing-method  
+#' production,biodyn,numeric-method
+#' production,FLBRP,FLStock-method
+#' production,FLStock,missing-method 
+#' 
 #' @examples
 #' \dontrun{ production(bd,seq(0,params(bd)['k'])) }
 #'  
-setGeneric('production',   function(object,biomass,...)        standardGeneric('production'))
-setMethod( 'production', signature(object='biodyn',   biomass='missing'),     function(object,biomass=stock(object))  prdFn(model(object),params(object),biomass))
-setMethod( 'production', signature(object='biodyn',   biomass='numeric'),     function(object,biomass)                prdFn(model(object),params(object),biomass))
-setMethod( 'production', signature(object='biodyn',   biomass='FLQuant'),     function(object,biomass)                prdFn(model(object),params(object),biomass))
+setMethod('production', signature(object='biodyn',   biomass='missing'),     
+          function(object,biomass=stock(object))  prdFn(model(object),params(object),biomass))
+setMethod('production', signature(object='biodyn',   biomass='numeric'),     
+          function(object,biomass)                prdFn(model(object),params(object),biomass))
+setMethod('production', signature(object='biodyn',   biomass='FLQuant'),     
+          function(object,biomass)                prdFn(model(object),params(object),biomass))
 
-
-# calcLogLik
+  # calcLogLik
 
 calcSigma <- function(obs,hat=rep(1,length(obs)),error='log'){
   yrs=dimnames(obs)$year

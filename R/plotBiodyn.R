@@ -17,6 +17,10 @@ globalVariables(c("ymax","ymin","CI","50%","ymax","ymin","CI"))
 utils::globalVariables(c("x"))
 
 utils::globalVariables(c("x"))
+utils::globalVariables('data')
+utils::globalVariables('data')
+utils::globalVariables('data')
+
 
 whooow<-function(x,fn,probs)
   as.data.frame(FLQuants(lapply(fn,
@@ -42,6 +46,9 @@ whooow<-function(x,fn,probs)
 #' @return an \code{ggplot2} object
 #' 
 #' @seealso \code{\link{plotProduction}}, \code{\link{plotEql}}
+#' 
+#' @aliases 
+#' plot,aspics,missing-method 
 #' 
 #' @export
 #' @rdname plot
@@ -164,7 +171,11 @@ setMethod('plot', signature(x='biodyns', y='missing'),
 #' @export
 #' @rdname plotProduction
 #'
-#' @aliases plotProduction,biodyn,FLBRP-method plotProduction,biodyn,FLQuant-method plotProduction,biodyn,missing-method
+#' @aliases 
+#' plotProduction,biodyn,FLBRP-method 
+#' plotProduction,biodyn,FLQuant-method 
+#' plotProduction,biodyn,missing-method
+#' plotProduction,biodyns,missing-method 
 #' 
 #' @examples
 #' \dontrun{

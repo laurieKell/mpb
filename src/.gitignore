@@ -6,3 +6,6 @@ fwd11.o
 fwd.o
 feasible.o
 pellaTmb.cpp
+*.o
+*.so
+*.dll

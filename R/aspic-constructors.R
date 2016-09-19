@@ -1,4 +1,4 @@
-setGeneric('aspic',       function(object,value,...)   standardGeneric('aspic'))
+utils::globalVariables('data')
 
 biodynCpue2aspic=function(object,value){
   res=aspic()

@@ -2,6 +2,10 @@
 % Please edit documentation in R/biodyn-fit.R
 \name{diagsFn}
 \alias{diagsFn}
+\alias{fit,FLPar,FLQuant-method}
+\alias{fit,aspics,missing-method}
+\alias{fit,biodyn,FLQuantJK-method}
+\alias{fit,biodyn,FLQuantJKs-method}
 \title{fit}
 \usage{
 diagsFn(res)

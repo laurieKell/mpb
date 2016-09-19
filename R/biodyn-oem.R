@@ -30,7 +30,6 @@ globalVariables("uCV")
 #' \dontrun{
 #'  bd=sim() 
 #'  }
-setGeneric('sim',   function(stock,brp,...)     standardGeneric('sim'))
 setMethod( 'sim',   signature(stock='missing',brp='missing'),
            function(params=FLPar(r=0.5, k=1000, p=1, b0=1.0),
                     harvest=FLQuant(FLQuant(c(seq(0,1.5,length.out=30), 
@@ -126,6 +125,9 @@ setMethod('sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
 #' additive, by default set to \code{TRUE},  
 #' @param ... other arguments
 #' 
+#' @aliases 
+#' oem,FLStock-method 
+#' 
 #' @export
 #' @rdname oem
 #' 
@@ -140,7 +142,6 @@ setMethod('sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
 #'  data(ple4) 
 #'  cpue=oem(ple4) 
 #'  }
-setGeneric('oem',   function(object,...)     standardGeneric('oem'))
 setMethod( 'oem',   signature(object='FLStock'),
            function(object,
                     cv        =rlnorm(dim(stock(object))[6],FLQuant(0,dimnames=dimnames(stock(object))[-6]),0.3),

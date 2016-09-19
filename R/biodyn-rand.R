@@ -12,12 +12,21 @@ utils::globalVariables(c("aaply"))
 #' 
 #' @return \code{biodyn} with estimates of stock based on catch time series
 #' 
-#' @aliases rand-method rand,numeric,FLPar,FLPar-method rand,numeric,FLQuant,FLQuant-method 
+#' @aliases 
+#' rand-method 
+#' rand,numeric,FLPar,FLPar-method 
+#' rand,numeric,FLQuant,FLQuant-method 
+#' rand,numeric,biodyn,biodyn-method
 #' 
 #' @export
 #' @rdname rand
 #'
-#' @aliases rand-method rand,numeric,biodyn-method rand, numeric,FLPar,FLPar-method rand, numeric,FLQuant,FLQuant-method rand, numeric,biodyn,biodyn-method
+#' @aliases 
+#' rand-method rand,numeric,biodyn-method 
+#' rand, numeric,FLPar,FLPar-method 
+#' rand, numeric,FLQuant,FLQuant-method 
+#' rand, numeric,biodyn,biodyn-method
+#' rand,numeric,biodyn,biodyn-method 
 #'
 #' @examples
 #' \dontrun{
@@ -44,8 +53,6 @@ utils::globalVariables(c("aaply"))
 #' 
 #' plot(rand(100,stock(bd)[,40:45],stock(bdJK)[,40:45]))
 #' }
-setGeneric('rand',   function(n,object,sim,...)    standardGeneric('rand'))
-
 randFn<-function(n,object,sim){
   res=jackSummary(params(object),params(sim))
   

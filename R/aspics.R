@@ -1,10 +1,6 @@
-#' aspics list 
+#' aspics a class that contains a list of ASPIC biomass dynamic stock assessment model classes
 #' 
-#' @description A class that contains a list of ASPIC biomass dynamic stock assessment model classes
-#' @return aspics object
-#' @export
-#' @examples
-#' \dontrun{aspics()}
+#' @slot object
 #' 
 setClass("aspics",
          representation(
