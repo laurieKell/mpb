@@ -45,6 +45,7 @@ Collate:
     aspic-setIndex.R
     biodyn-coerce.R
     aspic-control.R
+    aspic-setParams.R
     aspic-constructors.R
     aspic-coerce.R
     aspic-fit.R
