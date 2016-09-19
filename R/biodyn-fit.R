@@ -401,7 +401,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
     #bug in windows
     try(
       if (length(grep("-rwxrwxr-x",system(paste("ls -l",exe),intern=TRUE)))==0)
-        warning("Executable privilege not set for \n",exe,call.=FALSE) )
+        warning("Executable privilege not set for \n",exe,call.=FALSE),silent=FALSE)
 
      # run
      system(paste('./', exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
