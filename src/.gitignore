@@ -9,3 +9,4 @@ pellaTmb.cpp
 *.o
 *.so
 *.dll
+RcppExports.cpp
