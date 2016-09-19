@@ -40,7 +40,6 @@ Collate:
     aspic-index.R
     biodyn-admb.R
     biodyn-F.R
-    RcppExports.R
     biodyn-constructors.R
     aspic-setIndex.R
     biodyn-coerce.R
