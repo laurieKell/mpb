@@ -294,7 +294,6 @@ setGeneric('computeStock', function(object,...) standardGeneric('computeStock'))
 setGeneric('nll',           function(object,index,params,...) standardGeneric('nll'))
 setGeneric('grid',          function(object,...)              standardGeneric('grid'))
 setGeneric('feasible',      function(object,catch,...)        standardGeneric('feasible'))
-setGeneric('feasible',      function(object,catch,...)        standardGeneric('feasible'))
 setGeneric('setFeasible',   function(object,catch,...)        standardGeneric('setFeasible'))
 setGeneric('setFeasible<-', function(object,value,...)        standardGeneric('setFeasible<-'))
 

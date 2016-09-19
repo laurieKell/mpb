@@ -30,17 +30,19 @@ setMethod('feasible',  signature(object="FLPar",catch="FLQuant"),
    function(object,catch,min=0.01){
      feasibleFn(params=object,catch=catch,min=min)})
 
-setMethod('feasible',  signature(object='biodyn',catch="missing"), 
-    function(object=params(object),catch=catch(object),min=0.01)
-      feasibleFn(params=params(object),catch(object),min))
-
 setMethod('feasible',  signature(object="data.frame",catch="FLQuant"), 
           function(object,catch,min=0.01){
-            feasibleFn(params=as(object,"FLPar"),catch=catch,min=min)})
+            feasibleFn(x=as(object,"FLPar"),y=catch,min=min)})
+
+
+setMethod('feasible',  signature(object='biodyn',catch="missing"), 
+          function(object,min=0.01)
+            feasibleFn(params=params(object),catch=catch,min))
 
 feasibleFn<-function(params,catch,min=0.01){          
   
   flg=feasibleCpp(catch,t(params@.Data))>0
+
   params[,flg]}
 
 setMethod('grid',  signature(object='FLQuant'), 
