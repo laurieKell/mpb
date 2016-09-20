@@ -157,7 +157,7 @@ setGeneric('writeAspic',function(object,...)        standardGeneric('writeAspic'
 #' fmsy,FLPar-method  
 #' bmsy,FLPar-method  
 #'   
-#' @export
+#' @export msy fmsy bmsy refpts refptSD
 #' @rdname msy
 #'
 #' @examples \dontrun{ msy('logistic',FLPar(msy=100,k=500))}
@@ -166,7 +166,7 @@ setGeneric('msy',      function(object,...) standardGeneric('msy'))
 setGeneric('fmsy',     function(object,...) standardGeneric('fmsy'))
 setGeneric('bmsy',     function(object,...) standardGeneric('bmsy'))
 setGeneric('refpts',   function(object,params,...) standardGeneric('refpts'))
-setGeneric('refptSE',  function(object,params,...) standardGeneric('refptSE'))
+setGeneric('refptSD',  function(object,params,...) standardGeneric('refptSD'))
 
 #' setParams<-
 #'
@@ -277,7 +277,6 @@ setGeneric('pellat',    function(object,...)         standardGeneric('pellat'))
 setGeneric('plot',           function(x,y)               standardGeneric('plot'))
 setGeneric('plotIndex',      function(data,...)          standardGeneric('plotIndex'))
 setGeneric('plotDiags',      function(data,...)          standardGeneric('plotDiags'))
-setGeneric('plotHcr',        function(data, ...)         standardGeneric('plotHcr'))
 setGeneric('plotProduction', function(data,biomass,...)  standardGeneric('plotProduction'))
 setGeneric('plotEql',        function(data,biomass,...)  standardGeneric('plotEql'))
 setGeneric('plotMSE',        function(x,y,z,...)         standardGeneric('plotMSE'))

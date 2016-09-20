@@ -239,6 +239,7 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
 #' @rdname plotHcr
 #' @aliases plotHcr-method  plotHcr,biodyn-method
 #'
+#' @export
 #' @examples
 #' \dontrun{
 #' simBiodyn()
@@ -256,7 +257,12 @@ setMethod('plotHcr', signature(object='biodyn'),
   pts.[2,'bmsy']=0
   pts.[,1]=c('')
   
-  pts=rbind(pts.[1,],pts[1:2,],pts.[2,])
+  
+  pts=try(rbind(pts.[1,],pts[1:2,],pts.[2,]),silent=TRUE)
+  if (is(pts)=="try-error")
+    t.=as(rbind(as.data.frame(pts.[1,]),
+                as.data.frame(pts[1:2,]),
+                as.data.frame(pts.[2,])),"FLPar")
   
   names(pts)[2:3]=c('stock','harvest')
   

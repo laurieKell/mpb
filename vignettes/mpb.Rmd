@@ -19,8 +19,7 @@ library(knitr)
 ## Global options
 opts_chunk$set(echo    =TRUE,
                eval    =TRUE,
-               cache   =!FALSE,
-               cache.path="cache/",
+               cache   =FALSE,
                prompt  =FALSE,
                comment =NA,
                message =FALSE,
@@ -152,7 +151,6 @@ Difficult to estimate parameters may be fixed by setting the `phase` (e.g. for $
 control(bd)[c("p","b0"),"phase"]=-1
 control(bd)["r","max"]=1.0
 bdHat=fit(bd,cpue)
-save(bd,bdHat,cpue,file="/home/laurie/Desktop/flr/mpb/data/sims.RData")
 ```
 
 Since the true parameter values are known the fit can be checked 

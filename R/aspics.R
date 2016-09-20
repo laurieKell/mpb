@@ -21,6 +21,35 @@ setMethod("aspics", signature(object="missing"),
   }
 )
 
+#' Class aspics
+#' 
+#' \code{aspics} is a class that extends \code{list} but implements a set of
+#' features that give a little more structure to list objects. First the
+#' elements of \code{aspics} must all be of the same class \code{biodyn}. 
+#' Second it implements lock mechanism that, when turned on, does not allow 
+#' the user to increase
+#' or decrease the object length.
+#' 
+#' @name aspics
+#' @aliases aspics-class aspics aspics-methods aspics,ANY-method
+#' aspics,missing-method aspics,list-method
+#' @docType class
+#' @section Slots: \describe{
+#'   \item{.Data}{The data. \code{list}.}
+#'   \item{names}{Names of the list elements. \code{character}.}
+#'   \item{desc}{Description of the object. \code{character}.}
+#'   \item{lock}{Lock mechanism, if turned on the length of the list can not be
+#'     modified by adding or removing elements. \code{logical}.} }
+#' @template aspics-constructors
+#' @author The FLR Team
+#' @seealso \link[base]{[}, \link[base]{[<-}, \link[base]{[[<-},
+#' \link[base]{$<-}, \link[methods]{coerce}, \link[base]{lapply},
+#' \link[stats]{window}, \link[base]{list}
+#' @keywords classes
+#' @examples
+#' \dontrun{
+#' asp <- aspics("1"=aspic(),"2"=aspic())}
+#' 
 setMethod("aspics", signature(object="list"),
   function(object, ...) {
     

@@ -197,7 +197,6 @@ mfclLfd=function(ffile){
 #' 
 alkMFCL=function(lfile,ffile,i=1,df=TRUE){
 
-  require(plyr)
   #' lfile="/home/laurie/Desktop/gcode/mse4mfcl/ALB/papers/SCRS/SCRS2013-ALK/Inputs/length09.fit"
   #' rfile="/home/laurie/Desktop/gcode/mse4mfcl/ALB/papers/CSRS/SCRS2013-ALK/Inputs/plot-09.par.rep"
   #' ffile="/home/laurie/Desktop/Dropbox/collaboration/Shelton/ALBN/4B/2009/albN.frq"
@@ -222,7 +221,6 @@ alkMFCL=function(lfile,ffile,i=1,df=TRUE){
   #ggplot(caa)+geom_histogram(aes(age,weight=freq),binwidth=1)+facet_wrap(~year)
   
   if (!df) {
-    require(FLCore)
     names(caa)[4]="params"
     caa=as(caa,"FLPar")
     }

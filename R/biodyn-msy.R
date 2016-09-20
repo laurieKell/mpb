@@ -24,11 +24,11 @@ setMethod('refpts', signature(object='biodyn',    params='missing'),
 setMethod('refpts', signature(object='FLPar', params='missing'),    
           function(object=params)  refptsFn(factor("pellaT"),params=object))
 
-setMethod('refptSE', signature(object='character', params='FLPar'),   
+setMethod('refptSD', signature(object='character', params='FLPar'),   
           function(object=factor(object), params=params)         refptsFn(object, params))
-setMethod('refptSE', signature(object='factor',    params='FLPar'),   
+setMethod('refptSD', signature(object='factor',    params='FLPar'),   
           function(object=       object,  params=params)         refptsFn(object, params))
-setMethod('refptSE', signature(object='biodyn',    params='missing'), 
+setMethod('refptSD', signature(object='biodyn',    params='missing'), 
           function(object)  {  model=model(object)  
                                par  =params(object)
                                refptsFn(model,par)})

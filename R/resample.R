@@ -117,7 +117,6 @@ setMethod('resample',  signature(x='FLPar'),
 #'    geom_line(aes(as.numeric(as.character(params)),data))     
 #'  }
 mixnorm=function(n,mn,sd,bin,left=T){
-  require(plyr)
   
   res=FLPar(maply(data.frame(len=bin), function(len) n*pnorm(len,mn,sd)))
   

@@ -7,9 +7,8 @@ VignetteBuilder: knitr
 Suggests:
     knitr
 Depends:
-    R(>= 3.0.1),
-    FLCore(>= 2.5.2),
-    ggplotFL(>= 2.5.2)
+    R(>= 3.3.1),
+    FLCore(>= 2.5.2)
 Imports:
     methods,
     stringr,
@@ -17,7 +16,6 @@ Imports:
     Rcpp
 Suggests: rmarkdown,
           knitr,
-          plyr,
           FLBRP
 LinkingTo: Rcpp
 Maintainer: Laurence Kell<laurie.kell@iccat.int>

@@ -76,8 +76,6 @@ setMethod('pellat',  signature(object="FLPar"),
 setMethod('pellat',  signature(object="FLBRP"),  
    function(object,quantity="ssb"){
      
-     require(FLBRP)
-      
        par=c(c(FLBRP:::refpts(object)["msy","yield"]),
              c(FLBRP:::refpts(object)["msy",quantity]),
              c(FLBRP:::refpts(object)["msy",quantity]/FLBRP:::refpts(object)["virgin",quantity]))
