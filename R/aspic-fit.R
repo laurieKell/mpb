@@ -2,24 +2,27 @@ utils::globalVariables(c("year","swon","year","B","obs"))
 utils::globalVariables(c("m_ply","b"))
 utils::globalVariables(c("%dopar%","foreach","i"))
 
-#' fit
-#'
-#' @name fit
-#' @rdname aspic-fit
-#' @export
-#' @docType methods
+#' @title fit
 #'
 #' @description
 #' Fits the aspic model to catch and catch per unit effort data
 #'
+#' @rdname aspic-fit
+#' @export
+#' @docType methods
+#'
 #' @param object; an \code{aspic} object
 #' @param dir; an optional \code{dir} where aspic text files used for fitting can be found
+#' 
 #' @return An aspic object with fitted values and parameter estimates
 #' @seealso \code{\link{aspic},\link{biodyn},\link{boot},\link{jk}}
 #'
 #' @aliases fit,aspic,missing-method
 
-#' boot, Bootstraps the ASPIC biomass dynamic model.
+#' @title boot, 
+#' 
+#' @description 
+#' Bootstraps the ASPIC biomass dynamic model.
 #'
 #' @name boot
 #' @export
@@ -28,8 +31,7 @@ utils::globalVariables(c("%dopar%","foreach","i"))
 #' @description
 #' Bootstraps the aspic model
 #'
-#' @param object; an \code{aspic} object or
-#' @param object; a character string giving an aspic "inp" file
+#' @param object; an \code{aspic} object or a character string giving an aspic "inp" file
 #' @param dir; an optional \code{dir} where aspic text files used for fitting can be found
 #' @return An aspic object with fitted values and parameter estimates
 #' @seealso \code{\link{biodyn},\link{boot},\link{jk}}
@@ -40,16 +42,15 @@ utils::globalVariables(c("%dopar%","foreach","i"))
 #'     asp=boot(asp)}
 
 
-
-#' jk
+#' @title jk
+#'
+#' @description
+#' Fits the aspic model to catch and catch per unit effort data removing 1 cpue observation at a time
 #'
 #' @name jk
 #' @rdname jk
 #' @export
 #' @docType methods
-#'
-#' @description
-#' Fits the aspic model to catch and catch per unit effort data removing 1 cpue observation at a time
 #'
 #' @param object; an \code{aspic} object or
 #' @param object; a character string giving an aspic "inp" file
@@ -105,9 +106,9 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
   #path=exe(package)
   
   if (.Platform$OS.type == "windows" & copyExe)
-    file.copy(paste(paste(system.file("bin", "windows", package=package, mustWork=TRUE),exeNm, sep="/"),"exe",sep="."), dir)
+    file.copy(paste(paste(system.file("bin", "windows", package="mpb", mustWork=TRUE),exeNm, sep="/"),"exe",sep="."), dir)
   else  if (copyExe)
-    file.copy(     paste(system.file("bin", "linux", package=package, mustWork=TRUE),exeNm, sep="/"),                 dir)
+    file.copy(     paste(system.file("bin", "linux", package="mpb", mustWork=TRUE),exeNm, sep="/"),                 dir)
   
   ## Jack knife if wished
   j=1
@@ -137,7 +138,7 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
                    fl=paste(exeNm,".inp",sep=""))
     
     # run
-    exe=file.path(system.file("bin", "linux", package=package, mustWork=TRUE),"aspic")
+    exe=file.path(system.file("bin", "linux", package="mpb", mustWork=TRUE),"aspic")
     inp=file.path(getwd(),"aspic.inp")
     #system(paste("./", exeNm, paste(" ",exeNm,".inp",sep=""),sep=""))
     #print(paste("aspic", paste(" ","aspic",".inp",sep=""),sep=""))
@@ -211,7 +212,9 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
   
   return(object)}
 
-runBoot=function(object, package="mpb", exeNm=package, dir=tempdir(),boot=500){
+runBoot=function(object, package="mpb", exeNm="aspic", dir=tempdir(),boot=500){
+  
+  print(system.file('bin', 'linux', package=package, mustWork=TRUE))
   
   object@index=object@index[object@index$year %in% range(object)["minyear"]:range(object)["maxyear"],]
   
@@ -225,25 +228,25 @@ runBoot=function(object, package="mpb", exeNm=package, dir=tempdir(),boot=500){
     tmp=ddply(object@index, .(year), with, mean(catch,na.rm=TRUE))
     object@catch=as.FLQuant(tmp[,"V1"], dimnames=list(year=tmp[,"year"]))
   }
-  
+ 
   ## add catch baed on index catches if missing
   if (dim(object@control)[3] >1)    stop("control can only have iter dim of 1")
   if (dim(object@params)[2]==1)    object@params=propagate(object@params,boot)
   if (dim(object@params)[2]!=boot) stop("params iters either have to be 1 or same as number of boot")
   if (dims(object@catch)$iter>1)   stop("catch must only have 1 iter")
-  
+   
   dmns=dimnames(object@catch)
   dmns$year=c(dmns$year,as.numeric(max(dmns$year))+1)
   object@stock=propagate(FLQuant(NA,dimnames=dmns),boot)
   
-  oldwd=setExe(package,exeNm,dir)
-  
+  oldwd=setExe(exeNm,package,dir)
+  print(1)    
   m_ply(c("prn","rdat","bio","inp","fit","sum","rdatb","det","sum","bot"), function(x)
     if (file.exists(paste(exeNm,".",x,sep=""))) system(paste("rm ",exeNm,".",x,sep="")))
   
   # create exe input files
   .writeAspicInp(object,what="BOT",niter=boot,fl=paste(exeNm,".inp",sep=""))
-  
+
   # run
   system(paste("./", exeNm, paste(" ",exeNm,".inp",sep=""),sep=""))
   
@@ -267,7 +270,7 @@ runBoot=function(object, package="mpb", exeNm=package, dir=tempdir(),boot=500){
 
 setMethod('fit',signature(object='aspic',index="missing"),
           function(object,dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE,copyExe=FALSE)
-            runExe(object=object, dir=dir, package=package, exeNm=exeNm,jk=jk,copyExe=copyExe))
+            runExe(object=object, dir=dir, package="mpb", exeNm="aspic",jk=jk,copyExe=copyExe))
 
 setMethod('fit',signature(object='aspics',index="missing"),
           function(object, dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE,
@@ -296,7 +299,7 @@ setMethod('fit',signature(object='aspics',index="missing"),
 
 setMethod('boot', signature(object='aspic'),
           function(object, dir=tempdir(), package="mpb", exeNm="aspic",boot=500)
-            runBoot(object=object, dir=dir,package=package, exeNm=exeNm,boot=boot))
+            runBoot(object=object, dir=dir,package="mpb", exeNm="aspic",boot=boot))
 setMethod('boot',  signature(object='aspics'),
           function(object, dir=tempdir(), package="mpb", exeNm="aspic",boot=500,
                    .combine=NULL,
@@ -319,6 +322,6 @@ setMethod('boot',  signature(object='aspics'),
 
 setMethod('jk',  signature(object='aspic'),
           function(object, dir=tempdir(), package="mpb", exeNm="aspic")
-            runExe(object=object, dir=dir, package=package, exeNm=exeNm,jk=TRUE))
+            runExe(object=object, dir=dir, package="mpb", exeNm="aspic",jk=TRUE))
 
 

@@ -1,3 +1,5 @@
+#' om
+#' 
 #' An example Operating Model, based on North Atlantic Albacore
 #'
 #' A dataset containing the historic stock estimates, derived from the ICCAT multifan-CL assessment 
@@ -15,6 +17,8 @@
 #' @keywords data
 NULL
 
+#' eql 
+#' 
 #' Reference points and expected dynamics, for Operating Model based on North Atlantic Albacore
 #'
 #' A dataset containing the average estimates of biological parameters and selection patterns, 

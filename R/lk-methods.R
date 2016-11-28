@@ -1,4 +1,4 @@
-#' resample
+#' @title resample
 #' 
 #' @description 
 #' Resamples from a distribution to generate a frequency table
@@ -11,7 +11,7 @@
 #' @return a \code{FLQuant} with simulated frequency distribution
 #' @export
 #' @docType methods
-#' @rdname lk-methods-resample
+#' @rdname methodsResample
 #' 
 #' @examples
 #' \dontrun{

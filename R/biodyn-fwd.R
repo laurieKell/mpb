@@ -21,9 +21,11 @@ prdFn=function(mdl,params,biomass=0) {
   
   mdl=tolower(as.character(mdl))
   
-  fox <-function(biomass, params)
-    params['r']*biomass*(1-log(biomass)/log(params['k']))
-  
+  fox <-function(biomass, params){
+    res=exp(1)*(params['msy']%/%params['k'])%*%biomass%*%log(params['k'])%*%(1-log(biomass)%/%log(params['k']))
+    print(res)
+    res}
+
   schaefer <- function(biomass, params)
     params['r']*biomass*(1-biomass/params['k'])
   
@@ -113,7 +115,7 @@ iavFn=function(val,bnd,lag=1){
 #bnd=FLQuant(1,          dimnames=list(age=1:5,year=1:10,iter=1:4))
 
 
-#' fwd
+#' @title fwd
 #'
 #' @description Projects a \code{biodyn} object (i.e. a biomass dynamic model)
 #' for a given future catch, harvest rate, or stock biomass. Only

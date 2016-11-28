@@ -3,7 +3,7 @@
 \docType{data}
 \name{om}
 \alias{om}
-\title{An example Operating Model, based on North Atlantic Albacore}
+\title{om}
 \format{An \code{FLStock} object
 \describe{
   \item{stock.n}{numbers-at.age, \code{FLQuant}}
@@ -11,6 +11,11 @@
   ...
 }}
 \description{
+An example Operating Model, based on North Atlantic Albacore
+
+Reference points and expected dynamics, for Operating Model based on North Atlantic Albacore
+}
+\details{
 A dataset containing the historic stock estimates, derived from the ICCAT multifan-CL assessment
 
 A dataset containing the average estimates of biological parameters and selection patterns, 

@@ -17,7 +17,7 @@ utils::globalVariables('getfrqsampledat')
 
 getfrqheader <-function (frqfile = getfrqfile("plot.rep")) 
   {
-    dat <- scan(frqfile, comment = "#", quiet = TRUE)
+    dat <- scan(frqfile, comment.char="#", quiet = TRUE)
     x <- numeric(12)
     names(x) <- c("nreg", "nflt", "year1", "nevents", "nlengths", 
                   "startlens", "lenbinsize", "lenfactor",
@@ -190,6 +190,7 @@ mfclLfd=function(ffile){
 #' 
 #' @param lfile the \code{length.fit} file
 #' @param ffile the \code{freq} file
+#' @param df return data as a data.frame \code{logical} default is \code{TRUE}
 #' @param i fleet to read in
 #' 
 #' @return a list with elements \code{caa} numbers by age, len, season and year, \code{laa} length by age season and year, 

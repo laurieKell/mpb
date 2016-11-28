@@ -1,4 +1,5 @@
 #' @useDynLib mpb
+#' @import  FLBRP
 #' @importFrom Rcpp sourceCpp
 NULL
 
@@ -10,7 +11,7 @@ models=factor(c('fox',      'schaefer',
 
 modelParams=function(mdl) {
   if (is.factor(mdl)) mdl=as.character(mdl)
-  list(fox       =c('r','k'),
+  list(fox       =c('k','msy'),
        schaefer  =c('r','k'),
        pellat    =c('r','k','p'),
        shepherd  =c('r','k','m'),
@@ -33,7 +34,7 @@ validity<-function(object) {
   
   return(TRUE)}
 
-#' biodyn class
+#' @title biodyn class
 #'
 #' @description A class that implement a biomass dynamic stock assessment model. 
 #' 
@@ -65,7 +66,6 @@ validity<-function(object) {
 #' All slots in the class have accessor and replacement methods that provide validation and protection of their data.
 #' 
 #' @export
-#' @importFrom plyr ddply ldply laply mdply maply alply mlply llply daply d_ply dlply
 #' @importFrom stringr str_trim
 #' @importFrom reshape melt
 #' @import FLCore 
@@ -84,7 +84,7 @@ validity<-function(object) {
 #' biodyn,missing,FLPar-method 
 #' biodyn,missing,missing-method 
 #' 
-#' @rdname biodyn-class
+#' @rdname biodynClass
 #'  
 #' @examples
 #' \dontrun{biodyn()}

@@ -2,6 +2,13 @@
 % Please edit documentation in R/mng-methods.R
 \name{fapexAge}
 \alias{fapexAge}
+\alias{timeSeries}
+\alias{timeSeries,FLStock,FLBRP-method}
+\alias{timeSeries,FLStocks,FLBRP-method}
+\alias{timeSeries,FLStocks,FLBRPs-method}
+\alias{timeSeries,aspic,missing-method}
+\alias{timeSeries,biodyn,missing-method}
+\alias{timeSeries-method}
 \title{mng}
 \usage{
 fapexAge(object)

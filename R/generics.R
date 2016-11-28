@@ -1,6 +1,21 @@
 #grep -r "setGeneric">>../generic.txt
 
-#' biodyn constructor
+utils::globalVariables(c("d_ply","dlply","mdply","filter","weighted.mean",
+                         "stockCPP","ts","yrs","fCPP","filter","stockCPP",".",
+"adply","aes","as.FLQuant","av","cast","catch<-","catch.wt","catch.wt<-","computeCatch",
+"computeStock","ddply","desc","dims","discards.wt","discards.wt<-","dlply","dmns",
+"element_line","element_rect","element_text","end","f0.1","FLIndex","FLIndices",
+"FLQuant","FLQuants","geom_abline","geom_point","ggplot","grid.layout","grid.newpage",
+"harvest","harvest<-","harvest.spwn","harvest.spwn<-","hat","laf_open_csv","ldply",
+"llply","lm","m","m<-","maply","mat","mat<-","mcmc","mdply","melt","mlply","model.frame",
+"modifyList","m_ply","m.spwn","m.spwn<-","n","opts","predict","propagate","pushViewport",
+"qqnorm","quantile","read.csv","read.table","readVPA2Box","rec","rel","%+replace%","residuals",
+"rstandard","rstudent","scale_x_continuous","scale_y_continuous","sd","series","setPlusGroup",
+"ssb","ssb0.1","start","stat_smooth","stock","stock<-","stock.n","stock.n<-","stock.wt","stock.wt<-",
+"str_trim","theme","theme_blank","theme_grey","theme_line","theme_rect","theme_segment","theme_text",
+"trim","type","unit","V2","viewport","window","write.table","year","yrw"))
+
+#' @title biodyn constructor
 #' 
 #' @name biodyn
 #' 
@@ -12,7 +27,7 @@
 #' 
 #' @aliases biodyn-method biodyn,ANY-method  biodyn,ANY,ANY-method biodyn,FLBRP,FLStock-method
 #' 
-#' @rdname biodyn-constructors
+#' @rdname biodynConstructors
 #' @export
 #' 
 #' @examples 
@@ -21,7 +36,7 @@
 #' }
 setGeneric('biodyn',      function(object,params,...)            standardGeneric('biodyn'))
 
-#' aspic constructor
+#' @title aspic constructor
 #' 
 #' @name aspic
 #' 
@@ -40,7 +55,7 @@ setGeneric('biodyn',      function(object,params,...)            standardGeneric
 #' aspic,FLBRP,FLStock-method
 #' 
 #' @export
-#' @rdname aspic-constructors
+#' @rdname aspicConstructors
 #' 
 #' @examples 
 #' \dontrun{
@@ -48,15 +63,15 @@ setGeneric('biodyn',      function(object,params,...)            standardGeneric
 #' }
 setGeneric('aspic',       function(object,value,...)   standardGeneric('aspic'))
 
-#' biodyns
+#' @title biodyns
 #' @description Create a list of biodyn objects
-#' @name biodyn
+#' @name biodyns
 #' @param object can be \code{biodyn} object or a \code{biodyn} of \code{biodyn} objects
 #' @param ... additional \code{biodyn} objects
 #' 
 #' @return \code{biodyns} object
 #' @export
-#' @rdname biodyns-constructors
+#' @rdname biodynsConstructors1
 #' 
 #' @aliases 
 #' biodyns-method 
@@ -70,7 +85,7 @@ setGeneric('aspic',       function(object,value,...)   standardGeneric('aspic'))
 #' }
 setGeneric('biodyns', function(object, ...) standardGeneric('biodyns'))
 
-#' aspics
+#' @title aspics
 #' @description Create a list of aspic objects
 #' @name aspics
 #' @param object can be \code{aspic} object or a \code{list} of \code{aspic} objects
@@ -78,7 +93,7 @@ setGeneric('biodyns', function(object, ...) standardGeneric('biodyns'))
 #' 
 #' @return \code{aspics} object
 #' @export
-#' @rdname aspics-constructors
+#' @rdname aspicsConstructors
 #' 
 #' @aliases aspics-method 
 #' aspics,missing-method 
@@ -91,7 +106,7 @@ setGeneric('biodyns', function(object, ...) standardGeneric('biodyns'))
 #' }
 setGeneric('aspics',      function(object,...)            standardGeneric('aspics'))
 
-#' readAspic
+#' @title readAspic
 #'
 #' @description 
 #' Read ASPIC text files, either \code{inp} for inputs, or output files, produced by the executable version of ASPIC
@@ -111,7 +126,7 @@ setGeneric('aspics',      function(object,...)            standardGeneric('aspic
 #' @seealso  \code{\link{readFLStock}}, \code{\link{writeAspic}}
 setGeneric('readAspic', function(object,...)        standardGeneric('readAspic'))
 
-#' writeAspic
+#' @title writeAspic
 #'
 #' @description 
 #' Writes the ASPIC text input file \code{inp} to a file or connection.
@@ -132,11 +147,11 @@ setGeneric('readAspic', function(object,...)        standardGeneric('readAspic')
 #' @seealso  \code{\link{writeFLStock}}, \code{\link{readAspic}}
 setGeneric('writeAspic',function(object,...)        standardGeneric('writeAspic'))
 
-#' msy reference points
+#' @title msy reference points
 #'
-#' Benchmarks for yield, biomass and harvest rate
-#' 
-#' Calculates maximum sustainable yield (MSY) reference points given the model parameters, 
+#' @description 
+#' Calculates maximum sustainable yield (MSY) reference points given the model parameters, for yield, 
+#' biomass and harvest rate 
 #'
 #' @param object an object of class \code{biodyn} or \code{FLPar} with Pella-Tomlinson production
 #' function parameters
@@ -156,26 +171,33 @@ setGeneric('writeAspic',function(object,...)        standardGeneric('writeAspic'
 #' msy,FLPar-method  
 #' fmsy,FLPar-method  
 #' bmsy,FLPar-method  
+#' refptSD,biodyn,missing-method
+#' refptSD,character,FLPar-method
+#' refptSD,factor,FLPar-method
+#' refpts,FLPar,missing-method
+#' refpts,aspic,missing-method
+#' refpts,biodyn,missing-method
+#' refpts,character,FLPar-method
+#' refpts,factor,FLPar-method
 #'   
 #' @export msy fmsy bmsy refpts refptSD
 #' @rdname msy
 #'
 #' @examples \dontrun{ msy('logistic',FLPar(msy=100,k=500))}
 #'   
-setGeneric('msy',      function(object,...) standardGeneric('msy'))
+#setGeneric('msy',      function(object,...) standardGeneric('msy'))
 setGeneric('fmsy',     function(object,...) standardGeneric('fmsy'))
 setGeneric('bmsy',     function(object,...) standardGeneric('bmsy'))
 setGeneric('refpts',   function(object,params,...) standardGeneric('refpts'))
 setGeneric('refptSD',  function(object,params,...) standardGeneric('refptSD'))
 
-#' setParams<-
+#' @title setParams<-
 #'
 #' @description Sets catchability \code{q} and CV \code{sigma} in the params \code{FLPar} slot 
 #' for CPUE provided either an \code{FLQuant} or \code{FLQuants}
 #'
 #' @param object \code{biodyn}
 #' @param value  CPUE as \code{FLQuant} or \code{FLQuants} 
-#' @param ... any other parameter
 #'
 #' 
 #' @export
@@ -190,9 +212,9 @@ setGeneric('refptSD',  function(object,params,...) standardGeneric('refptSD'))
 #' setParams(bd)=cpue
 #' }
 #'  
-setGeneric('setParams<-', function(object,value,...)  standardGeneric('setParams<-'))
-
-#' control
+#'  
+setGeneric('setParams<-', function(object,value)  standardGeneric('setParams<-'))
+#' @title control
 #'
 #' @description 
 #' Slot for fitting options, i.e. for starting guesses, to fix parameters or set bounds
@@ -210,7 +232,7 @@ setGeneric('control',     function(object,...)        standardGeneric('control')
 setGeneric('control<-',   function(object,value)      standardGeneric('control<-'))
 setGeneric('setControl<-',function(object,...,value)  standardGeneric('setControl<-'))
 
-#' params
+#' @title params
 #'
 #' @description 
 #' Slot for estimates
@@ -228,8 +250,7 @@ setGeneric('setControl<-',function(object,...,value)  standardGeneric('setContro
 setGeneric('index',       function(object,...)    standardGeneric('index'))
 setGeneric("setIndex<-",  function(object,value)  standardGeneric('setIndex<-'))
 
-
-#' fit
+#' @title fit
 #'
 #' @description 
 #' A generic method for fitting catch and index of relative abundance for both \emph{biodyn} and \emph{aspic}.
@@ -256,7 +277,7 @@ setGeneric('hcr',      function(object,refs,...)      standardGeneric('hcr'))
 setGeneric('tac',      function(object, harvest, ...) standardGeneric('tac'))
 setGeneric('hcr<-',    function(object,value)         standardGeneric('hcr<-'))
 
-#' production
+#' @title production
 #'
 #' @description 
 #' Estimates production for a given biomass
@@ -294,7 +315,7 @@ setGeneric('nll',           function(object,index,params,...) standardGeneric('n
 setGeneric('grid',          function(object,...)              standardGeneric('grid'))
 setGeneric('feasible',      function(object,catch,...)        standardGeneric('feasible'))
 setGeneric('setFeasible',   function(object,catch,...)        standardGeneric('setFeasible'))
-setGeneric('setFeasible<-', function(object,value,...)        standardGeneric('setFeasible<-'))
+setGeneric('setFeasible<-', function(object,value)        standardGeneric('setFeasible<-'))
 
 setGeneric('sim',   function(stock,brp,...)     standardGeneric('sim'))
 setGeneric('xval',  function(object,index,...) standardGeneric('xval'))
@@ -302,7 +323,7 @@ setGeneric('xval',  function(object,index,...) standardGeneric('xval'))
 setGeneric('oem',    function(object,...) standardGeneric('oem'))
 setGeneric('survey', function(object,...) standardGeneric('survey'))
 
-#' jk
+#' @title jk
 #'
 #' @description 
 #' A generic method for jack knifing a fit to catch and index of relative abundance for both \emph{biodyn} and \emph{aspic}.

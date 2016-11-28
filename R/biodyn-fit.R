@@ -69,8 +69,9 @@ setMethod('fit',signature(object='biodyn',index='FLQuantJK'),
             
             object})
 
-#' fit
-#'
+#' @title fit
+#' 
+#' @description 
 #' Estimates parameters \code{biodyn} class by fitting catch and CPUE indices
 #' 
 #' @param   object an object of class \code{biodyn}
@@ -78,7 +79,7 @@ setMethod('fit',signature(object='biodyn',index='FLQuantJK'),
 #' @param   ... other arguments
 #'
 #' @export
-#' @rdname fit-biodyn
+#' @rdname biodyn-fit
 #' 
 #' @aliases fit,FLPar,FLQuant-method fit,aspics,missing-method fit,biodyn,FLQuantJK-method
 #'          fit,biodyn,FLQuantJKs-method
@@ -147,7 +148,7 @@ diagsFn=function(res){
 ## copies exe into temp dir ready to run
 setExe=function(exeNm,package,dir=tempdir()){
   ##### set up temp dir with exe for data files
-  
+   
   # Linux
   if (R.version$os=='linux-gnu') {
     exe = paste(system.file('bin', 'linux', package=package, mustWork=TRUE),exeNm, sep='/')
@@ -170,7 +171,7 @@ setExe=function(exeNm,package,dir=tempdir()){
     # Mac OSX
   }else 
     stop()
-  
+print(1)  
   oldwd = getwd()
   
   # change wd to avoid exe case bug
@@ -400,7 +401,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
 
     #bug in windows
     try(
-      if (length(grep("-rwxrwxr-x",system(paste("ls -l",exe),intern=TRUE)))==0)
+        if (length(grep("-rwxrwxr-x",system(paste("ls -l",exe),intern=TRUE)))==0)
         warning("Executable privilege not set for \n",exe,call.=FALSE),silent=FALSE)
 
      # run

@@ -2,7 +2,7 @@
 % Please edit documentation in R/biodyn-msy.R
 \name{K}
 \alias{K}
-\title{Calculate Carrying Capacity}
+\title{Carrying capacity}
 \usage{
 K(msy, r = 0.6, p = 1, params = FLPar(r = r, p = p))
 }

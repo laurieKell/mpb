@@ -1,9 +1,9 @@
 utils::globalVariables(c("ggplot","geom_line","aes","yield",
                          "geom_point","cast","xlab","ylab"))
 
-##############################################################
-#' Create a \code{ggplot} plot
+#' @title \code{ggplot} plot
 #'
+#' @description 
 #' Creates a \code{ggplot2} object that plots time series of biomass, harvest rate and catch. The basic object can then be modified by adding ggpot2 layers.
 #'
 #' @param  \code{x}, an object of class \code{aspics} 

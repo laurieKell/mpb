@@ -6,14 +6,12 @@
 \alias{setParams<-}
 \title{setParams<-}
 \usage{
-setParams(object, ...) <- value
+setParams(object) <- value
 }
 \arguments{
 \item{object}{\code{biodyn}}
 
 \item{value}{CPUE as \code{FLQuant} or \code{FLQuants}}
-
-\item{...}{any other parameter}
 }
 \description{
 Sets catchability \code{q} and CV \code{sigma} in the params \code{FLPar} slot 
@@ -23,6 +21,7 @@ for CPUE provided either an \code{FLQuant} or \code{FLQuants}
 \dontrun{
 setParams(bd)=cpue
 }
+ 
  
 }
 

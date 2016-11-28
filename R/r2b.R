@@ -58,7 +58,7 @@ r2b=function(from){
       r  =r,
       k  =k)$minimum
   else  
-    p=mpb::getP(bmsy,k,p=c(0.001,5))
+    p=getP(bmsy,k,p=c(0.001,5))
   
   bd=biodyn(catch=catch.obs(from))
   

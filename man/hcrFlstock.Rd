@@ -3,7 +3,6 @@
 \docType{methods}
 \name{hcr,FLStock,FLBRP-method}
 \alias{hcr,FLStock,FLBRP-method}
-\alias{hcr,biodyn-method}
 \title{hcr}
 \usage{
 \S4method{hcr}{FLStock,FLBRP}(object, refs, hpar = hcrParam(ftar = 0.7 *

@@ -22,9 +22,10 @@ setMethod('biodyns', signature(object='missing'),
           }
 )
 
-#' Class biodyns
+#' @title biodyns constructor
 #' 
-#' \code{biodyns} is a class that extends \code{list} but implements a set of
+#' @description 
+#' The \code{biodyns} is a class that extends \code{list} but implements a set of
 #' features that give a little more structure to list objects. First the
 #' elements of \code{biodyns} must all be of the same class \code{biodyn}. 
 #' Second it implements lock mechanism that, when turned on, does not allow 
@@ -41,7 +42,7 @@ setMethod('biodyns', signature(object='missing'),
 #'   \item{desc}{Description of the object. \code{character}.}
 #'   \item{lock}{Lock mechanism, if turned on the length of the list can not be
 #'     modified by adding or removing elements. \code{logical}.} }
-#' @template biodyns-constructors
+#' @rdname biodynsConstructors
 #' @author The FLR Team
 #' @seealso \link[base]{[}, \link[base]{[<-}, \link[base]{[[<-},
 #' \link[base]{$<-}, \link[methods]{coerce}, \link[base]{lapply},

@@ -1,5 +1,6 @@
-#' hcr
+#' @title hcr
 #' 
+#' @description 
 #' Harvest Control Rule, calculates F, or Total Allowable Catch (TAC) based on a hockey stock harvest control rule.
 #'
 #' @param object an object of class \code{FLStock} or
@@ -12,14 +13,12 @@
 #' bndF \code{vector} with bounds (i.e.min and max values) on iter-annual variability on  F
 #' bndTac \code{vector} with bounds (i.e. min and max values) on iter-annual variability on TAC
 #'  
-#' @aliases hcr,biodyn-method
-#' 
 #' @return \code{FLPar} object with value(s) for F or TAC if tac==TRUE
 #' 
 #' @seealso \code{\link{bmsy}}, \code{\link{fmsy}}, \code{\link{fwd}} and \code{\link{hcrParam}}
 #' 
 #' @export
-#' @rdname hcr-flstock
+#' @rdname hcrFlstock
 #'
 #' @examples
 #' \dontrun{

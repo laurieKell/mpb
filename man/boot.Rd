@@ -2,6 +2,8 @@
 % Please edit documentation in R/biodyn-boot.R
 \docType{methods}
 \name{boot,biodyn-method}
+\alias{boot,aspic-method}
+\alias{boot,aspics-method}
 \alias{boot,biodyn-method}
 \alias{boot-method}
 \title{boot, Bootstraps biodyn.}

@@ -1,7 +1,7 @@
 utils::globalVariables(c('ddply','.','year','pctl','cast','kobeP','sims'))
 utils::globalVariables('dnorm')
 
-#' kobe
+#' @title kobe
 #' 
 #' @description Creates time series of stock relative to BMSY and harvest rate relative
 #' to FMSY

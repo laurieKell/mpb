@@ -3,7 +3,7 @@ globalVariables("lambda")
 utils::globalVariables(c("eql"))
 utils::globalVariables('optimise')
 
-#' setControl<-
+#' @title setControl<-
 #'
 #' @description Sets the control slot in a biodyn object given the parameters in the \code{params}
 #' slot. The starting values \code{val} are set to those in \code{params} and the \code{min} and
@@ -188,7 +188,8 @@ setMethod('setControl<-', signature(object='biodyn',value='FLQuants'),
 # setMethod('control', signature(object='biodyn'), function(object,...) {
 #   object@control})
 
-#' controlFn
+#' @title controlFn
+#' 
 #' @description A utility function to help set up the \code{control} slot in \code{biodyn} 
 #' 
 #' @param r a \code{numeric} value with best guess

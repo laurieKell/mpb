@@ -6,6 +6,24 @@ utils::globalVariables('qnorm')
 utils::globalVariables('fnJ')
 utils::globalVariables('data')
 
+#' @title msy
+#'
+#' @description 
+#' Calculates msy based reference points
+#'
+#' @param \code{object} a \code{biodyn} object  
+#' 
+#' @return an \code{FLPar} object with an estimate for $msy$
+#' 
+#' @aliases msy msy-method msy,biodyn-method bmsy bmsy-method bmsy,biodyn-method fmsy fmsy-method fmsy,biodyn-method msy msy-method msy,aspic-method msy,aspic,missing-method bmsy bmsy-method bmsy,aspic-method fmsy fmsy-method fmsy,aspic-method 
+#' 
+#' @export
+#' @rdname msy
+#'
+#' @examples
+#' \dontrun{
+#'  msy(bd)
+#'  }
 setMethod('msy', signature(object='biodyn'), function(object,...)                             
   msyPellaT(params(object)))
 setMethod('fmsy', signature(object='biodyn'), function(object,...)                             
@@ -35,7 +53,7 @@ setMethod('refptSD', signature(object='biodyn',    params='missing'),
 
 # Fox
 msyFox  <- function(params)
-  params['r']*params['k']
+  params['r']*params['k']*exp(-1)
 
 # Schaefer
 msySchaefer <- function(params)
@@ -93,7 +111,7 @@ bmsyFletcher <- function(params)
   params['k']*(1/(params['p']+1)^(1/(params['p'])))
 
 fmsyPellaT  <-function(params) params['r']*(1/(1+params['p']))
-fmsyFox     <-function(params) params['r']*(1-(log(params['k'])-1)/log(params['k']))
+fmsyFox     <-function(params) msyFox(params)/bmsyFox(params)
 fmsySchaefer<-function(params) params['r']/2
 fmsyShepherd<-function(params) msyShepherd(params)/bmsyShepherd(params)
 fmsyGulland <-function(params) params['r']*params['k']/2
@@ -166,9 +184,9 @@ bmsyFn=function(object,params,probs=0.5) {
   
   return(res)}
 
-##############################################################
-#' Calculate Carrying Capacity
+#' @title Carrying capacity
 #'
+#' @description 
 #' Calculates $k$ given msy, r and K for a Pella-Tomlinson biomass dynamic model
 #'
 #' @param msy a guess for MSY

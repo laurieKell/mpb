@@ -1,13 +1,15 @@
 utils::globalVariables(c("aaply"))
 
-#' rand
+#' @title rand
 #'
+#' @description 
 #' Simulates a \code{biodyn} object for a catch series, given the parameter estimates  in the \code{param} 
 #' slot and variance covariance matrix 
 #' http://young.physics.ucsc.edu/jackboot.pdf
 #' 
 #' @param n  \code{numeric} with number of simulations 
 #' @param object \code{biodyn} 
+#' @param sim a \code{biodyn} object 
 #' @param ... other arguments
 #' 
 #' @return \code{biodyn} with estimates of stock based on catch time series

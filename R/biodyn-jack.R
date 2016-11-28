@@ -1,11 +1,13 @@
-#' randJack
+#' @title randJack
 #'
+#' @description 
 #' Simulates a \code{biodyn} object for a catch series, given the parameter estimates  in the \code{param} 
 #' slot and variance covariance matrix 
 #' http://young.physics.ucsc.edu/jackboot.pdf
 #' 
 #' @param n  \code{numeric} with number of simulations 
 #' @param object \code{biodyn} 
+#' @param sim a \code{biodyn} object 
 #' @param ... other arguments
 #' 
 #' @return \code{biodyn} with estimates of stock based on catch time series
@@ -52,7 +54,7 @@
 randJackFn<-function(n,object,sim){
   res=jackSummary(params(object),params(sim))
   
-  cov=res$cov[modelParams(model(object)),mpb::modelParams(model(object))]
+  cov=res$cov[modelParams(model(object)),modelParams(model(object))]
   object@params=propagate(object@params,n)
   object@catch =propagate(object@catch, n)
   object@catch[]=object@catch[,,,,,1]

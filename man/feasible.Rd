@@ -24,9 +24,6 @@ a \code{FLPar} a subset of params with parameter values that can explain the cat
 \description{
 Checks that the parameters can be taken given the catch time series
 }
-\details{
-Checks that parameters are feasible given data.
-}
 \examples{
 \dontrun{
 params=feasibleFn(catch,params)

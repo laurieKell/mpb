@@ -1,6 +1,6 @@
 utils::globalVariables('rbind.fill')
 
-#' profile
+#' @title profile
 #'
 #' @description 
 #' Performs a profile using residual sum of squares, fixes some parameters for a range of values 
@@ -26,7 +26,7 @@ profileFn=function(fitted,which,
                                            model.frame(x@objFn)[,-3]),
                    #ll=x@ll[,2,drop=T]/(x@ll[,3,drop=T]-1)),
                    run=TRUE,
-                   min=0.8,max=1/min,...){
+                   min=0.8,max=1.2,...){
   
   if (dims(fitted)$iter>1) stop("can only be done for a single iter")
   
@@ -69,7 +69,7 @@ setMethod("profile", signature(fitted="aspic"),
                                            model.frame(refpts(x)),
                                            model.frame(x@objFn)[,-3]),
                                            #ll=x@ll[,2,drop=T]/(x@ll[,3,drop=T]-1)),
-                   run  =TRUE,min=0.8,max=1/min,...)
+                   run  =TRUE,min=0.8,max=1.2,...)
      profileFn(fitted=fitted,which=which,range=range,fn=fn,run=run,min=min,max=max))
 
 setMethod('profile',  signature(fitted='aspics'),
@@ -103,7 +103,7 @@ setMethod('profile',  signature(fitted='aspics'),
             
             res})
 
-#' fnProfile
+#' @title fnProfile
 #' 
 #' @description 
 #' Outputs as a data.frame a summary of parameters and RSS etc by data component 

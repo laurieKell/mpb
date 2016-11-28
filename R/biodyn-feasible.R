@@ -1,8 +1,6 @@
 utils::globalVariables('feasibleCpp')
 
-#' feasible
-#' 
-#' Checks that parameters are feasible given data.
+#' @title feasible
 #' 
 #' @description Checks that the parameters can be taken given the catch time series
 #'       
@@ -20,6 +18,7 @@ utils::globalVariables('feasibleCpp')
 #' 
 #' @export
 #' @docType methods
+#' @name feasible
 #' @rdname feasible
 #' 
 #' @examples
@@ -32,11 +31,11 @@ setMethod('feasible',  signature(object="FLPar",catch="FLQuant"),
 
 setMethod('feasible',  signature(object="data.frame",catch="FLQuant"), 
           function(object,catch,min=0.01){
-            feasibleFn(x=as(object,"FLPar"),y=catch,min=min)})
+            feasibleFn(params=as(object,"FLPar"),catch=catch,min=min)})
 
 
 setMethod('feasible',  signature(object='biodyn',catch="missing"), 
-          function(object,min=0.01)
+          function(object,catch,min=0.01)
             feasibleFn(params=params(object),catch=catch,min))
 
 feasibleFn<-function(params,catch,min=0.01){          

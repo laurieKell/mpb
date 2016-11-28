@@ -12,6 +12,8 @@ alkMFCL(lfile, ffile, i = 1, df = TRUE)
 \item{ffile}{the \code{freq} file}
 
 \item{i}{fleet to read in}
+
+\item{df}{return data as a data.frame \code{logical} default is \code{TRUE}}
 }
 \value{
 a list with elements \code{caa} numbers by age, len, season and year, \code{laa} length by age season and year, 

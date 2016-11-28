@@ -46,7 +46,7 @@ calcObjFn=function(object,index="missing",when=0.5,calcq=TRUE,na=10e6){
   if (!calcq)
       q=params(object)[grep("q",dimnames(params(object))$params)]
   else
-      q=FLPar(q=laply(index,function(x) mpb::calcQFLQuant(stock(object),x)))
+      q=FLPar(q=laply(index,function(x) calcQFLQuant(stock(object),x)))
   
   res=FLPars(mlply(data.frame(component=seq(length(index))), function(component){
     obs=index[[component]]%/%q[component]

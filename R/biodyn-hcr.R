@@ -1,8 +1,9 @@
 utils::globalVariables('laply')
 utils::globalVariables('ages')
 
-#' tac , 
+#' @title tac , 
 #' 
+#' @description 
 #' Calculates the Total Allowable Catch for a \code{biodyn} object and target harvest rate
 #' by projecting the last year.
 #'
@@ -43,8 +44,9 @@ setMethod( 'tac', signature(object='biodyn'),
              
              return(catch(object)[,yr])})
 
-#' hcrParam
+#' @title hcrParam
 #' 
+#' @description 
 #' Combines reference points into the HCR breakpts
 #'
 #' @param ftar an object of class \code{FLPar}
@@ -86,8 +88,9 @@ hcrParam=function(ftar,btrig,fmin,blim){
   return(res)}
   #return(as(res,'FLQuant'))}
   
-#' hcr
+#' @title hcr
 #' 
+#' @description 
 #' Harvest Control Rule, calculates F, or Total Allowable Catch (TAC) based on a hockey stock harvest control rule.
 #'
 #' @param object an object of class \code{biodyn} or
@@ -222,52 +225,3 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
     return(hvt)}
   
   return(hvt)})
-
-#' plotHcr
-#'
-#' Calculates break pointts for a hockey stick HCR
-#'
-#' @param object an object of class \code{biodyn} or
-#' @param params \code{FLPar} object with hockey stock HCR parameters
-#' @param maxB  =1
-#' @param rel   =TRUE
-#' 
-#' @return a \code{FLPar} object with value(s) for HCR
-#' 
-#' @seealso \code{\link{hcr}},  \code{\link{msy}},  \code{\link{bmsy}}, \code{\link{fmsy}} 
-#' 
-#' @rdname plotHcr
-#' @aliases plotHcr-method  plotHcr,biodyn-method
-#'
-#' @export
-#' @examples
-#' \dontrun{
-#' simBiodyn()
-#' }
-#' 
-setMethod('plotHcr', signature(object='biodyn'),
- function(object,params=FLPar(ftar=0.7, btrig=0.7, fmin=0.01, blim=0.20),maxB=1,rel=TRUE){
-  
-  pts=rbind(cbind(refpt='Target',model.frame(rbind(bmsy(object)*c(params['btrig']),
-                                                   fmsy(object)*c(params['ftar'])))),
-            cbind(refpt='Limit', model.frame(rbind(bmsy(object)*c(params['blim']),
-                                                   fmsy(object)*c(params['fmin'])))))
-  pts.=pts
-  pts.[1,'bmsy']=params(object)['k']*maxB
-  pts.[2,'bmsy']=0
-  pts.[,1]=c('')
-  
-  
-  pts=try(rbind(pts.[1,],pts[1:2,],pts.[2,]),silent=TRUE)
-  if (is(pts)=="try-error")
-    t.=as(rbind(as.data.frame(pts.[1,]),
-                as.data.frame(pts[1:2,]),
-                as.data.frame(pts.[2,])),"FLPar")
-  
-  names(pts)[2:3]=c('stock','harvest')
-  
-  if (rel){
-    pts[,'stock']=pts[,'stock']/mpb::bmsy(object)
-    pts[,'harvest']=pts[,'harvest']/mpb::fmsy(object)}
-  
-  pts})

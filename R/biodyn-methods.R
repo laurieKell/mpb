@@ -1,7 +1,7 @@
 utils::globalVariables('dnorm')
 utils::globalVariables('dnorm')
 
-#' harvest
+#' @title harvest
 #'
 #' @description harvest rate
 #' 
@@ -39,27 +39,25 @@ setMethod('stock', signature(object='biodyn'),
              
             (1-when)*stock(object)[,yrs1]+when*stock(object)[,yrs2]})
 
-#' production
+#' @title production
 #'
+#' @description 
 #' Calculates the surplus production for a biomass dynamic model given a level of stock biomass
 #' 
 #' @param object an object of class \code{biodyn} 
 #' @param biomass stock biomaas, may be a \code{numerix},  \code{FLQuant} or missing. In the latte case the stock slot will be used.
 #' @param ... other arguments
+#' 
+#' @aliases production,FLBRP,missing-method
 #'
 #' @return an \code{FLPar} object
 #' 
 #' @seealso \code{\link{plotProduction}}
 #' 
 #' @export
-#' @rdname sp
+#' @rdname production
 #'
-#' @aliases 
-#' production,biodyn,FLQuant-method  
-#' production,biodyn,missing-method  
-#' production,biodyn,numeric-method
-#' production,FLBRP,FLStock-method
-#' production,FLStock,missing-method 
+#' @aliases production production-method production,FLBRP,FLStock-method production,FLStock,missing-method production,biodyn,FLQuant-method production,biodyn,numeric-method production,biodyn,FLQuant-method production,biodyn,missing-method production,biodyn,numeric-method production,FLBRP,FLStock-method production,FLStock,missing-method 
 #' 
 #' @examples
 #' \dontrun{ production(bd,seq(0,params(bd)['k'])) }

@@ -15,6 +15,8 @@ randFn(n, object, sim)
 
 \item{object}{\code{biodyn}}
 
+\item{sim}{a \code{biodyn} object}
+
 \item{...}{other arguments}
 }
 \value{

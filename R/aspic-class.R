@@ -61,7 +61,7 @@ validAspic <- function(object) {
   return(TRUE)}
 
 
-#' ASPIC Biomass Dynamic Model Class
+#' @title ASPIC Biomass Dynamic Model Class
 #' 
 #' @description A class that represents the ASPIC biomass dynamic stock assessment model.
 #' @return aspics object
@@ -104,8 +104,9 @@ validAspic <- function(object) {
 #' aspic,character,missing-method 
 #' aspic,data.frame,missing-method 
 #' aspic,missing,missing-method 
+#' 
 # 
-#' @rdname aspic-class
+#' @rdname aspicClass
 setClass('aspic', representation(
     "biodyn",
     conditioning  ="factor",

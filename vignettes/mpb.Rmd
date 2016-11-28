@@ -10,7 +10,7 @@ bibliography: /home/laurie/bib/refs.bib
 link-citations: yes
 vignette: >
   %\VignetteIndexEntry{mpb}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{rmarkdown::render}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -514,8 +514,8 @@ library(reshape)
 library(kobe)
 bd=sim()
 
-source('~/Desktop/flr/mpb/R/biodyn-msy.R')
-source('~/Desktop/flr/mpb/R/biodyn-hcr.R')
+#source('~/Desktop/flr/mpb/R/biodyn-msy.R')
+#source('~/Desktop/flr/mpb/R/biodyn-hcr.R')
 
 trks=kobe(bd,what="trks")
 trks=mdply(data.frame(Year=seq(33,49,3)), 
@@ -525,7 +525,7 @@ pts =mdply(data.frame(Year=seq(33,49,3)),function(Year)
                  kobe(bd,year=Year,what="pts"))
 
 kobePhase()+    
-    geom_line(aes(stock,harvest),data=hcrPlot(bd),
+    geom_line(aes(stock,harvest),data=plotHcr(bd),
               col="brown",size=1.5)                             +    
     geom_path( aes(stock,harvest),data=subset(trks,pctl=="50%"),col="blue")+
     geom_point(aes(stock,harvest),data=subset(pts,year>=33),size=.3,col="cyan")    +

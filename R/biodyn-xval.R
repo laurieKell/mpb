@@ -1,4 +1,4 @@
-xvalFn=function(object,index,minyear,maxyear=range(object)["maxyear"]){
+xvalFnBiodyn=function(object,index,minyear=range(object)["maxyear"]-4,maxyear=range(object)["maxyear"]){
 
   u =window(index,   end=minyear)
   bd=window(object,  end=minyear)
@@ -20,7 +20,7 @@ xvalFn=function(object,index,minyear,maxyear=range(object)["maxyear"]){
   
   res}
 
-#' xval
+#' @title xval
 #'
 #' @description Performs a cross-validation uisng a hindcast
 #' 
@@ -40,7 +40,7 @@ xvalFn=function(object,index,minyear,maxyear=range(object)["maxyear"]){
 #'  data(bd)  
 #' }
 setMethod('xval', signature(object='biodyn'),
-          function(object,index,minyear,maxyear=range(object)["maxyear"]) 
-            xvalFn(object,index,minyear,maxyear))
+          function(object,index,minyear=range(object)["maxyear"]-4,maxyear=range(object)["maxyear"]) 
+            xvalFnBiodyn(object,index,minyear,maxyear))
 
 

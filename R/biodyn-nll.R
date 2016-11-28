@@ -1,4 +1,4 @@
-#' nll
+#' @title nll
 #' 
 #' @description 
 #' Checks that the parameters can be taken given the catch time series

@@ -23,21 +23,21 @@ setMethod('setParams<-', signature(object='biodyn',value='FLQuant'), function(ob
   
   return(object)})
 
-setMethod('setParams<-', signature(object='biodyn',value='FLQuants'), function(object,value,msy=TRUE) {
-  nms=c(modelParams(as.character(object@model)),'b0')
-  object@params=object@params[nms]
-  
-  #object@params =setQ(FLCore::iter(object,1),FLQuants(lapply(value, function(x) FLCore::apply(x,2,mean,na.rm=T))))
-  object@params =setQ(object,value)
-  
-  nms=dimnames(params(object))$param
-  n  = as.numeric(summary(substr(nms,1,1)=='q')['TRUE'])
-  nms[substr(nms,1,1)=='q']    =paste('q',    seq(n),sep='')
-  nms[substr(nms,1,5)=='sigma']=paste('sigma',seq(n),sep='')
-  
-  dimnames(params(object))$params=nms
-  
-  return(object)})
+# setMethod('setParams<-', signature(object='biodyn',value='FLQuants'), function(object,value,msy=TRUE) {
+#   nms=c(modelParams(as.character(object@model)),'b0')
+#   object@params=object@params[nms]
+#   
+#   #object@params =setQ(FLCore::iter(object,1),FLQuants(lapply(value, function(x) FLCore::apply(x,2,mean,na.rm=T))))
+#   object@params =setQ(object,value)
+#   
+#   nms=dimnames(params(object))$param
+#   n  = as.numeric(summary(substr(nms,1,1)=='q')['TRUE'])
+#   nms[substr(nms,1,1)=='q']    =paste('q',    seq(n),sep='')
+#   nms[substr(nms,1,5)=='sigma']=paste('sigma',seq(n),sep='')
+#   
+#   dimnames(params(object))$params=nms
+#   
+#   return(object)})
 
 getP<-function(bmsy,k,p=c(0.001,5)){
   optimise(function(p,bmsy,k) 
@@ -52,24 +52,24 @@ getRK<-function(msy,bmsy,k,p=c(0.0001,5)){
 
 #getRK(100,1000,2000)
 
-setMethod('setParams<-', signature(object='biodyn',value='FLBRP'), function(object,value,msy=TRUE) {
-  
-  #if (!(is(value)%in%'FLBRP')) return(object)
-  
-  if (msy){
-    params(object)[c("r","k","p")]=getRK(value@refpts["msy",   "yield"],
-                                         value@refpts["msy",   "biomass"],
-                                         value@refpts["virgin","biomass"])
-    object@priors[c("r","k","p"),"a"]=params(object)[c("r","k","p")]
-  }else{
-    require(popbio)
-    params(object)["k"]=value@refpts["virgin","biomass"]
-    params(object)["p"]=getP(c(value@refpts["msy","biomass"]),
-                             c(params(object)["k"]),c(0.001,5))
-    params(object)["r"]=log(lambda(leslie(eql,fbar=c(value@refpts["crash","harvest"]))))
-  }
-  
-  object=fwd(object,catch=catch(object)[,-1])
-  
-  return(object)})
+# setMethod('setParams<-', signature(object='biodyn',value='FLBRP'), function(object,value,msy=TRUE) {
+#   
+#   #if (!(is(value)%in%'FLBRP')) return(object)
+#   
+#   if (msy){
+#     params(object)[c("r","k","p")]=getRK(value@refpts["msy",   "yield"],
+#                                          value@refpts["msy",   "biomass"],
+#                                          value@refpts["virgin","biomass"])
+#     object@priors[c("r","k","p"),"a"]=params(object)[c("r","k","p")]
+#   }else{
+#     require(popbio)
+#     params(object)["k"]=value@refpts["virgin","biomass"]
+#     params(object)["p"]=getP(c(value@refpts["msy","biomass"]),
+#                              c(params(object)["k"]),c(0.001,5))
+#     params(object)["r"]=log(lambda(leslie(eql,fbar=c(value@refpts["crash","harvest"]))))
+#   }
+#   
+#   object=fwd(object,catch=catch(object)[,-1])
+#   
+#   return(object)})
 

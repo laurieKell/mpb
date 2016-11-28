@@ -1,12 +1,13 @@
-#' boot, Bootstraps biodyn.
+#' @title boot, Bootstraps biodyn.
 #'
 #' @description 
 #' Bootstraps the aspic model
 #'
 #' @param object; a \code{biodyn} object 
+#' 
 #' @seealso \code{\link{biodyn},\link{boot},\link{jk}}
 #' 
-#' @aliases boot-method boot,biodyn-method
+#' @aliases boot-method boot,biodyn-method boot,aspic-method boot,aspics-method
 #' 
 #' @export
 #' 

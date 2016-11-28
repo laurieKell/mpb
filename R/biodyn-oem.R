@@ -6,7 +6,7 @@ globalVariables("phaseQ")
 globalVariables("bounds")
 globalVariables("uCV")
 
-#' sim
+#' @title sim
 #'
 #' @description Creates a biodyn object with known properties
 #' 
@@ -107,7 +107,7 @@ setMethod('sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
   
   return(object)})
 
-#' oem
+#' @title oem
 #'
 #' @description Creates an \code{FLQuant} to represent an index of relative abundance
 #' 

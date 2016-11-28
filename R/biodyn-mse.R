@@ -10,8 +10,8 @@ utils::globalVariables('fmin')
 utils::globalVariables('blim')
 
 
-## MSE function
-#' mseBiodyn
+#' @title mseBiodyn
+#' 
 #' @description Runs a full MSE using an \code{FLStock} object as the Operating Model and \code{biodyn} as the Mangement Procedure
 #'           
 #' @aliases mse

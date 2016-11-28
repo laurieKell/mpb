@@ -7,6 +7,9 @@
 \usage{
 \S4method{control}{biodyn}(object)
 }
+\arguments{
+\item{object}{\code{biodyn} object}
+}
 \value{
 FLPar
 }

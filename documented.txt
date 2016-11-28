@@ -1,0 +1,34 @@
+Documented arguments not in \usage in documentation object 'boot':
+  ‘object;’ ‘dir;’
+Documented arguments not in \usage in documentation object 'diagsFn':
+  ‘object’ ‘index’
+Documented arguments not in \usage in documentation object 'boot,biodyn-method':
+  ‘object;’
+Documented arguments not in \usage in documentation object 'control':
+  ‘value’
+Documented arguments not in \usage in documentation object 'controlFn':
+  ‘r’ ‘k’ ‘p’ ‘b0’ ‘phaseR’ ‘phaseK’ ‘phaseP’ ‘phaseB0’ ‘min’ ‘max’
+Documented arguments not in \usage in documentation object 'fnProfile':
+  ‘x:’
+Documented arguments not in \usage in documentation object 'fwd,biodyn,missing-method':
+  ‘ctrl’
+Documented arguments not in \usage in documentation object 'kobe':
+  ‘method’
+Documented arguments not in \usage in documentation object 'resample,FLQuant-method':
+  ‘object’
+Documented arguments not in \usage in documentation object 'fmsy':
+  ‘\code{object}’
+Documented arguments not in \usage in documentation object 'index':
+  ‘value’
+Documented arguments not in \usage in documentation object 'plotEql,biodyn,missing-method':
+  ‘x’
+Documented arguments not in \usage in documentation object 'plotMSEfn':
+  ‘x’ ‘y’ ‘z’
+Documented arguments not in \usage in documentation object 'plotProduction,biodyn,missing-method':
+  ‘object’
+Documented arguments not in \usage in documentation object 'profileFn':
+  ‘fitted:’ ‘which:’ ‘range;’ ‘fn:’ ‘run:’
+Documented arguments not in \usage in documentation object 'mseBiodyn':
+  ‘what’ ‘mult’
+Documented arguments not in \usage in documentation object 'sim,missing,missing-method':
+  ‘model’

@@ -3,7 +3,7 @@ utils::globalVariables('pararms')
 utils::globalVariables('testGrid')
 utils::globalVariables('nllCpp')
 
-#' feasible, biodyn.
+#' @title feasible
 #'
 #' @description 
 #' Checks that parameters are feasible by ensuring catch can be taken given parameters. 
@@ -18,7 +18,7 @@ utils::globalVariables('nllCpp')
 #'@importFrom Rcpp evalCpp
 #'@useDynLib mpb
 #'
-#' @rdname feasible-1
+#' @rdname feasible1
 #' @examples
 #' \dontrun{
 #'     dat(asap)
@@ -52,9 +52,7 @@ feasibleFn3<-function(object,catch){
   object@params=object@pararms[,flag]
   }
 
-#' nll
-#' 
-#' negative log likelihood
+#' @title nll negative log likelihood
 #'
 #' @description 
 #' Checks that parameters are feasible by ensuring catch can be taken given parameters. 
@@ -70,7 +68,7 @@ feasibleFn3<-function(object,catch){
 #' 
 #' @export
 #' 
-#' @rdname feasible-2
+#' @rdname nll
 #' @examples
 #' \dontrun{
 #'     data(asp)

@@ -6,7 +6,7 @@ utils::globalVariables('brp')
 utils::globalVariables('optimise')
 utils::globalVariables('qnorm')
 
-#' as("biodyn", "FLStock")
+#' @title as("biodyn", "FLStock")
 #'
 #' @description
 #' Coerces an \code{FLStock} into a \code{biodyn} object.
@@ -205,7 +205,7 @@ FLBRP2biodyn=function(from,quantity=c("ssb","biomass","exploitable")[1]){
   #              r  =r,
   #              k  =k)$minimum
   # else  
-  #   p=mpb::getP(bmsy,k,p=c(0.001,5))
+  #   p=getP(bmsy,k,p=c(0.001,5))
   
   bd=biodyn(catch=catch.obs(from))
   par=pellat(from)

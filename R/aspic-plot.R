@@ -40,7 +40,7 @@ setMethod('plot', signature(x='aspics', y='missing'),
 # @param \code{facet}, a layer that determines the facetting of the plot
 
 
-plotSP=function(object,biomass=FLQuant(seq(0,max(params(object)["k"]),length.out=101))) {
+plotProduction=function(object,biomass=FLQuant(seq(0,max(params(object)["k"]),length.out=101))) {
   object=as(object,"biodyn")
   if ((dims(object)$iter>1 | dims(params(object))$iter>1) & dims(biomass)$iter==1) 
     biomass=propagate(biomass,max(dims(object)$iter,dims(params(object))$iter))

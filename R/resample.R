@@ -1,6 +1,6 @@
 utils::globalVariables('pnorm')
 
-#' resample
+#' @title resample
 #' 
 #' @description 
 #' Resamples from a distribution to generate a frequency table
@@ -19,7 +19,7 @@ utils::globalVariables('pnorm')
 #' 
 #' @export
 #' @docType methods
-#' @rdname lk-methods-resample
+#' @rdname methodsResample
 #' 
 #' @examples
 #' \dontrun{
@@ -93,7 +93,7 @@ setMethod('resample',  signature(x='FLPar'),
             
             FLPar(aperm(res,o))})
 
-#' mixnorm
+#' @title mixnorm
 #' 
 #' @description 
 #' Simulates a normal density function from an \code{FLQuant}
@@ -103,7 +103,7 @@ setMethod('resample',  signature(x='FLPar'),
 #' @return an \code{FLPar} with expected probability for lengths-at-age
 #' @export
 #' @docType methods
-#' @rdname lk-methods-mixnorm
+#' @rdname methodsMixnorm
 #' 
 #' @examples
 #' \dontrun{

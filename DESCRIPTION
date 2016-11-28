@@ -4,8 +4,6 @@ Version: 1.0.0
 Author: Laurence Kell <laurie@iccat.int>
 Description: mpb is an R package for running and simulation testing biomass based stock assessment models.
 VignetteBuilder: knitr
-Suggests:
-    knitr
 Depends:
     R(>= 3.3.1),
     FLCore(>= 2.5.2)
@@ -13,10 +11,10 @@ Imports:
     methods,
     stringr,
     reshape,
-    Rcpp
+    Rcpp,
+    FLBRP
 Suggests: rmarkdown,
-          knitr,
-          FLBRP
+          knitr
 LinkingTo: Rcpp
 Maintainer: Laurence Kell<laurie.kell@iccat.int>
 License: GPL-2
@@ -48,11 +46,7 @@ Collate:
     biodyn-fit.R
     biodyn-fwd.R
     biodyn-setParams.R
-    plotComp.R
-    plotAspic.R
-    plotBiodyn.R
-    plotIndex.R
-    plotCc.R
+    aspic-plot.R
     biodyn-msy.R
     aspic-refpts.R
     biodyn-profile.R
@@ -70,6 +64,7 @@ Collate:
     biodyn-kobe.R
     biodyn-nll.R
     biodyn-profile-Cpp.R
+    biodyn-plot.R
     iRate.R
     lk-methods.R
     lk-mfcl.R
@@ -84,6 +79,8 @@ Collate:
     econ-ee.R
     r2b.R
     rwalk.R
+    aspic-xval.R
+    weighted.var.se.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1

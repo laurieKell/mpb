@@ -21,9 +21,10 @@ setMethod("aspics", signature(object="missing"),
   }
 )
 
-#' Class aspics
+#' @title aspics cinstructor
 #' 
 #' \code{aspics} is a class that extends \code{list} but implements a set of
+#' @description 
 #' features that give a little more structure to list objects. First the
 #' elements of \code{aspics} must all be of the same class \code{biodyn}. 
 #' Second it implements lock mechanism that, when turned on, does not allow 
@@ -31,7 +32,7 @@ setMethod("aspics", signature(object="missing"),
 #' or decrease the object length.
 #' 
 #' @name aspics
-#' @aliases aspics-class aspics aspics-methods aspics,ANY-method
+#' @aliases aspics-class aspics aspics-methods aspics,ANY-method aspics,character-method
 #' aspics,missing-method aspics,list-method
 #' @docType class
 #' @section Slots: \describe{
@@ -40,7 +41,7 @@ setMethod("aspics", signature(object="missing"),
 #'   \item{desc}{Description of the object. \code{character}.}
 #'   \item{lock}{Lock mechanism, if turned on the length of the list can not be
 #'     modified by adding or removing elements. \code{logical}.} }
-#' @template aspics-constructors
+#' @rdname aspicsConstructors
 #' @author The FLR Team
 #' @seealso \link[base]{[}, \link[base]{[<-}, \link[base]{[[<-},
 #' \link[base]{$<-}, \link[methods]{coerce}, \link[base]{lapply},

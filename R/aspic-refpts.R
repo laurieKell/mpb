@@ -21,7 +21,7 @@ setMethod('refpts', signature(object='aspic', params='missing'),
      
   res})
 
-setMethod('msy', signature(object='aspic'),  
+setMethod('msy', signature(object='aspic',params='missing'),  
           function(object,params=NULL){
             
             if (object@model=="LOGISTIC"){
