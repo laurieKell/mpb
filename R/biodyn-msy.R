@@ -24,8 +24,12 @@ utils::globalVariables('data')
 #' \dontrun{
 #'  msy(bd)
 #'  }
-setMethod('msy', signature(object='biodyn'), function(object,...)                             
-  msyPellaT(params(object)))
+setMethod('msy', signature(object='biodyn',params="missing"), function(object,params=params(object),...){
+      params=params(object) 
+      res=params['r']*params['k']*(1/(1+params['p']))^(1/params['p']+1)
+      dimnames(res)$params="msy"
+      res})
+
 setMethod('fmsy', signature(object='biodyn'), function(object,...)                             
   fmsyPellaT(params(object)))
 setMethod('bmsy', signature(object='biodyn'), function(object,...)                             
@@ -52,21 +56,33 @@ setMethod('refptSD', signature(object='biodyn',    params='missing'),
                                refptsFn(model,par)})
 
 # Fox
-msyFox  <- function(params)
-  params['r']*params['k']*exp(-1)
+msyFox  <- function(params){
+  res=params['r']*params['k']*exp(-1)
+  dimnames(res)$params="msy"
+  res}
 
 # Schaefer
-msySchaefer <- function(params)
-  params['r']*params['k']/4
-msyLogistic <- function(params){
+msySchaefer <- function(params){
+  res=params['r']*params['k']/4
+  dimnames(res)$params="msy"
+  res}
+
+msyLogistic<-function(params){
   r=4*params['msy']/params['k']
-  r*params['k']/2}
+  res=r*params['k']/2
+  dimnames(res)$params="msy"
+  res}
 
 # PellaT
-msyPellaT <- function(params)
-  params['r']*params['k']*(1/(1+params['p']))^(1/params['p']+1)
-msyGenfit <- function(params)
-  params['r']*params['k']*(1/(1+params['p']))^(1/params['p']+1)
+msyPellaT<-function(params){
+  res=params['r']*params['k']*(1/(1+params['p']))^(1/params['p']+1)
+  dimnames(res)$params="msy"
+  res}
+
+msyGenfit <- function(params){
+  res=params['r']*params['k']*(1/(1+params['p']))^(1/params['p']+1)
+  dimnames(res)$params="msy"
+  res}
 
 # Shepherd
 msyShepherd<-function(params) {
@@ -74,48 +90,101 @@ msyShepherd<-function(params) {
   Bmax  <-params['k']*aPrime
   .bmsy <- 0 #bmsy('shepherd',param)
   
-  aPrime*params['m']*.bmsy*(1-.bmsy/Bmax)/(1+aPrime)^.5}
+  res=aPrime*params['m']*.bmsy*(1-.bmsy/Bmax)/(1+aPrime)^.5
+  dimnames(res)$params="msy"
+  res}
 
 # Gulland
-msyGulland  <- function(params)
-  (params['r']*params['k']^2)/4
+msyGulland  <- function(params){
+  res=(params['r']*params['k']^2)/4
+  dimnames(res)$params="msy"
+  res}
 
-msyFletcher <- function(params)
-  params['msy']
+msyFletcher <- function(params){
+  res=params['msy']
+  dimnames(res)$params="msy"
+  res}
 
 # Fox
-bmsyFox  <- function(params)
-  params['k']*exp(-1)
+bmsyFox  <- function(params){
+  res=params['k']*exp(-1)
+  dimnames(res)$params="bmsy"
+  res}
+
 # Schaefer
-bmsySchaefer <- function(params)
-  params['k']/2
-bmsyLogistic <- function(params)
-  params['k']/2
+bmsySchaefer <- function(params){
+  res=params['k']/2
+  dimnames(res)$params="bmsy"
+  res}
+
+bmsyLogistic <- function(params){
+  res=params['k']/2
+  dimnames(res)$params="bmsy"
+  res}
+
 # PellaT
-bmsyPellaT <- function(params)
-  params['k']*(1/(1+params['p']))^(1/params['p'])
-bmsyGenfit <- function(params)
-  params['k']*(1/(1+params['p']))^(1/params['p'])
-# Shepherd
+bmsyPellaT <- function(params){
+  res=params['k']*(1/(1+params['p']))^(1/params['p'])
+  dimnames(res)$params="bmsy"
+  res}
+
+bmsyGenfit <- function(params){
+  res=params['k']*(1/(1+params['p']))^(1/params['p'])
+  dimnames(res)$params="bmsy"
+  res}
+
+  # Shepherd
 bmsyShepherd <- function(params) {
   aPrime <- params['r']/params['m'] - 1
   Bmax  <- params['k']*aPrime
   
-  Bmax*((1+aPrime)^.5-1)/aPrime}
+  res=Bmax*((1+aPrime)^.5-1)/aPrime
+  
+  dimnames(res)$params="bmsy"
+  res}
 
 # Gulland
-bmsyGulland <-function(params)
-  params['k']/2
-# Fletcher
-bmsyFletcher <- function(params)
-  params['k']*(1/(params['p']+1)^(1/(params['p'])))
+bmsyGulland <-function(params){
+  res=params['k']/2
+  dimnames(res)$params="bmsy"
+  res}
 
-fmsyPellaT  <-function(params) params['r']*(1/(1+params['p']))
-fmsyFox     <-function(params) msyFox(params)/bmsyFox(params)
-fmsySchaefer<-function(params) params['r']/2
-fmsyShepherd<-function(params) msyShepherd(params)/bmsyShepherd(params)
-fmsyGulland <-function(params) params['r']*params['k']/2
-fmsyFletcher<-function(params) msyFletcher(params)/bmsyFletcher(params)
+# Fletcher
+bmsyFletcher <- function(params){
+  res=params['k']*(1/(params['p']+1)^(1/(params['p'])))
+  dimnames(res)$params="bmsy"
+  res}
+
+fmsyPellaT  <-function(params) {
+  res=params['r']*(1/(1+params['p']))
+  dimnames(res)$params="fmsy"
+  res}
+
+fmsyFox     <-function(params) {
+  res=msyFox(params)/bmsyFox(params)
+  dimnames(res)$params="fmsy"
+  res}
+
+fmsySchaefer<-function(params) {
+  res=params['r']/2
+  dimnames(res)$params="fmsy"
+  res}
+
+fmsyShepherd<-function(params) {
+  res=msyShepherd(params)/bmsyShepherd(params)
+  dimnames(res)$params="fmsy"
+  res}
+
+fmsyGulland <-function(params) {
+  res=params['r']*params['k']/2
+  dimnames(res)$params="fmsy"
+  res}
+
+fmsyFletcher<-function(params) {
+  res=msyFletcher(params)/bmsyFletcher(params)
+  dimnames(res)$params="fmsy"
+  res}
+
 fmsyLogistic<-function(params) {r=4*params['msy']/params['k']; r/2}
 
 fmsyFn=function(object,params,probs=0.5){

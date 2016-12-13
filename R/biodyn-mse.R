@@ -46,13 +46,13 @@ utils::globalVariables('blim')
 #' load(om)
 #' load(eql)
 #' 
-#' om=fwdWindow(om,eql,end=2030)
+#' om=mpb:::fwdWindow(om,eql,end=2030)
 #' om=propagate(om,100)
 #' 
 #' srDev=FLQuant(0,dimnames=list(year=2000:2030))
 #' srDev=rlnorm(100,srDev,0.3)
 #' 
-#' om=fwd(om,catch=catch(om)[,ac(2000:2011)],sr=eql,sr.residuals=srDev)
+#' om=mpb:::fwd(om,catch=catch(om)[,ac(2000:2011)],sr=eql,sr.residuals=srDev)
 #' 
 #' library(popbio)
 #' 
@@ -119,7 +119,7 @@ mseBiodyn<-function(om,eql,
     
     ## fit
     bd =fit(bd,cpue,cmdOps=cmdOps)
-    bd =fwd(bd,catch=catch(om)[,ac(iYr)])
+    bd =mpb:::fwd(bd,catch=catch(om)[,ac(iYr)])
         
     ## HCR
     hcrPar=hcrParam(ftar =ftar *fmsy(bd),
@@ -137,7 +137,7 @@ mseBiodyn<-function(om,eql,
     TAC[]=rep(apply(TAC,6,mean)[drop=T],each=interval)
     
     #### Operating Model Projectionfor TAC
-    om =fwd(om,catch=TAC,maxF=maxF,sr=eql,sr.residuals=srDev)  
+    om =mpb:::fwd(om,catch=TAC,maxF=maxF,sr=eql,sr.residuals=srDev)  
 
     #### Summary Statistics
     ## HCR actions, i.e. is biomass<Btrig?, what is F?, ..
@@ -177,7 +177,7 @@ hcrFn=function(om,btrig,blim,ftar,fmin,start,end,interval,lag=seq(interval)){
     
     trgt=FLQuant(rep(c(trgt),each=length(lag)),dimnames=dmns)
     
-    om=fwd(om,f=trgt,sr=eql,sr.residuals=srDev)
+    om=mpb:::fwd(om,f=trgt,sr=eql,sr.residuals=srDev)
   }
   
   return(om)}
@@ -236,7 +236,7 @@ demoBiodyn<-function(om,mp,
     
     ## fit
     bd =fit(bd,cpue,cmdOps=cmdOps)
-    bd =fwd(bd,catch=catch(om)[,ac(iYr)])
+    bd =mpb:::fwd(bd,catch=catch(om)[,ac(iYr)])
     
     ## HCR
     hcrPar=hcrParam(ftar =ftar *fmsy(bd),
@@ -253,7 +253,7 @@ demoBiodyn<-function(om,mp,
     TAC[]=rep(apply(TAC,6,mean)[drop=T],each=interval)
     
     #### Operating Model Projectionfor TAC
-    om =fwd(om,catch=TAC,maxF=maxF,sr=eql,sr.residuals=srDev)  
+    om =mpb:::fwd(om,catch=TAC,maxF=maxF,sr=eql,sr.residuals=srDev)  
     
     #### Summary Statistics
     ## HCR actions, i.e. is biomass<Btrig?, what is F?, ..
@@ -292,7 +292,8 @@ demo<-function(om,mp,pe,
                interval=3,
                maxF    =.75, 
                qKnown  =FALSE,
-               cmdOps=paste('-maxfn 500 -iprint 0')){
+               cmdOps=paste('-maxfn 500 -iprint 0'),
+               silent=FALSE){
 
   om=window(om,end=start+1)
 
@@ -305,7 +306,7 @@ demo<-function(om,mp,pe,
   
   #### Observation Error (OEM) setup #######################
   ## Random variation for CPUE  
-  cpue=oem(window(om,end=start),uDev,fishDepend=TRUE)
+  cpue=oem(window(om,end=start),uDev)
   setParams( mp)=cpue  
   setControl(mp)=params(mp)  
   
@@ -317,41 +318,48 @@ demo<-function(om,mp,pe,
   ## Loop round years
   for (iYr in seq(start,end-interval,interval)){
     #iYr = seq(start+rcvPeriod,range(om,'maxyear')-interval,interval)[1]
+    if (!silent)
     cat('\n===================', iYr, '===================\n')
-    
+   
     ## use data from last year
-    cpue=window(cpue,end=iYr-1)
-    cpue[,ac(iYr-(interval:1))] =oem(om[,ac(iYr-(interval:0))],uDev,fishDepend=TRUE)
+    cpue=window(cpue,end=max(iYr-(interval:0)))
+    cpue[,ac(iYr-(interval:1))] =oem(om[,ac(iYr-(interval:0))],uDev)
     mp=window(mp,end=iYr-1)
     catch(mp)=catch(om)
     #### Management Procedure
     
     ## fit
+    mp.<<-window(mp,end=iYr-1)
+    cpue<<-cpue
+    
     mp =fit(window(mp,end=iYr-1),cpue,
             cmdOps=ifelse(nits>1,cmdOps,'-maxfn 500 -iprint 0'))
-    mp =fwd(mp,catch=catch(om)[,ac(iYr)],maxF=maxF)
-    
+    mp =mpb:::fwd(mp,catch=catch(om)[,ac(iYr)],maxF=maxF)
+
     ## HCR
-    hcrPar=hcrParam(ftar =ftar *fmsy(mp),
+    hcrPar=mpb:::hcrParam(ftar =ftar *fmsy(mp),
                     btrig=btrig*bmsy(mp),
                     fmin =fmin *fmsy(mp), 
                     blim =blim *bmsy(mp))
-    hcrOutcome=hcr(mp,hcrPar,
-                           hcrYrs=iYr+seq(interval),
-                           bndF=bndF,
-                           tac =TRUE,
-                           maxF=maxF)
-    TAC  =hcrOutcome$tac
-    TAC[]=rep(apply(TAC,6,mean)[drop=T],each=interval)
+    TAC  =mpb:::hcr(mp,params=hcrPar,
+                       hyr =iYr+seq(interval),
+                       bndF=bndF,
+                       tac =TRUE,
+                       maxF=maxF)
+    
+    #TAC[]=rep(apply(TAC,6,mean)[drop=T],each=interval)
     TAC[is.na(TAC)]=10
     TAC=qmax(TAC,10)
     TAC=qmin(TAC,bmsy(mp)*fmsy(mp))
     
     #### Operating Model Projectionfor TAC
-    om =fwd(om,catch=TAC,pe=pe,maxF=maxF)
+    om =mpb:::fwd(om,catch=TAC,pe=pe,maxF=maxF)
     
     #print((1:100)[is.na(stock(om)[,ac(iYr)])])
     }
-    
-  biodyns(om=om,mp=mp)}
+  
+  if (!silent)
+    print("bug biodyns needs a list")  
+  
+  mpb:::biodyns(list("om"=window(om,end=end-interval),"mp"=window(mp,end=end-interval)))}
 

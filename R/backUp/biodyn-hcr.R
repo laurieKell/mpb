@@ -120,8 +120,8 @@ hcrParam=function(ftar,btrig,fmin,blim){
 #' for (i in seq(29,49,1))
 #' bd=fwd(bd,harvest=hcr(bd,yr=i,yr=i+1)$hvt)
 #' }
-setMethod('hcr', signature(object='biodyn',refs='missing'),
-  function(object, 
+#setMethod('hcr', signature(object='biodyn',refs='missing'),
+hcr=function(object, 
            params=hcrParam(ftar =0.70*refpts(object)['fmsy'],
                            btrig=0.80*refpts(object)['bmsy'],
                            fmin =0.01*refpts(object)['fmsy'],
@@ -192,7 +192,7 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
    ## TAC
    if (tac){     
       ref=FLCore::apply(catch(object)[,ac(byr)],6,mean)
-
+      
       object=window(object, end=max(as.numeric(hyr)))
       object=fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hyr)-1))])
      
@@ -224,4 +224,5 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
 
     return(hvt)}
   
-  return(hvt)})
+  return(hvt)}
+#)

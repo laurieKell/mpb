@@ -21,8 +21,8 @@ setMethod('harvest', signature(object='biodyn',catch="missing"),function(object)
   #res <- catch(object)/(stock(object)[,yrs1]*(1-when)+
   #                        stock(object)[,yrs2]*when)
              
-  yrs=dimnames(catch(object))$year[dimnames(catch(object))$year %in% dimnames(catch(object))$year]
-  res <- catch(object)[,yrs]/stock(object)[,yrs]
+  yrs=dimnames(stock(object))$year[dimnames(stock(object))$year %in% dimnames(catch(object))$year]
+  res <- catch(object)[,yrs]%/%stock(object)[,yrs]
   units(res) <- 'hr'
   return(res)
   })

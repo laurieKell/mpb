@@ -240,7 +240,6 @@ runBoot=function(object, package="mpb", exeNm="aspic", dir=tempdir(),boot=500){
   object@stock=propagate(FLQuant(NA,dimnames=dmns),boot)
   
   oldwd=setExe(exeNm,package,dir)
-  print(1)    
   m_ply(c("prn","rdat","bio","inp","fit","sum","rdatb","det","sum","bot"), function(x)
     if (file.exists(paste(exeNm,".",x,sep=""))) system(paste("rm ",exeNm,".",x,sep="")))
   

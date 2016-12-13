@@ -113,7 +113,7 @@ aspic2biodyn<-function(from,
   r<-function(msy,p,k)
      msy/k/(1/(1+p))^(1/p+1)
   
-  res=biodyn(factor("pellat"),"missing")
+  res=biodyn()
   res@params=par
   
   nms=names(sA[(names(sA) %in% names(sB))])
@@ -125,7 +125,7 @@ aspic2biodyn<-function(from,
   if ("FLQuant"%in%is(cpue)) cpue=FLQuants("1"=cpue) 
   
   #bug
-  setParams( res)        =cpue      
+  biodyn:::setParams( res)        =cpue      
   setControl(res,min=min,max=max)=res@params
   
   for (i in names(phase[names(phase)%in%dimnames(control(res))[[1]]]))

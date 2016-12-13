@@ -171,7 +171,6 @@ setExe=function(exeNm,package,dir=tempdir()){
     # Mac OSX
   }else 
     stop()
-print(1)  
   oldwd = getwd()
   
   # change wd to avoid exe case bug
@@ -458,7 +457,14 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
      bd@params@.Data[  ,i] = object[[1]]@params
      bd@control@.Data[,,i] = object[[1]]@control
 
-     bd@objFn@.Data[   ,i] = object[[1]]@objFn
+     wrn=options()$warn
+     options(warn=-1)
+     err=try(bd@objFn@.Data[,i]<-object[[1]]@objFn,silent=TRUE)
+     if (!(any(is(err)=="try-error"))) {
+       print(dim(bd@objFn@.Data))
+       print(dim(object[[1]]@objFn))
+       print("bug when objFn has iters")}
+     options(warn=wrn)
      
      bd@ll@.Data[,,i] = object[[1]]@ll
      
@@ -800,7 +806,6 @@ setMethod('fit',signature(object='FLPar',index='FLQuant'),
   sink("/dev/null")
               
   res=mdply(seq(nits),function(i) {
-      print(i)
         
       params=FLPar(iter(object,i)[,"val",drop=TRUE])
     

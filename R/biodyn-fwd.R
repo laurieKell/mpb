@@ -23,7 +23,6 @@ prdFn=function(mdl,params,biomass=0) {
   
   fox <-function(biomass, params){
     res=exp(1)*(params['msy']%/%params['k'])%*%biomass%*%log(params['k'])%*%(1-log(biomass)%/%log(params['k']))
-    print(res)
     res}
 
   schaefer <- function(biomass, params)
