@@ -1,5 +1,8 @@
 utils::globalVariables(c("bdModel","biomass"))
 
+setGeneric('as.biodyn', function(object, ...) standardGeneric('as.biodyn'))
+setGeneric('as.aspic',  function(object, ...) standardGeneric('as.aspic'))
+
 paramFn=function(object){
   
 #   fox       =c("r","K")
@@ -48,50 +51,6 @@ controlFn=function(object){
          shepherd=stop("Gulland not available in ASPIC"))
   }
 
-setAs('biodyn','aspic',
-      function(from){
-        sA=getSlots("aspic")
-        sB=getSlots("biodyn")
-        
-        sA=sA[!(names(sA) %in% c("model","params","hcr"))]
-        sB=sB[!(names(sB) %in% c("model","params","hcr"))]
-        
-        res=aspic()
-        
-        model(res) =factor("LOGISTIC")
-        params(res)=FLPar("msy"=msyFn("pellat",params(from)),"k"=c(params(from)["k"]),"b0"=c(params(from)["b0"]))
-        
-        res@control[c("b0","k"),c("min","val","max")]=from@control[c("b0","k"),c("min","val","max")]
-        res@control["msy",c("min","val","max")]=from@control["r",-1]/c(from@control["r",3])*c(params(res)["msy"])
-        
-        for (i in names(sA[(names(sA) %in% names(sB))]))
-          slot(res,i)=slot(from,i)
-        
-        dimnames(res@objFn)$value=c("rss","ll")
-        
-        return(res)})
-
-biodyn2aspic=function(from){
-        sA=getSlots("aspic")
-        sB=getSlots("biodyn")
-        
-        sA=sA[!(names(sA) %in% c("model","params","hcr"))]
-        sB=sB[!(names(sB) %in% c("model","params","hcr"))]
-        
-        res=aspic()
-        
-        model(res) =factor("LOGISTIC")
-        params(res)=FLPar("msy"=msyFn("pellat",params(from)),"k"=c(params(from)["k"]),"b0"=c(params(from)["b0"]))
-        
-        res@control[c("b0","k"),c("min","val","max")]=from@control[c("b0","k"),c("min","val","max")]
-        res@control["msy",c("min","val","max")]=from@control["r",-1]/c(from@control["r",3])*c(params(res)["msy"])
-        
-        for (i in names(sA[(names(sA) %in% names(sB))]))
-          slot(res,i)=slot(from,i)
-        
-        dimnames(res@objFn)$value=c("rss","ll")
-        
-        return(res)}
 
 aspic2biodyn<-function(from,
                        phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=1),
@@ -102,16 +61,16 @@ aspic2biodyn<-function(from,
   sA=sA[!(names(sA) %in% c("model","params"))]
   sB=sB[!(names(sB) %in% c("model","params"))]
   
-  nits=dim(params(from))[2]
+  nits=dim(from@params)[2]
   par=FLPar(array(NA,dim=c(4,nits),dimnames=list(params=c("r","k","b0","p"),iter=seq(nits))))
   par["p"] =1
-  par["b0"]=params(from)["b0"]
-  par["k"]=params(from)["k"]
-  par["r"]=c((params(from)["msy"]%/%par["k"]))
+  par["b0"]=from@params["b0"]
+  par["k"]=from@params["k"]
+  par["r"]=c((from@params["msy"]%/%par["k"]))
   par["r"]=par["r"]%/%((1/(1+par["p"]))^(1/par["p"]+1))
   
   r<-function(msy,p,k)
-     msy/k/(1/(1+p))^(1/p+1)
+    msy/k/(1/(1+p))^(1/p+1)
   
   res=biodyn()
   res@params=par
@@ -125,14 +84,14 @@ aspic2biodyn<-function(from,
   if ("FLQuant"%in%is(cpue)) cpue=FLQuants("1"=cpue) 
   
   #bug
-  biodyn:::setParams( res)        =cpue      
+  setParams( res)        =cpue      
   setControl(res,min=min,max=max)=res@params
   
   for (i in names(phase[names(phase)%in%dimnames(control(res))[[1]]]))
-      control(res)[i,"phase"]=phase[i]
+    control(res)[i,"phase"]=phase[i]
   
   if ("q"%in%names(phase))
-     control(res)[grep("q",dimnames(control(res))[[1]]),"phase"]=phase["q"]
+    control(res)[grep("q",dimnames(control(res))[[1]]),"phase"]=phase["q"]
   
   if ("sigma"%in%names(phase))
     control(res)[grep("s",dimnames(control(res))[[1]]),"phase"]=phase["sigma"]
@@ -141,51 +100,92 @@ aspic2biodyn<-function(from,
   
   return(res)}
 
-setAs('aspic', 'biodyn', function(from) 
-  aspic2biodyn(from,
-               phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=1),
-               min=0.5,max=1.5))
+setMethod("as.biodyn", signature(object="aspic"),
+          function(object, ...) {
+            
+            sA=getSlots("aspic")
+            sB=getSlots("biodyn")
+            
+            sA=sA[!(names(sA) %in% c("model","params"))]
+            sB=sB[!(names(sB) %in% c("model","params"))]
+            
+            par=FLPar("r"=.6,"k"=c(object@params["k"]),"b0"=c(object@params["b0"]),"p"=1)
+            par["r"]=c(object@params["msy"]/(par["k"]*(1/(1+par["p"]))^(1/par["p"]+1)))
+            
+            nms=c(mpb:::modelParams("pellat"),'b0')
+            par=par[nms]
+            units(par)="NA"
+            
+            res=biodyn(factor("pellat"),par)
+            
+            res@control[c("p","b0"),1,1]=-1
+            
+            nms=names(sA)
+            nms=nms[!(nms%in%c("control","priors"))]
+            for (i in nms[nms %in% names(sB)])
+              slot(res,i)=slot(object,i)
+            
+            # cpue=index(from,F)        
+            # setParams( res)<-cpue      
+            # setControl(res)            =params(res)
+            
+            dimnames(res@objFn)$value=c("rss","ll")
+            
+            return(res)})
 
-#   dat <- edat(harvest = albsa$catch_tonnes, 
-#               index   = cbind(fleet1 = albsa$fleet1_cpue,
-#                             fleet2 = albsa$fleet2_cpue, fleet3 = albsa$fleet3_cpue, fleet4 = albsa$fleet4_cpue,
-#                             fleet8 = albsa$fleet8_cpue), time = rownames(albsa))
-#   time
-#   n
-#   sigmao
-#   sigmap
-#   renormalise=TRUE
-  
-setAs('aspic', 'biodyn',
-      function(from){
-        
+setAs(from='aspic', to='biodyn',  def=function(from) as.biodyn(from))
+
+biodyn2aspic=function(from){
         sA=getSlots("aspic")
         sB=getSlots("biodyn")
         
-        sA=sA[!(names(sA) %in% c("model","params"))]
-        sB=sB[!(names(sB) %in% c("model","params"))]
+        sA=sA[!(names(sA) %in% c("model","params","hcr"))]
+        sB=sB[!(names(sB) %in% c("model","params","hcr"))]
         
-        par=FLPar("r"=.6,"k"=c(params(from)["k"]),"b0"=c(params(from)["b0"]),"p"=1)
-        par["r"]=c(params(from)["msy"]/(par["k"]*(1/(1+par["p"]))^(1/par["p"]+1)))
-        res=biodyn(factor("pellat"),par)
+        res=aspic()
         
-        res@control[c("p","b0"),1,1]=-1
+        model(res) =factor("LOGISTIC")
+        params(res)=FLPar("msy"=msyFn("pellat",from@params),"k"=c(from@params["k"]),"b0"=c(from@params["b0"]))
+        
+        res@control[c("b0","k"),c("min","val","max")]=from@control[c("b0","k"),c("min","val","max")]
+        res@control["msy",c("min","val","max")]=from@control["r",-1]/c(from@control["r",3])*c(params(res)["msy"])
         
         for (i in names(sA[(names(sA) %in% names(sB))]))
           slot(res,i)=slot(from,i)
         
-        cpue=index(from,F)        
-        setParams( res)            =cpue      
-        setControl(res)            =params(res)
+        dimnames(res@objFn)$value=c("rss","ll")
+        
+        return(res)}
+
+setMethod("as.aspic", signature(object="biodyn"),
+    function(object, ...) {
+            
+        sA=getSlots("aspic")
+        sB=getSlots("biodyn")
+        
+        sA=sA[!(names(sA) %in% c("model","params","hcr"))]
+        sB=sB[!(names(sB) %in% c("model","params","hcr"))]
+        
+        res=aspic()
+        
+        model(res) =factor("LOGISTIC")
+        params(res)=FLPar("msy"=msyFn("pellat",object@params),"k"=c(object@params["k"]),"b0"=c(object@params["b0"]))
+        
+        res@control[c("b0","k"),c("min","val","max")]=object@control[c("b0","k"),c("min","val","max")]
+        res@control["msy",c("min","val","max")]=object@control["r",-1]/c(object@control["r",3])*c(params(res)["msy"])
+        
+        for (i in names(sA[(names(sA) %in% names(sB))]))
+          slot(res,i)=slot(object,i)
         
         dimnames(res@objFn)$value=c("rss","ll")
         
         return(res)})
+
+setAs(from='biodyn', to='aspic', def=function(from) as.aspic(from))
 
 aspics2biodyns<-function(from,
                          phase=c("b0"=-1,"r"=4,"k"=3,"p"=-1,"q"=2,"sigma"=1),
                          min=0.5,max=1.5)
   biodyns(llply(from,aspic2biodyn,phase=phase,min=min,max=max))
   
-
-setAs('aspic', 'biodyn', function(from) aspics2biodyns(from))
+setAs(from='aspics', to='biodyns', def=function(from) aspics2biodyns(from))

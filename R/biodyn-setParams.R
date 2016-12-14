@@ -17,11 +17,30 @@ setMethod('setParams<-', signature(object='biodyn',value='FLPar'), function(obje
   return(object)})
 
 setMethod('setParams<-', signature(object='biodyn',value='FLQuant'), function(object,value) {
+
   nms=c(modelParams(tolower(as.character(object@model))),'b0')
+
   #value=FLCore::apply(value,2,mean)
   object@params =setQ(object,value)
   
   return(object)})
+
+setMethod('setParams<-', signature(object='biodyn',value='FLQuants'), function(object,value) {
+  nms=c(mpb:::modelParams(as.character(object@model)),'b0')
+  object@params=object@params[nms]
+  
+  object@params =mpb:::setQ(FLCore::iter(object,1),
+                             FLQuants(lapply(value, function(x) FLCore::apply(x,2,mean,na.rm=T))))
+  
+  nms=dimnames(params(object))$param
+  n  = as.numeric(summary(substr(nms,1,1)=='q')['TRUE'])
+  nms[substr(nms,1,1)=='q']    =paste('q',    seq(n),sep='')
+  nms[substr(nms,1,5)=='sigma']=paste('sigma',seq(n),sep='')
+  
+  dimnames(params(object))$params=nms
+  
+  return(object)})
+
 
 # setMethod('setParams<-', signature(object='biodyn',value='FLQuants'), function(object,value,msy=TRUE) {
 #   nms=c(modelParams(as.character(object@model)),'b0')

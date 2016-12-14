@@ -461,9 +461,9 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
      options(warn=-1)
      err=try(bd@objFn@.Data[,i]<-object[[1]]@objFn,silent=TRUE)
      if (!(any(is(err)=="try-error"))) {
-       print(dim(bd@objFn@.Data))
-       print(dim(object[[1]]@objFn))
-       print("bug when objFn has iters")}
+       #print(dim(bd@objFn@.Data))
+       #print(dim(object[[1]]@objFn))
+       print("warning bug when objFn has iters")}
      options(warn=wrn)
      
      bd@ll@.Data[,,i] = object[[1]]@ll
