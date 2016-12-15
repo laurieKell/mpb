@@ -86,7 +86,7 @@ chkIters=function(object){
 jkIdx=function(x) dimnames(x)[[1]][ !is.na(x$index)]
 
 
-runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyExe=FALSE){
+runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE){
   ow=options("warn");options(warn=-1)
   
   object@index=object@index[object@index$year %in% range(object)["minyear"]:range(object)["maxyear"],]
@@ -105,7 +105,7 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE,copyEx
   setwd(dir)
   #path=exe(package)
   
-  if (.Platform$OS.type == "windows" & copyExe)
+  if (.Platform$OS.type == "windows")
     file.copy(paste(paste(system.file("bin", "windows", package="mpb", mustWork=TRUE),exeNm, sep="/"),"exe",sep="."), dir)
   else  if (copyExe)
     file.copy(     paste(system.file("bin", "linux", package="mpb", mustWork=TRUE),exeNm, sep="/"),                 dir)
