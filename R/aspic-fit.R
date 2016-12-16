@@ -107,7 +107,7 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE){
   
   if (.Platform$OS.type == "windows")
     file.copy(paste(paste(system.file("bin", "windows", package="mpb", mustWork=TRUE),exeNm, sep="/"),"exe",sep="."), dir)
-  else  if (copyExe)
+  else  
     file.copy(     paste(system.file("bin", "linux", package="mpb", mustWork=TRUE),exeNm, sep="/"),                 dir)
   
   ## Jack knife if wished
@@ -268,8 +268,8 @@ runBoot=function(object, package="mpb", exeNm="aspic", dir=tempdir(),boot=500){
 
 
 setMethod('fit',signature(object='aspic',index="missing"),
-          function(object,dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE,copyExe=FALSE)
-            runExe(object=object, dir=dir, package="mpb", exeNm="aspic",jk=jk,copyExe=copyExe))
+          function(object,dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE)
+            runExe(object=object, dir=dir, package="mpb", exeNm="aspic",jk=jk))
 
 setMethod('fit',signature(object='aspics',index="missing"),
           function(object, dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE,
