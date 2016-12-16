@@ -404,8 +404,8 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
         warning("Executable privilege not set for \n",exe,call.=FALSE),silent=FALSE)
 
      # run
-     system(paste('./', exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
-     #system(paste(exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
+     #system(paste('./', exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
+     system(paste(exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
 
      # gets results
      object[[1]]=getPella(object[[1]], exeNm)     

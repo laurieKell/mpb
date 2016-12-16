@@ -266,7 +266,6 @@ runBoot=function(object, package="mpb", exeNm="aspic", dir=tempdir(),boot=500){
   
   return(object)}
 
-
 setMethod('fit',signature(object='aspic',index="missing"),
           function(object,dir=tempdir(), package="mpb", exeNm="aspic",jk=FALSE)
             runExe(object=object, dir=dir, package="mpb", exeNm="aspic",jk=jk))
