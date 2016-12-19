@@ -2,7 +2,6 @@
 % Please edit documentation in R/biodyn-plot.R
 \docType{methods}
 \name{plotProduction,biodyn,missing-method}
-\alias{plotProduction,biodyn,FLBRP-method}
 \alias{plotProduction,biodyn,FLQuant-method}
 \alias{plotProduction,biodyn,missing-method}
 \alias{plotProduction,biodyns,missing-method}

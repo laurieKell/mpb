@@ -15,8 +15,6 @@ mseBiodyn(om, eql, srDev, uDev, mp, start = range(om)["maxyear"],
 \arguments{
 \item{om}{an \code{FLStock} object}
 
-\item{eql}{an \code{FLBRP} object that holds the biological parameters for use in the projections}
-
 \item{srDev}{a \code{FLQuant} with recruitment deviates}
 
 \item{uDev}{an \code{FLQuant} or \code{FLQuants} with CPUE residuals}
@@ -47,19 +45,17 @@ Runs a full MSE using an \code{FLStock} object as the Operating Model and \code{
 \examples{
 \dontrun{
 library(mpb)
-library(FLash)
-library(FLBRP)
 
 load(om)
 load(eql)
 
-om=fwdWindow(om,eql,end=2030)
+om=mpb:::fwdWindow(om,eql,end=2030)
 om=propagate(om,100)
 
 srDev=FLQuant(0,dimnames=list(year=2000:2030))
 srDev=rlnorm(100,srDev,0.3)
 
-om=fwd(om,catch=catch(om)[,ac(2000:2011)],sr=eql,sr.residuals=srDev)
+om=mpb:::fwd(om,catch=catch(om)[,ac(2000:2011)],sr=eql,sr.residuals=srDev)
 
 library(popbio)
 

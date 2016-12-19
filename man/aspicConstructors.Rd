@@ -4,7 +4,6 @@
 \alias{aspic}
 \alias{aspic,ANY,ANY-method}
 \alias{aspic,ANY-method}
-\alias{aspic,FLBRP,FLStock-method}
 \alias{aspic,character-method}
 \alias{aspic,data.frame-method}
 \alias{aspic,missing-method}

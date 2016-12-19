@@ -17,7 +17,7 @@ utils::globalVariables('blim')
 #' @aliases mse
 #' 
 #' @param om an \code{FLStock} object 
-#' @param eql an \code{FLBRP} object that holds the biological parameters for use in the projections
+#  @param eql an \code{FLBRP} object that holds the biological parameters for use in the projections
 #' @param mp an \code{biodyn} object that holds the options for the biomass dynamic assessment model
 #' @param range a \code{vector} the starting and end years for the projections, and the interval for running the MP
 #' @param srDev  a \code{FLQuant} with recruitment deviates
@@ -40,8 +40,8 @@ utils::globalVariables('blim')
 #' @examples
 #' \dontrun{
 #' library(mpb)
-#' library(FLash)
-#' library(FLBRP)
+# library(FLash)
+# library(FLBRP)
 #' 
 #' load(om)
 #' load(eql)

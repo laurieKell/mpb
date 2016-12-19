@@ -48,7 +48,7 @@ setMethod('stock', signature(object='biodyn'),
 #' @param biomass stock biomaas, may be a \code{numerix},  \code{FLQuant} or missing. In the latte case the stock slot will be used.
 #' @param ... other arguments
 #' 
-#' @aliases production,FLBRP,missing-method
+#  @aliases production,FLBRP,missing-method
 #'
 #' @return an \code{FLPar} object
 #' 
@@ -57,7 +57,7 @@ setMethod('stock', signature(object='biodyn'),
 #' @export
 #' @rdname production
 #'
-#' @aliases production production-method production,FLBRP,FLStock-method production,FLStock,missing-method production,biodyn,FLQuant-method production,biodyn,numeric-method production,biodyn,FLQuant-method production,biodyn,missing-method production,biodyn,numeric-method production,FLBRP,FLStock-method production,FLStock,missing-method 
+#' @aliases production production-method production,FLStock,missing-method production,biodyn,FLQuant-method production,biodyn,numeric-method production,biodyn,FLQuant-method production,biodyn,missing-method production,biodyn,numeric-method production,FLBRP,FLStock-method production,FLStock,missing-method 
 #' 
 #' @examples
 #' \dontrun{ production(bd,seq(0,params(bd)['k'])) }

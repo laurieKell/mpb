@@ -13,8 +13,7 @@ Depends:
 Imports:
     methods,
     stringr,
-    Rcpp,
-    FLBRP
+    Rcpp
 Suggests: rmarkdown,
           knitr
 LinkingTo: Rcpp

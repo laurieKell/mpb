@@ -68,9 +68,9 @@ setMethod( 'timeSeries', signature(object='FLStock',params="FLPar"),
   else return(list(relative=rel,absolute=abs))
   })
 
-setMethod( 'timeSeries', signature(object='FLStock',params="FLBRP"), 
-      function(object,params,df=TRUE,ref="msy") {
-          ts(object,FLBRP::refpts(params)[ref])})
+# setMethod( 'timeSeries', signature(object='FLStock',params="FLBRP"), 
+#       function(object,params,df=TRUE,ref="msy") {
+#           ts(object,FLBRP::refpts(params)[ref])})
   
 setMethod( 'timeSeries', signature(object='biodyn',params="missing"), 
   function(object,params,df=TRUE,relative=TRUE) {
@@ -130,22 +130,22 @@ setMethod( 'timeSeries', signature(object='aspic',params="missing"),
         return(res)
       })
 
-setMethod( 'timeSeries', signature(object='FLStocks',params="FLBRP"), 
-           function(object,params,df=TRUE,ref="msy") {
-             mdply(data.frame(.id=names(object)),function(.id) 
-               ts(object[[.id]],FLBRP::refpts(params)[ref],df=TRUE))})
-
-setMethod( 'timeSeries', signature(object='FLStocks',params="FLBRPs"), 
-           function(object,params,ref="msy") {
-             mdply(data.frame(.id=names(object)),function(.id) 
-               ts(object[[.id]],FLBRP::refpts(params[[.id]])[ref]))})
+# setMethod( 'timeSeries', signature(object='FLStocks',params="FLBRP"), 
+#            function(object,params,df=TRUE,ref="msy") {
+#              mdply(data.frame(.id=names(object)),function(.id) 
+#                ts(object[[.id]],FLBRP::refpts(params)[ref],df=TRUE))})
+# 
+# setMethod( 'timeSeries', signature(object='FLStocks',params="FLBRPs"), 
+#            function(object,params,ref="msy") {
+#              mdply(data.frame(.id=names(object)),function(.id) 
+#                ts(object[[.id]],FLBRP::refpts(params[[.id]])[ref]))})
 
 #' @title mng
 #'
 #' @description calculates time series of quantities useful for management
 #' 
 #' @param object either  \emph{FLStock} \emph{biodyn} or \emph{aspic} classes
-#' @aliases  timeSeries timeSeries-method timeSeries,FLStock,FLBRP-method timeSeries,FLStocks,FLBRP-method timeSeries,FLStocks,FLBRPs-method timeSeries,aspic,missing-method timeSeries,biodyn,missing-method
+# @aliases  timeSeries timeSeries-method timeSeries,FLStock,FLBRP-method timeSeries,FLStocks,FLBRP-method timeSeries,FLStocks,FLBRPs-method timeSeries,aspic,missing-method timeSeries,biodyn,missing-method
 #' 
 #' @rdname timeSeries1
 #'

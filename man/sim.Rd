@@ -8,9 +8,9 @@
 \title{sim}
 \usage{
 \S4method{sim}{missing,missing}(params = FLPar(r = 0.5, k = 1000, p = 1, b0 =
-  1), harvest = FLQuant(FLQuant(c(seq(0, 1.5, length.out = 30), rev(seq(0.5,
-  1.5, length.out = 15))[-1], rep(0.5, 5))) * (params["r"] * (1/(1 +
-  params["p"])))), bounds = c(0.1, 10), p = NULL, b0 = NULL, ...)
+  1), harvest = FLQuant(c(seq(0, 1.5, length.out = 30), rev(seq(0.5, 1.5,
+  length.out = 15))[-1], rep(0.5, 5)) * (params["r"] * (1/(1 + params["p"])))),
+  bounds = c(0.1, 10), p = NULL, b0 = NULL, ...)
 }
 \arguments{
 \item{params}{surplus production parameters}

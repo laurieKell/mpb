@@ -16,7 +16,7 @@ productionFn=function(object,biomass="missing",
     catch.obs(  object)[,-nyr]-
     biomass.obs(object)[,-1]
   
-  ref               =FLBRP::refpts(object)[1,]
+  #ref               =FLBRP::refpts(object)[1,]
   dimnames(ref)[[1]]="biomass"
   ref               =propagate(ref,nyr-1)
   ref[]             =NA
@@ -51,23 +51,24 @@ productionFn=function(object,biomass="missing",
             as.data.frame(rec.obs(    object)[,-nyr],drop=T)[,"data"],
             as.data.frame(biomass.obs(object)[,-nyr]-
                           ssb.obs(    object)[,-nyr],drop=T)[,"data"],
-            as.data.frame(prd,drop=T)[,"data"],
-            model.frame(FLBRP::refpts(object)[,"yield"])[,"biomass"])
+            as.data.frame(prd,drop=T)[,"data"]
+            #model.frame(FLBRP::refpts(object)[,"yield"])[,"biomass"]
+            )
   
   names(res)=c("year","biomass","ssb","catch","rec","juve","obs","hat")
   
   res[,c("year","biomass","ssb","juve","rec","catch","obs","hat")]}
 
-
-setMethod('production', signature(object='FLBRP',biomass='missing'),
-          function(object,biomass) productionFn(object,biomass))
-
-setMethod('production', signature(object='FLBRP',biomass='FLStock'),
-         function(object,biomass,slots=c("landings.sel","discards.sel",
-                                         "stock.wt","landings.wt","discards.wt",
-                                         "m","mat",
-                                         "harvest.spwn","m.spwn"))
-         productionFn(object,biomass,slots))
+# 
+# setMethod('production', signature(object='FLBRP',biomass='missing'),
+#           function(object,biomass) productionFn(object,biomass))
+# 
+# setMethod('production', signature(object='FLBRP',biomass='FLStock'),
+#          function(object,biomass,slots=c("landings.sel","discards.sel",
+#                                          "stock.wt","landings.wt","discards.wt",
+#                                          "m","mat",
+#                                          "harvest.spwn","m.spwn"))
+#          productionFn(object,biomass,slots))
           
 productionFn=function(object,biomass="missing",
                       slots=c("landings.sel","discards.sel",
@@ -123,15 +124,15 @@ productionFn=function(object,biomass="missing",
   
   res[,c("year","biomass","ssb","juve","rec","catch","obs","hat")]}
 
-setMethod('production', signature(object='FLBRP',biomass='missing'),
-          function(object,biomass) productionFn(object,biomass))
-
-setMethod('production', signature(object='FLBRP',biomass='FLStock'),
-          function(object,biomass,slots=c("landings.sel","discards.sel",
-                                      "stock.wt","landings.wt","discards.wt",
-                                      "m","mat",
-                                      "harvest.spwn","m.spwn"))
-            productionFn(object,biomass,slots))
+# setMethod('production', signature(object='FLBRP',biomass='missing'),
+#           function(object,biomass) productionFn(object,biomass))
+# 
+# setMethod('production', signature(object='FLBRP',biomass='FLStock'),
+#           function(object,biomass,slots=c("landings.sel","discards.sel",
+#                                       "stock.wt","landings.wt","discards.wt",
+#                                       "m","mat",
+#                                       "harvest.spwn","m.spwn"))
+#             productionFn(object,biomass,slots))
 
 setMethod('production', signature(object='FLStock',biomass='missing'),
           function(object,biomass)  {

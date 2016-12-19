@@ -2,8 +2,6 @@
 % Please edit documentation in R/biodyn-plot.R
 \docType{methods}
 \name{plotEql,biodyn,missing-method}
-\alias{plotEql,biodyn,FLBRP-method}
-\alias{plotEql,biodyn,FLQuant-method}
 \alias{plotEql,biodyn,missing-method}
 \title{plotEql}
 \usage{

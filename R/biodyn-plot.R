@@ -189,7 +189,7 @@ plotProductionfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),leng
 #' @rdname plotProduction
 #'
 #' @aliases 
-#' plotProduction,biodyn,FLBRP-method 
+#  plotProduction,biodyn,FLBRP-method 
 #' plotProduction,biodyn,FLQuant-method 
 #' plotProduction,biodyn,missing-method
 #' plotProduction,biodyns,missing-method 
@@ -250,7 +250,7 @@ plotProdfn=function(bd,brp,II=FALSE){
 #' @export
 #' @rdname plotEql
 #'
-#' @aliases plotEql,biodyn,FLBRP-method plotEql,biodyn,FLQuant-method plotEql,biodyn,missing-method
+# @aliases plotEql,biodyn,FLBRP-method plotEql,biodyn,FLQuant-method plotEql,biodyn,missing-method
 #' 
 #' @examples
 #' \dontrun{

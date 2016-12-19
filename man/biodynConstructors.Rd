@@ -2,10 +2,6 @@
 % Please edit documentation in R/generics.R
 \name{biodyn}
 \alias{biodyn}
-\alias{biodyn,ANY,ANY-method}
-\alias{biodyn,ANY-method}
-\alias{biodyn,FLBRP,FLStock-method}
-\alias{biodyn-method}
 \title{biodyn constructor}
 \usage{
 biodyn(object, params, ...)

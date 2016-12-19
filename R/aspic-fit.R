@@ -99,8 +99,6 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE){
     object@stock=FLQuant(NA,dimnames=dmns)
   }
   
-  #oldwd =setExe(exeNm,package,dir)
-  #oldwd =setExe(exeNm,package,dir)
   oldwd=getwd()
   setwd(dir)
   #path=exe(package)
@@ -123,7 +121,6 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE){
   object@ll=FLPar(array(NA,dim=unlist(lapply(dmns,length)),dimnames=dmns))
   
   object=chkIters(object)
-  
   for (i in seq(dims(object)$iter)){
     m_ply(c("prn","rdat","bio","inp","fit","sum","rdatb","det","sum","bot"), function(x)
       if (file.exists(paste(exeNm,".",x,sep=""))) system(paste("rm ",exeNm,".",x,sep="")))
@@ -132,20 +129,19 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE){
       object@index=index
       object@index[j[i],"index"]=NA
     }
-    
+  
     # create exe input files
     .writeAspicInp(FLCore::iter(object,i),what="FIT",niter=1,
                    fl=paste(exeNm,".inp",sep=""))
-    
+     
     # run
-    exe=file.path(system.file("bin", "linux", package="mpb", mustWork=TRUE),"aspic")
-    inp=file.path(getwd(),"aspic.inp")
-    #system(paste("./", exeNm, paste(" ",exeNm,".inp",sep=""),sep=""))
-    #print(paste("aspic", paste(" ","aspic",".inp",sep=""),sep=""))
-    system(paste(exe,inp),ignore.stdout=TRUE)
+    #exe=file.path(system.file("bin", "linux", package="mpb", mustWork=TRUE),"aspic")
+    #inp=file.path(getwd(),"aspic.inp")
     #system(paste(exeNm, paste(" ",exeNm,".inp",sep=""),sep=""))
     
-    rdat=dget(paste(exeNm,"rdat",sep="."))
+    system(paste("aspic.exe aspic.inp"),ignore.stdout=TRUE)
+    
+    rdat=dget(file.path(getwd(),paste(exeNm,"rdat",sep=".")))
     
     #rdat$estimates
     object@params[c("b0","msy","k"),i]=rdat$estimates[c("B1.K","MSY","K")]
@@ -154,7 +150,7 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE){
     names(rdat$t.series)=tolower(names(rdat$t.series))
     
     FLCore::iter(object@stock,i)=as.FLQuant(transform(rdat$t.series[,c("year","b")],data=b)[c("year","data")])[,dimnames(object@stock)$year]
-    
+  
     if (.Platform$OS!="windows"){
       try(object@objFn[1,i]<-rdat$diagnostics$obj.fn.value)
       

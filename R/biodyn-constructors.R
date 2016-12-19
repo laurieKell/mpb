@@ -67,15 +67,15 @@ setMethod('biodyn', signature(object='FLQuant',params='missing'),
             
     res})
 
-setMethod('biodyn', signature(object='FLBRP',params='FLStock'),
-          function(object,params,model="pellat",min=.1,max=10,msy=NULL,r=NULL,...){
-        
-  #if (!(is(y)%in%"FLBRP")) return(NULL)
-          
-  res=FLBRP2biodyn(object)
-  res=fwd(res,catch=catch(params)[,-1])
-        
-  res})
+# setMethod('biodyn', signature(object='FLBRP',params='FLStock'),
+#           function(object,params,model="pellat",min=.1,max=10,msy=NULL,r=NULL,...){
+#         
+#   #if (!(is(y)%in%"FLBRP")) return(NULL)
+#           
+#   res=FLBRP2biodyn(object)
+#   res=fwd(res,catch=catch(params)[,-1])
+#         
+#   res})
             
 
 ##########################################

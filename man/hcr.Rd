@@ -9,8 +9,8 @@
 \S4method{hcr}{biodyn,missing}(object, params = hcrParam(ftar = 0.7 *
   refpts(object)["fmsy"], btrig = 0.8 * refpts(object)["bmsy"], fmin = 0.01 *
   refpts(object)["fmsy"], blim = 0.4 * refpts(object)["bmsy"]),
-  yr = max(as.numeric(dimnames(catch(object))$year)) - 1, byr = yr + 1,
-  hyr = yr + 2:5, tac = FALSE, tacMn = TRUE, bndF = NULL,
+  yr = max(as.numeric(dimnames(catch(object))$year)), byr = yr - 1,
+  hyr = yr + 1:3, tac = FALSE, tacMn = TRUE, bndF = NULL,
   bndTac = NULL, iaF = TRUE, iaTac = TRUE, maxF = 1, ...)
 }
 \arguments{

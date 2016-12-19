@@ -35,7 +35,7 @@ checkFile=function(x){
   comment[ 1]= "\n"                                                                                               
   comment[ 2]= "\n"                                                                                               
   comment[ 3]= "\n"                                                                                                            
-  comment[ 4]= "\t212 ## Verbosity\n"                                                                                                                  
+  comment[ 4]= "\t512 ## Verbosity\n"                                                                                                                  
   comment[ 5]= "\t## Number of bootstrap trials, <= 1000\n"                                                                                     
   comment[ 6]= "\t## 0=no MC search, 1=search, 2=repeated srch; N trials\n"                                                                  
   comment[ 7]= "\t## Convergence crit. for simplex\n"                                                                                      

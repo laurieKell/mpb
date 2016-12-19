@@ -16,7 +16,7 @@
 \alias{msy,FLPar-method}
 \alias{msy,aspic,missing-method}
 \alias{msy,aspic-method}
-\alias{msy,biodyn,ANY-method}
+\alias{msy,biodyn,missing-method}
 \alias{msy,biodyn-method}
 \alias{msy-method}
 \alias{refptSD,biodyn,missing-method}
@@ -31,7 +31,7 @@
 \usage{
 fmsy(object, ...)
 
-\S4method{msy}{biodyn,ANY}(object, params, ...)
+\S4method{msy}{biodyn,missing}(object, params = params(object), ...)
 }
 \arguments{
 \item{object}{an object of class \code{biodyn} or \code{FLPar} with Pella-Tomlinson production

@@ -1,5 +1,4 @@
 #' @useDynLib mpb
-#' @import  FLBRP
 #' @importFrom Rcpp sourceCpp
 NULL
 

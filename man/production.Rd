@@ -3,9 +3,13 @@
 \docType{methods}
 \name{production}
 \alias{production}
-\alias{production,FLBRP,missing-method}
+\alias{production,FLBRP,FLStock-method}
+\alias{production,FLStock,missing-method}
+\alias{production,biodyn,FLQuant-method}
 \alias{production,biodyn,missing-method}
+\alias{production,biodyn,numeric-method}
 \alias{production,biodyn-method}
+\alias{production-method}
 \title{production}
 \usage{
 production(object, biomass, ...)

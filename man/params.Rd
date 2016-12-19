@@ -2,9 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{index}
 \alias{index}
-\alias{setParams<-}
 \alias{setParams<-,aspic,data.frame-method}
-\alias{setParams<-,biodyn,FLBRP-method}
 \alias{setParams<-,biodyn,FLPar-method}
 \alias{setParams<-,biodyn,FLQuant-method}
 \alias{setParams<-,biodyn,FLQuants-method}

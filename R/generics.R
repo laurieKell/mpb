@@ -15,6 +15,8 @@ utils::globalVariables(c("d_ply","dlply","mdply","filter","weighted.mean",
 "str_trim","theme","theme_blank","theme_grey","theme_line","theme_rect","theme_segment","theme_text",
 "trim","type","unit","V2","viewport","window","write.table","year","yrw"))
 
+setGeneric('index',       function(object,...)    standardGeneric('index'))
+
 #' @title biodyn constructor
 #' 
 #' @name biodyn
@@ -25,7 +27,7 @@ utils::globalVariables(c("d_ply","dlply","mdply","filter","weighted.mean",
 #' 
 #' @return biodyn object
 #' 
-#' @aliases biodyn-method biodyn,ANY-method  biodyn,ANY,ANY-method biodyn,FLBRP,FLStock-method
+# @aliases biodyn-method biodyn,ANY-method  biodyn,ANY,ANY-method biodyn,FLBRP,FLStock-method
 #' 
 #' @rdname biodynConstructors
 #' @export
@@ -52,7 +54,7 @@ setGeneric('biodyn',      function(object,params,...)            standardGeneric
 #' aspic,data.frame-method 
 #' aspic,missing-method 
 #' aspic,ANY,ANY-method 
-#' aspic,FLBRP,FLStock-method
+#  aspic,FLBRP,FLStock-method
 #' 
 #' @export
 #' @rdname aspicConstructors
@@ -245,9 +247,8 @@ setGeneric('setControl<-',function(object,...,value)  standardGeneric('setContro
 #' @export
 #' 
 #' @aliases setParams<-,biodyn,data.frame-method setParams<-,biodyn,FLPar-method setParams<-,biodyn,FLQuant-method setParams<-,biodyn,FLQuants-method setParams<-,aspic,data.frame-method
-#' setParams<-,biodyn,FLPar-method  setParams<-,biodyn,FLQuant-method setParams<-,biodyn,FLQuants-method  setParams<-,biodyn,data.frame-method setParams<-  setParams<-,biodyn,FLBRP-method 
+#  setParams<-,biodyn,FLPar-method  setParams<-,biodyn,FLQuant-method setParams<-,biodyn,FLQuants-method  setParams<-,biodyn,data.frame-method setParams<-  setParams<-,biodyn,FLBRP-method 
 #' 
-setGeneric('index',       function(object,...)    standardGeneric('index'))
 setGeneric("setIndex<-",  function(object,value)  standardGeneric('setIndex<-'))
 
 #' @title fit
@@ -351,6 +352,8 @@ setGeneric('mng',        function(object,params,...) standardGeneric('mng'))
 setGeneric('kobe',       function(object,method,...) standardGeneric('kobe'))
 
 setGeneric('fitmb',      function(object,index,...)  standardGeneric('fitmb'))
+
+setGeneric('msy',        function(object,params,...)  standardGeneric('msy'))
 
 # #' Sum of vector elements.
 # #' 
