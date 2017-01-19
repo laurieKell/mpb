@@ -59,7 +59,4 @@ Calculates msy based reference points
  msy(bd)
  }
 }
-\seealso{
-\code{\link{refpts}}
-}
 

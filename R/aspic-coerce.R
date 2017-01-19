@@ -112,7 +112,7 @@ setMethod("as.biodyn", signature(object="aspic"),
             par=FLPar("r"=.6,"k"=c(object@params["k"]),"b0"=c(object@params["b0"]),"p"=1)
             par["r"]=c(object@params["msy"]/(par["k"]*(1/(1+par["p"]))^(1/par["p"]+1)))
             
-            nms=c(mpb:::modelParams("pellat"),'b0')
+            nms=c(modelParams("pellat"),'b0')
             par=par[nms]
             units(par)="NA"
             

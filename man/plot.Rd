@@ -4,47 +4,54 @@
 \name{plot,biodyn,missing-method}
 \alias{plot,biodyn,missing-method}
 \alias{plot,biodyns,missing-method}
+\alias{plotCcf,FLQuants-method}
+\alias{plotCcf,biodyns,missing-method}
 \title{plot}
 \usage{
 \S4method{plot}{biodyn,missing}(x, y, probs = c(0.95, 0.75, 0.5, 0.25, 0.05),
   na.rm = FALSE, type = 7, worm = NULL, fn = list(Stock = function(x)
   stock(x), Harvest = function(x) harvest(x), Yield = function(x) catch(x)),
   facet = facet_wrap(~qname, scales = "free", ncol = 1), ...)
+
+\S4method{plotCcf}{FLQuants}(data, ...)
 }
 \arguments{
 \item{x}{an object of class \code{biodyn}}
 
 \item{y}{second argument}
 
-\item{probs}{numeric vector of probabilities with values in [0,1]. (Values up to 2e-14 outside that range are accepted and moved to the nearby endpoint.)}
+\item{probs}{numeric vector of probabilities with values in [0,1].}
 
-\item{na.rm}{FALSE}
+\item{na.rm}{a logical value indicating whether NA values should be stripped before computation.}
 
-\item{type}{an integer between 1 and 9 selecting one of the nine quantile algorithms detailed below to be used.}
+\item{type}{an integer between 1 and 9 selecting one of the quantile algorithms to be used.}
 
-\item{worm}{iters}
+\item{worm}{iter(s) to plot as lines}
 
 \item{fn}{functions}
 
-\item{facet}{facet for panels}
+\item{facet}{facet for panelling}
+
+\item{x}{an object of class \code{biodyn}}
 }
 \value{
 an \code{ggplot2} object
+
+an \code{ggplot2} object
 }
 \description{
-Creates a \code{ggplot2} object that plots time series of biomass, harvest rate and catch. The basic object can then be modified by adding ggplot2 layers.
+Plots time series of biomass, harvest rate and catch for a \code{biodyn} object, using \code{ggplot2}.
+
+
 }
 \examples{
 \dontrun{
 
-x =sim()
-x =window(x,end=49)
-bd1=fwd(x,harvest=rlnorm(200,log(harvest(x)[,-1]),.2))
-bd2=fwd(x,harvest=rlnorm(200,log(harvest(x)[,-1])*1.5,.2))
-plot(biodyns("1"=bd1,"2"=bd2))
+bd =sim()
+plot(bd)
 } 
-}
-\seealso{
-\code{\link{plotProduction}}, \code{\link{plotEql}}
+\dontrun{
+
+} 
 }
 

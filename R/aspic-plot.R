@@ -4,7 +4,7 @@ utils::globalVariables(c("scale_alpha_manual"))
 utils::globalVariables('data')
 
 
-setMethod('plot', signature(x='aspics', y='missing'),
+setMethod('plot', signature(x='aspics',y='missing'),
           function(x, y, probs=c(0.95,0.75,0.50,0.25,0.05),type=7,na.rm=FALSE,
                    facet=facet_wrap(~qname,scales='free',ncol=1),
                    fn=list('Stock'  =function(x) stock(x), 

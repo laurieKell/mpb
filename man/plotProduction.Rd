@@ -29,7 +29,4 @@ The basic object can then be modified by adding ggpot2 layers.
  refpts('logistic',FLPar(msy=100,k=500))
 }
 }
-\seealso{
-\code{\link{plotMSE}}, \code{\link{plotEql}}
-}
 

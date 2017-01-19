@@ -65,7 +65,7 @@ setMethod( 'sim',   signature(stock='missing',brp='missing'),
   for(i in names(args))
     slot(object, i) <- args[[i]]
   
-  object <- fwd(object, harvest=harvest)
+  object <- mpb::fwd(object, harvest=harvest)
   
   return(object)}) 
 
@@ -287,6 +287,26 @@ oemFn<-function(flt,om,paa=paa,dev=uCV){
     dev=rlnorm(dims(res)$iter,FLQuant(0,dimnames=dimnames(iter(res,1))),dev[flt])}
   
   res*dev[,dimnames(res)$year]}
+
+
+oem2=function(om,cv,trendQ=FLQuant(1,dimnames=dimnames(stock(om))),
+              omega =1,refB=1,
+              fishDepend=FALSE){
+  
+  nits=max(dims(stock(om))$iter,dims(catch(om))$iter)
+  rnd=rlnorm(nits,FLQuant(0,dimnames=list(year=dims(om)$minyear:dims(om)$maxyear)),cv)
+  
+  if (fishDepend)
+    cpue=catch(om)/fbar(om)
+  else
+    cpue=computeStock(om)
+  
+  cpue=trendQ[,dimnames(cpue)$year]*cpue
+  cpue=cpue*(stock(om)%/%refB)^(omega)
+  cpue=rnd*cpue
+  
+  cpue}
+
 
 # cpue
 # /AvCatch(iAge,iYear,pTune->GetStartFishing(iFleet), pTune->GetEndFishing(iFleet));

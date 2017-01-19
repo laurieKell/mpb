@@ -15,8 +15,6 @@
 #'  
 #' @return \code{FLPar} object with value(s) for F or TAC if tac==TRUE
 #' 
-#' @seealso \code{\link{bmsy}}, \code{\link{fmsy}}, \code{\link{fwd}} and \code{\link{hcrParam}}
-#' 
 #' @export
 #' @rdname hcrFlstock
 #'

@@ -34,7 +34,7 @@ xvalFnAspic=function(object,minyear=range(object)["maxyear"]-4,maxyear=range(obj
 #' @aliases xval-method xval,biodyn-method
 #'
 #' @export
-#' @rdname xval
+#' @rdname aspic-xval
 #'
 #' @details Returns a data.frame with index, year, obs and hat
 #' @examples

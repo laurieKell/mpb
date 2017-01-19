@@ -25,7 +25,4 @@ Creates a \code{ggplot2} object that plots absolute and relative to MSY benchmar
 ssb, biomass, harvest rate and catch for  \code{FLStock} and  \code{biodyn}  objects
 The basic object can then be modified by adding ggpot2 layers.
 }
-\seealso{
-\code{\link{plotProduction}}
-}
 

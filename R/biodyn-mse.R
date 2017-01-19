@@ -8,7 +8,7 @@ utils::globalVariables('ftar')
 utils::globalVariables('btrig')
 utils::globalVariables('fmin')
 utils::globalVariables('blim')
-
+utils::globalVariables('FLStock2biodyn')
 
 #' @title mseBiodyn
 #' 
@@ -40,35 +40,35 @@ utils::globalVariables('blim')
 #' @examples
 #' \dontrun{
 #' library(mpb)
-# library(FLash)
-# library(FLBRP)
+#' library(FLash)
+#' library(FLBRP)
 #' 
 #' load(om)
 #' load(eql)
 #' 
-#' om=mpb:::fwdWindow(om,eql,end=2030)
+#' om=mpb::fwdWindow(om,eql,end=2030)
 #' om=propagate(om,100)
 #' 
 #' srDev=FLQuant(0,dimnames=list(year=2000:2030))
 #' srDev=rlnorm(100,srDev,0.3)
 #' 
-#' om=mpb:::fwd(om,catch=catch(om)[,ac(2000:2011)],sr=eql,sr.residuals=srDev)
+#' om=mpb::fwd(om,catch=catch(om)[,ac(2000:2011)],sr=eql,sr.residuals=srDev)
 #' 
 #' library(popbio)
 #' 
-#' mp=mpb:::FLBRP2biodyn(  eql,"biodyn")
-#' mp=mpb:::FLStock2biodyn(om, "biodyn")
+#' mp=mpb::FLBRP2biodyn(  eql,"biodyn")
+#' mp=mpb::FLStock2biodyn(om, "biodyn")
 #' }
 mseBiodyn<-function(om,eql,
                     srDev,uDev,
                     mp,
                     start=range(om)["maxyear"],end=start+30,interval=3,
                     oem   =oem,
-                    hcrPar=function(mp,ftar=0.70,btrig=0.60,fmin=0-01,blim=0.001)
+                    hcrPar=function(mp,ftar=0.70,btrig=0.60,fmin=0-01,blim=0.001){
                                 hcrParam(ftar =ftar *fmsy(mp),
                                          btrig=btrig*bmsy(mp),
                                          fmin =fmin *fmsy(mp), 
-                                         blim =blim *bmsy(mp)),
+                                         blim =blim *bmsy(mp))},
                     bndF=NULL,bndTac=NULL,maxF=1.0,     
                     omega =1,refB  =1,
                     qTrend=0){
@@ -119,7 +119,7 @@ mseBiodyn<-function(om,eql,
     
     ## fit
     bd =fit(bd,cpue,cmdOps=cmdOps)
-    bd =mpb:::fwd(bd,catch=catch(om)[,ac(iYr)])
+    bd =mpb::fwd(bd,catch=catch(om)[,ac(iYr)])
         
     ## HCR
     hcrPar=hcrParam(ftar =ftar *fmsy(bd),
@@ -137,7 +137,7 @@ mseBiodyn<-function(om,eql,
     TAC[]=rep(apply(TAC,6,mean)[drop=T],each=interval)
     
     #### Operating Model Projectionfor TAC
-    om =mpb:::fwd(om,catch=TAC,maxF=maxF,sr=eql,sr.residuals=srDev)  
+    om =mpb::fwd(om,catch=TAC,maxF=maxF,sr=eql,sr.residuals=srDev)  
 
     #### Summary Statistics
     ## HCR actions, i.e. is biomass<Btrig?, what is F?, ..
@@ -177,13 +177,13 @@ hcrFn=function(om,btrig,blim,ftar,fmin,start,end,interval,lag=seq(interval)){
     
     trgt=FLQuant(rep(c(trgt),each=length(lag)),dimnames=dmns)
     
-    om=mpb:::fwd(om,f=trgt,sr=eql,sr.residuals=srDev)
+    om=mpb::fwd(om,f=trgt,sr=eql,sr.residuals=srDev)
   }
   
   return(om)}
 
   
-
+#with FLStock OM
 demoBiodyn<-function(om,mp,
                      eDev  =0.3,
                      uDev  =0.2,
@@ -236,7 +236,7 @@ demoBiodyn<-function(om,mp,
     
     ## fit
     bd =fit(bd,cpue,cmdOps=cmdOps)
-    bd =mpb:::fwd(bd,catch=catch(om)[,ac(iYr)])
+    bd =mpb::fwd(bd,catch=catch(om)[,ac(iYr)])
     
     ## HCR
     hcrPar=hcrParam(ftar =ftar *fmsy(bd),
@@ -253,7 +253,7 @@ demoBiodyn<-function(om,mp,
     TAC[]=rep(apply(TAC,6,mean)[drop=T],each=interval)
     
     #### Operating Model Projectionfor TAC
-    om =mpb:::fwd(om,catch=TAC,maxF=maxF,sr=eql,sr.residuals=srDev)  
+    om =mpb::fwd(om,catch=TAC,maxF=maxF,sr=eql,sr.residuals=srDev)  
     
     #### Summary Statistics
     ## HCR actions, i.e. is biomass<Btrig?, what is F?, ..
@@ -274,6 +274,8 @@ demoBiodyn<-function(om,mp,
   return(list(om=om,mou=mou,bd=bd,mp=mp,oem=mcf(FLQuants(cpue=cpue,catch=catch(om)))))}
 
 
+
+#with biodyn OM
 demo<-function(om,mp,pe,
                uDev  =0.3,
                oem   =function(x,uDev){
@@ -329,19 +331,16 @@ demo<-function(om,mp,pe,
     #### Management Procedure
     
     ## fit
-    mp.<<-window(mp,end=iYr-1)
-    cpue<<-cpue
-    
     mp =fit(window(mp,end=iYr-1),cpue,
             cmdOps=ifelse(nits>1,cmdOps,'-maxfn 500 -iprint 0'))
-    mp =mpb:::fwd(mp,catch=catch(om)[,ac(iYr)],maxF=maxF)
+    mp =mpb::fwd(mp,catch=catch(om)[,ac(iYr)],maxF=maxF)
 
     ## HCR
-    hcrPar=mpb:::hcrParam(ftar =ftar *fmsy(mp),
+    hcrPar=mpb::hcrParam(ftar =ftar *fmsy(mp),
                     btrig=btrig*bmsy(mp),
                     fmin =fmin *fmsy(mp), 
                     blim =blim *bmsy(mp))
-    TAC  =mpb:::hcr(mp,params=hcrPar,
+    TAC  =mpb::hcr(mp,params=hcrPar,
                        hyr =iYr+seq(interval),
                        bndF=bndF,
                        tac =TRUE,
@@ -353,7 +352,7 @@ demo<-function(om,mp,pe,
     TAC=qmin(TAC,bmsy(mp)*fmsy(mp))
     
     #### Operating Model Projectionfor TAC
-    om =mpb:::fwd(om,catch=TAC,pe=pe,maxF=maxF)
+    om =mpb::fwd(om,catch=TAC,pe=pe,maxF=maxF)
     
     #print((1:100)[is.na(stock(om)[,ac(iYr)])])
     }
@@ -361,5 +360,5 @@ demo<-function(om,mp,pe,
   if (!silent)
     print("bug biodyns needs a list")  
   
-  mpb:::biodyns(list("om"=window(om,end=end-interval),"mp"=window(mp,end=end-interval)))}
+  biodyns(list("om"=window(om,end=end-interval),"mp"=window(mp,end=end-interval)))}
 

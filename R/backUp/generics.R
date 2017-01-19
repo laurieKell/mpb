@@ -15,8 +15,6 @@ utils::globalVariables(c("d_ply","dlply","mdply","filter","weighted.mean",
 "str_trim","theme","theme_blank","theme_grey","theme_line","theme_rect","theme_segment","theme_text",
 "trim","type","unit","V2","viewport","window","write.table","year","yrw"))
 
-setGeneric('index',       function(object,...)    standardGeneric('index'))
-
 #' @title biodyn constructor
 #' 
 #' @name biodyn
@@ -27,12 +25,13 @@ setGeneric('index',       function(object,...)    standardGeneric('index'))
 #' 
 #' @return biodyn object
 #' 
-# @aliases biodyn-method biodyn,ANY-method  biodyn,ANY,ANY-method biodyn,FLBRP,FLStock-method
+#' @aliases biodyn-method biodyn,ANY-method  biodyn,ANY,ANY-method biodyn,FLBRP,FLStock-method
 #' 
 #' @rdname biodynConstructors
 #' @export
 #' 
-#' @import ggplotFL
+#' @import ggplot2
+#' @import plyr
 #' 
 #' @examples 
 #' \dontrun{
@@ -56,7 +55,7 @@ setGeneric('biodyn',      function(object,params,...)            standardGeneric
 #' aspic,data.frame-method 
 #' aspic,missing-method 
 #' aspic,ANY,ANY-method 
-#  aspic,FLBRP,FLStock-method
+#' aspic,FLBRP,FLStock-method
 #' 
 #' @export
 #' @rdname aspicConstructors
@@ -67,6 +66,26 @@ setGeneric('biodyn',      function(object,params,...)            standardGeneric
 #' }
 setGeneric('aspic',       function(object,value,...)   standardGeneric('aspic'))
 
+#' @title biodyns
+#' @description Create a list of biodyn objects
+#' @name biodyns
+#' @param object can be \code{biodyn} object or a \code{biodyn} of \code{biodyn} objects
+#' @param ... additional \code{biodyn} objects
+#' 
+#' @return \code{biodyns} object
+#' @export
+#' @rdname biodynsConstructors1
+#' 
+#' @aliases 
+#' biodyns-method 
+#' biodyns,biodyn-method 
+#' biodyns,missing-method 
+#' biodyns,list-method
+#' 
+#' @examples 
+#' \dontrun{
+#' biodys(biodyns())
+#' }
 setGeneric('biodyns', function(object, ...) standardGeneric('biodyns'))
 
 #' @title aspics
@@ -181,9 +200,14 @@ setGeneric('refptSD',  function(object,params,...) standardGeneric('refptSD'))
 #' @param object \code{biodyn}
 #' @param value  CPUE as \code{FLQuant} or \code{FLQuants} 
 #'
+#' 
 #' @export
 #' @rdname setParams
 #'
+#' @aliases 
+#' setControl<-,biodyn,FLQuant-method  
+#' setControl<-,biodyn,FLQuants-method
+#' 
 #' @examples
 #' \dontrun{
 #' setParams(bd)=cpue
@@ -205,6 +229,9 @@ setGeneric('setParams<-', function(object,value)  standardGeneric('setParams<-')
 #' 
 #' @aliases control-method control,biodyn,missing-method 
 #' 
+setGeneric('control',     function(object,...)        standardGeneric('control'))
+setGeneric('control<-',   function(object,value)      standardGeneric('control<-'))
+setGeneric('setControl<-',function(object,...,value)  standardGeneric('setControl<-'))
 
 #' @title params
 #'
@@ -219,9 +246,27 @@ setGeneric('setParams<-', function(object,value)  standardGeneric('setParams<-')
 #' @export
 #' 
 #' @aliases setParams<-,biodyn,data.frame-method setParams<-,biodyn,FLPar-method setParams<-,biodyn,FLQuant-method setParams<-,biodyn,FLQuants-method setParams<-,aspic,data.frame-method
-#  setParams<-,biodyn,FLPar-method  setParams<-,biodyn,FLQuant-method setParams<-,biodyn,FLQuants-method  setParams<-,biodyn,data.frame-method setParams<-  setParams<-,biodyn,FLBRP-method 
+#' setParams<-,biodyn,FLPar-method  setParams<-,biodyn,FLQuant-method setParams<-,biodyn,FLQuants-method  setParams<-,biodyn,data.frame-method setParams<-  setParams<-,biodyn,FLBRP-method 
+#' 
+setGeneric('index',       function(object,...)    standardGeneric('index'))
+setGeneric("setIndex<-",  function(object,value)  standardGeneric('setIndex<-'))
 
-setGeneric('diags',    function(object)               standardGeneric('diags'))
+#' @title fit
+#'
+#' @description 
+#' A generic method for fitting catch and index of relative abundance for both \emph{biodyn} and \emph{aspic}.
+#' 
+#' @param object either \emph{biodyn} or \emph{aspic} class
+#' @param index with relative abundance, \emph{FLQuant} or \emph{FLQuants}, if \strong{object} is of type \emph{bodyn}
+#' @param ... any other parameter
+#' 
+#' @rdname fit
+#' @export
+#' 
+#' @aliases fit,aspic-method fit,aspics-method fit,biodyn,FLQuant-method fit,biodyn,FLQuants-method  
+#' @seealso  \code{\link{aspic}}, \code{\link{biodyn}}, \code{\link{jk}}, \code{\link{boot}}
+setGeneric('fit',       function(object,index,...)  standardGeneric('fit'), package='mpb')
+
 setGeneric('diags<-',  function(object,value)         standardGeneric('diags<-'))
 
 setGeneric("profile", useAsDefault = profile)
@@ -232,7 +277,32 @@ setGeneric('hcr',      function(object,refs,...)      standardGeneric('hcr'))
 setGeneric('tac',      function(object, harvest, ...) standardGeneric('tac'))
 setGeneric('hcr<-',    function(object,value)         standardGeneric('hcr<-'))
 
+#' @title production
+#'
+#' @description 
+#' Estimates production for a given biomass
+#' 
+#' @param object either \emph{biodyn} or \emph{FLBRP} class
+#' @param biomass an \emphFLQuant} 
+#' @param ... any other parameter
+#' 
+#' @rdname production
+#' @export
+#' 
+#' @aliases production,biodyn-method 
+#'  
+setGeneric('production',function(object,biomass,...) standardGeneric('production'))
+
 setGeneric('pellat',    function(object,...)         standardGeneric('pellat'))
+
+setGeneric('plot',           function(x,y)               standardGeneric('plot'))
+setGeneric('plotIndex',      function(data,...)          standardGeneric('plotIndex'))
+setGeneric('plotDiags',      function(data,...)          standardGeneric('plotDiags'))
+setGeneric('plotProduction', function(data,biomass,...)  standardGeneric('plotProduction'))
+setGeneric('plotEql',        function(data,biomass,...)  standardGeneric('plotEql'))
+setGeneric('plotMSE',        function(x,y,z,...)         standardGeneric('plotMSE'))
+setGeneric('plotHcr',        function(object,...)        standardGeneric('plotHcr'))
+setGeneric('plotCc',         function(data,...)          standardGeneric('plotCc'))
 
 setGeneric("rate",         function(object,...)   standardGeneric('rate'))
 setGeneric('hrate',        function(object)       standardGeneric('hrate'))
@@ -281,8 +351,6 @@ setGeneric('mng',        function(object,params,...) standardGeneric('mng'))
 setGeneric('kobe',       function(object,method,...) standardGeneric('kobe'))
 
 setGeneric('fitmb',      function(object,index,...)  standardGeneric('fitmb'))
-
-setGeneric('msy',        function(object,params,...)  standardGeneric('msy'))
 
 # #' Sum of vector elements.
 # #' 

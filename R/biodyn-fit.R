@@ -14,6 +14,21 @@ utils::globalVariables('read.table')
 utils::globalVariables('MakeADFun')
 utils::globalVariables('optimx')
 
+#' @title fit
+#'
+#' @description 
+#' A generic method for fitting catch and index of relative abundance for both \emph{biodyn} and \emph{aspic}.
+#' 
+#' @param object either \emph{biodyn} or \emph{aspic} class
+#' @param index with relative abundance, \emph{FLQuant} or \emph{FLQuants}, if \strong{object} is of type \emph{bodyn}
+#' @param ... any other parameter
+#' 
+#' @rdname fit
+#' @export
+#' 
+#' @aliases fit,aspic-method fit,aspics-method fit,biodyn,FLQuant-method fit,biodyn,FLQuants-method  
+#' @seealso  \code{\link{aspic}}, \code{\link{biodyn}}, \code{\link{jk}}, \code{\link{boot}}
+setGeneric('fit',       function(object,index,...)  standardGeneric('fit'), package='mpb')
 setMethod('fit',signature(object='biodyn',index='FLQuant'),
           function(object,index=index,exeNm='pella',package='mpb', 
                    dir=tempdir(),
@@ -342,7 +357,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
   oldwd =setExe(exeNm,package,dir)
   oldwd=getwd()
   setwd(dir)
-  #exe()
+  exe()
   
   object=list(object,index)
   bd =object[[1]]
@@ -460,7 +475,8 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
      if (!(any(is(err)=="try-error"))) {
        #print(dim(bd@objFn@.Data))
        #print(dim(object[[1]]@objFn))
-       print("warning bug when objFn has iters")}
+       #print("warning bug when objFn has iters")
+       }
      options(warn=wrn)
      
      bd@ll@.Data[,,i] = object[[1]]@ll

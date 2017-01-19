@@ -14,41 +14,45 @@ utils::globalVariables(c('qname','What'))
 
 globalVariables(c("ymax","ymin","CI","50%","ymax","ymin","CI"))
 
-utils::globalVariables(c("x"))
+utils::globalVariables(c("gam","geom_smooth","theme_bw"))
+utils::globalVariables('hat')
 
 utils::globalVariables(c("x"))
 utils::globalVariables('data')
-utils::globalVariables('data')
-utils::globalVariables('data')
+utils::globalVariables(c("geom_linerange","facet_grid","geom_vline"))
+utils::globalVariables('ccf')
+utils::globalVariables('lag')
 
 
-whooow<-function(x,fn,probs)
-  as.data.frame(FLQuants(lapply(fn,
-                                function(fn,x)
-                                  quantile(fn(x), probs=probs, type=type, na.rm=T), x=x))) 
+setGeneric('plotIndex',      function(data,...)          standardGeneric('plotIndex'))
+setGeneric('plotDiags',      function(data,...)          standardGeneric('plotDiags'))
+setGeneric('plotCcf',        function(data,...)          standardGeneric('plotCcf'))
+setGeneric('plotEql',        function(data,biomass,...)  standardGeneric('plotEql'))
+setGeneric('plotProduction', function(data,biomass,...)  standardGeneric('plotProduction'))
+setGeneric('plotMSE',        function(x,y,z,...)         standardGeneric('plotMSE'))
+setGeneric('plotHcr',        function(object,...)        standardGeneric('plotHcr'))
+setGeneric('plotJack',       function(object,...)        standardGeneric('plotJack'))
 
 #' @title plot
 #' 
 #' @description 
-#' Creates a \code{ggplot2} object that plots time series of biomass, harvest rate and catch. The basic object can then be modified by adding ggplot2 layers.
+#' Plots time series of biomass, harvest rate and catch for a \code{biodyn} object, using \code{ggplot2}.
 #'
 #' @aliases plot,biodyns,missing-method
 #' @param x an object of class \code{biodyn} 
-#' @param worm iters
 #' @param y second argument
-#' @param probs numeric vector of probabilities with values in [0,1]. (Values up to 2e-14 outside that range are accepted and moved to the nearby endpoint.)  
-#' @param na.rm FALSE 
-#' @param type an integer between 1 and 9 selecting one of the nine quantile algorithms detailed below to be used.
+#' @param worm iter(s) to plot as lines 
+#' @param probs numeric vector of probabilities with values in [0,1].  
+#' @param na.rm	a logical value indicating whether NA values should be stripped before computation.
+#' @param type an integer between 1 and 9 selecting one of the quantile algorithms to be used.
 #' @param fn  functions
-#' @param facet facet for panels
+#' @param facet facet for panelling
 #'
 #' @importFrom reshape cast
 #' 
 #' @return an \code{ggplot2} object
 #' 
-#' @seealso \code{\link{plotProduction}}, \code{\link{plotEql}}
-#' 
-#' @aliases plot,biodyn,missing-method plot,biodyns,missing-method
+#' @aliases plot,biodyn,missing-method plot,biodyns,missing-method plot,aspics,missing
 #' 
 #' @export
 #' @rdname plot
@@ -56,11 +60,8 @@ whooow<-function(x,fn,probs)
 #' @examples
 #' \dontrun{
 #' 
-#' x =sim()
-#' x =window(x,end=49)
-#' bd1=fwd(x,harvest=rlnorm(200,log(harvest(x)[,-1]),.2))
-#' bd2=fwd(x,harvest=rlnorm(200,log(harvest(x)[,-1])*1.5,.2))
-#' plot(biodyns("1"=bd1,"2"=bd2))
+#' bd =sim()
+#' plot(bd)
 #' } 
 setMethod('plot', signature(x='biodyn', y='missing'),
   function(x, y, probs=c(0.95,0.75,0.50,0.25,0.05), na.rm=FALSE, type = 7, 
@@ -153,24 +154,6 @@ setMethod('plot', signature(x='biodyns', y='missing'),
 # @param  \code{lty}, line type for percentiles
 # @param \code{facet}, a layer that determines the facetting of the plot
 
-setGeneric('plotProduction', function(data,biomass,...)  standardGeneric('plotProduction'))
-
-plotProductionfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=101)),...) {
-  warn=options()$warn
-  options(warn=-1)
-  
-  if ((dims(data)$iter>1 | dims(params(data))$iter>1) & dims(biomass)$iter==1) 
-    biomass=propagate(biomass,max(dims(data)$iter,dims(params(data))$iter))
-  
-  p <-  ggplot(model.frame(FLQuants(stock=biomass, yield=FLQuant(production(data,biomass))))) +
-    geom_line(aes(stock, yield, group=iter, col=iter)) +
-    geom_point(aes(bmsy,msy,col=iter),size=2,data=cast(as.data.frame(refpts(data)),iter~refpts,value='data')) +
-    xlab('Stock') + ylab('Surplus Production')
-  
-  options(warn=warn)
-  
-  p} 
-
 #' @title plotProduction
 #' 
 #' @description 
@@ -182,8 +165,6 @@ plotProductionfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),leng
 #' @param ... other arguments
 #'
 #' @return an \code{ggplot2} object
-#' 
-#' @seealso \code{\link{plotMSE}}, \code{\link{plotEql}}
 #' 
 #' @export
 #' @rdname plotProduction
@@ -220,6 +201,36 @@ setMethod('plotProduction',signature(data='biodyns',biomass='missing'),
         geom_point(aes(bmsy,  msy,   col=.id),size=2,data=msy) +
         xlab('Stock') + ylab('Surplus Production')})
 
+plotProductionfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=101)),...) {
+  warn=options()$warn
+  options(warn=-1)
+  
+  if ((dims(data)$iter>1 | dims(params(data))$iter>1) & dims(biomass)$iter==1) 
+    biomass=propagate(biomass,max(dims(data)$iter,dims(params(data))$iter))
+  
+  p <-  ggplot(model.frame(FLQuants(stock=biomass, yield=FLQuant(production(data,biomass))))) +
+    geom_line(aes(stock, yield, group=iter, col=iter)) +
+    geom_point(aes(bmsy,msy,col=iter),size=2,data=cast(as.data.frame(refpts(data)),iter~refpts,value='data')) +
+    xlab('Stock') + ylab('Surplus Production')
+  
+  options(warn=warn)
+  
+  p} 
+
+plotProdfn=function(bd,brp,II=FALSE){
+  res=cbind(What='Age I',  model.frame(FLQuants('catch'=catch(brp),'stock'=stock(brp)),drop=T))
+  
+  if (II){
+    landings.wt(brp)=stock.wt(brp)*mat(brp)
+    res=rbind(res, cbind(What='Age II',   model.frame(FLQuants('catch'=catch(brp),'stock'=stock(brp)),drop=T)))}
+  
+  if (!is.null(bd)){
+    bm =FLQuant(seq(0, max(params(bd)['k']), length.out = 101))
+    res=rbind(res,cbind(What='Biomass', 
+                        model.frame(mcf(FLQuants(catch=production(bd,bm),stock=bm)),drop=T)))}
+  
+  ggplot(res)}
+
 plotProdfn=function(bd,brp,II=FALSE){
   res=cbind(What='Age I',  model.frame(FLQuants('catch'=catch(brp),'stock'=stock(brp)),drop=T))
   
@@ -244,8 +255,6 @@ plotProdfn=function(bd,brp,II=FALSE){
 #' @param ... other arguments
 #'
 #' @return an \code{ggplot2} object
-#' 
-#' @seealso \code{\link{plotProduction}}\code{\link{plotMSE}}
 #' 
 #' @export
 #' @rdname plotEql
@@ -284,20 +293,6 @@ plotEqlfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=
   
   p} 
 
-plotProdfn=function(bd,brp,II=FALSE){
-  res=cbind(What='Age I',  model.frame(FLQuants('catch'=catch(brp),'stock'=stock(brp)),drop=T))
-  
-  if (II){
-    landings.wt(brp)=stock.wt(brp)*mat(brp)
-    res=rbind(res, cbind(What='Age II',   model.frame(FLQuants('catch'=catch(brp),'stock'=stock(brp)),drop=T)))}
-  
-  if (!is.null(bd)){
-    bm =FLQuant(seq(0, max(params(bd)['k']), length.out = 101))
-    res=rbind(res,cbind(What='Biomass', 
-                        model.frame(mcf(FLQuants(catch=production(bd,bm),stock=bm)),drop=T)))}
-  
-  ggplot(res)}
-
 
 #' @title plotMSE
 #'
@@ -312,8 +307,6 @@ plotProdfn=function(bd,brp,II=FALSE){
 #' @param ... other arguments
 #'
 #' @return an \code{ggplot2} object
-#' 
-#' @seealso \code{\link{plotProduction}}
 #' 
 #' @export
 #' @rdname plotMSE
@@ -428,8 +421,6 @@ plotJack=function(x,y,ncol=1){
 #' 
 #' @return a \code{FLPar} object with value(s) for HCR
 #' 
-#' @seealso \code{\link{hcr}},  \code{\link{msy}},  \code{\link{bmsy}}, \code{\link{fmsy}} 
-#' 
 #' @rdname plotHcr
 #' @aliases plotHcr-method  plotHcr,biodyn-method
 #'
@@ -474,11 +465,24 @@ setMethod('plotHcr', signature(object='biodyn'),
 #     facet_wrap(~qname)
 #   }
 
-utils::globalVariables(c("geom_linerange","facet_grid","geom_vline"))
-utils::globalVariables('ccf')
-utils::globalVariables('lag')
-
-setMethod('plotCc', signature(data='FLQuants'),
+#' @title plotCcf
+#' 
+#' @description 
+#'
+#' @aliases plotCcf,biodyns,missing-method
+#' 
+#' @param x an object of class \code{biodyn} 
+#' 
+#' @return an \code{ggplot2} object
+#' 
+#' @export
+#' @rdname plot
+#' 
+#' @examples
+#' \dontrun{
+#' 
+#' } 
+setMethod('plotCcf', signature(data='FLQuants'),
           function(data,...) plotCcFn(data,...))
 
 plotCcFn<-function(data,...){            
@@ -578,12 +582,26 @@ plotComps = function(x, fn=NULL, probs=c(0.75,0.50,0.25), size=c(0.5,1.0,0.5),
   p1} 
 # }}}
 
-utils::globalVariables(c("gam","geom_smooth","theme_bw"))
-utils::globalVariables('hat')
-
+#' @title plotIndex
+#' 
+#' @description 
+#'
+#' @aliases plotIndex,biodyns,missing-method
+#' 
+#' @param x an object of class \code{biodyn} 
+#' 
+#' @return an \code{ggplot2} object
+#' 
+#' @export
+#' @rdname plotIndex
+#' 
+#' @examples
+#' \dontrun{
+#' 
+#' } 
 setMethod('plotIndex', signature(data='FLQuants'),
           function(data,
-                   facet=facet_wrap(~qname,ncol=1,scale="free_y"),...){
+                   facet=facet_wrap(~qname,ncol=1,scales="free_y"),...){
             
             require(gam)
             
@@ -601,14 +619,14 @@ setMethod('plotIndex', signature(data='FLQuants'),
           })
 
 setMethod('plotIndex', signature(data='aspic'),
-          function(data,facet=facet_wrap(~qname,ncol=1,scale="free_y"),...){
+          function(data,facet=facet_wrap(~qname,ncol=1,scales="free_y"),...){
             
             u=FLQuants(dlply(data,.(name), with,
                              as.FLQuant(data.frame(year=year,data=index))))
             plotIndex(u,facet,...)})
 
 setMethod('plotIndex', signature(data='aspics'),
-          function(data,facet=facet_wrap(~qname,ncol=1,scale="free_y"),...){
+          function(data,facet=facet_wrap(~qname,ncol=1,scales="free_y"),...){
             
             u=ldply(data,index)
             u=u[!duplicated(u[,c("name","year")]),]

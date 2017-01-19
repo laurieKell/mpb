@@ -13,8 +13,6 @@ utils::globalVariables('ages')
 #' 
 #' @return FLQuant object with TAC value(s)
 #' 
-#' @seealso \code{\link{hcr}},  \code{\link{fwd}}
-#' 
 #' @export
 #' @rdname tac
 #' @aliases tac tac-method tac,biodyn-method
@@ -53,8 +51,6 @@ setMethod( 'tac', signature(object='biodyn'),
 #' @param btrig an object of class \code{FLPar}
 #' @param fmin an object of class \code{FLPar}
 #' @param blim an object of class \code{FLPar}
-#' 
-#' @seealso \code{\link{hcr}}
 #' 
 #' @export
 #' @rdname hcrParam
@@ -106,8 +102,6 @@ hcrParam=function(ftar,btrig,fmin,blim){
 #' @aliases hcr,biodyn-method
 #' 
 #' @return \code{FLPar} object with value(s) for F or TAC if tac==TRUE
-#' 
-#' @seealso \code{\link{bmsy}}, \code{\link{fmsy}}, \code{\link{fwd}} and \code{\link{hcrParam}}
 #' 
 #' @export
 #' @rdname hcr

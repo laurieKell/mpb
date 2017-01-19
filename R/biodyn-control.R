@@ -3,6 +3,23 @@ globalVariables("lambda")
 utils::globalVariables(c("eql"))
 utils::globalVariables('optimise')
 
+setGeneric('control',     function(object,...)        standardGeneric('control'))
+setGeneric('control<-',   function(object,value)      standardGeneric('control<-'))
+setGeneric('setControl<-',function(object,...,value)  standardGeneric('setControl<-'))
+
+#' @title control
+#' 
+#' @description sets initial guess and lower and upper bounds
+#'
+#' @param object \code{biodyn} object
+#' 
+#' @return FLPar
+#' @export
+#' @examples
+#' \dontrun{control(biodyn())}
+setMethod( 'control',   signature(object='biodyn'),function(object, ...)   object@control)
+
+
 #' @title setControl<-
 #'
 #' @description Sets the control slot in a biodyn object given the parameters in the \code{params}
@@ -149,7 +166,7 @@ setQ=function(object,value,error='log'){
     object@params=propagate(object@params,its)
   t.=try(rbind(object@params,FLPar(as.FLQuant(res)[,1,drop=T])),silent=TRUE)
   
-  if (is(t.)=="try-error")
+  if (is(t.,"try-error"))
     t.=as(rbind(as.data.frame(object@params),
                 as.data.frame(FLPar(as.FLQuant(res)[,1,drop=T]))),"FLPar")
   
@@ -231,4 +248,25 @@ controlFn=function(r,       k,       p=1,      b0=1,
   res[,'phase']=c(phaseR,phaseK,phaseP,phaseB0)
   
   res}  
+
+
+#' @title control<-
+#'
+#' @description sets in \code{biodyn} initial guess and lower and upper bounds
+#' 
+#' @return \code{biodyn} with new control slot
+#' @export
+#' 
+#' @rdname biodynAccessors
+#' @docType methods
+#' 
+#' @examples
+#'  
+#' \dontrun{control(biodyn())}
+setMethod('control<-', signature(object='biodyn', value='FLPar'),
+          function(object, value){
+            updateFLComp(object, 'control', value)
+            return(object)})   
+
+
   
