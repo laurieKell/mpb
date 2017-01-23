@@ -275,9 +275,9 @@ fwdFn=function(object,
     
          ## sp & process error
          if (!is.null(pe)) {    
-            if (peMult) sp.=production(object,object@stock[, ac(y)])%*%pe[, ac(y)] 
-            else        sp.=production(object,object@stock[, ac(y)])%+%pe[, ac(y)]
-         } else sp.=production(object,object@stock[, ac(y)])
+            if (peMult) sp.=mpb::production(object,object@stock[, ac(y)])%*%pe[, ac(y)] 
+            else        sp.=mpb::production(object,object@stock[, ac(y)])%+%pe[, ac(y)]
+         } else sp.=mpb::production(object,object@stock[, ac(y)])
          #} else sp.=production(object,object@stock[, ac(y)]*(1-ptYr)+object@stock[, ac(y+1)]*(ptYr))
          
           ## targets, if lag<0 then the targets are relative 

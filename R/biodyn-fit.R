@@ -508,8 +508,10 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
 
   units(bd@mng)='NA'  
 
-  bd=mpb::fwd(bd,catch=catch(bd)[,rev(dimnames(catch(bd))$year)[1]],starvationRations=2) 
-
+  print(1)
+  bd=fwd(bd,catch=catch(bd)[,rev(dimnames(catch(bd))$year)[1]],starvationRations=2) 
+  print(2)
+  
   if (length(grep('-mcmc',cmdOps))>0 & length(grep('-mcsave',cmdOps))>0){
     #'-mcmc 100000 -mcsave 100'
      setMCMC=function(obj,dir){
