@@ -4,6 +4,22 @@ utils::globalVariables('refpts<-')
 utils::globalVariables('computeRefpts')
 utils::globalVariables('ssb.obs')
 
+#' @title production
+#'
+#' @description 
+#' Estimates production for a given biomass
+#' 
+#' @param object either \emph{biodyn} or \emph{FLBRP} class
+#' @param biomass an \emph{FLQuant} 
+#' @param ... any other parameter
+#' 
+#' @rdname production
+#' @export
+#' 
+#' @aliases production,biodyn-method 
+#'  
+setGeneric('production',function(object,biomass,...) standardGeneric('production'))
+
 productionFn=function(object,biomass="missing",
                       slots=c("landings.sel","discards.sel",
                               "stock.wt","landings.wt","discards.wt",
@@ -134,6 +150,7 @@ productionFn=function(object,biomass="missing",
 #                                       "harvest.spwn","m.spwn"))
 #             productionFn(object,biomass,slots))
 
+setGeneric('production',function(object,biomass,...) standardGeneric('production'))
 setMethod('production', signature(object='FLStock',biomass='missing'),
           function(object,biomass)  {
             

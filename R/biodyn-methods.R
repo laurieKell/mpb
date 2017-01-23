@@ -39,37 +39,6 @@ setMethod('stock', signature(object='biodyn'),
              
             (1-when)*stock(object)[,yrs1]+when*stock(object)[,yrs2]})
 
-#' @title production
-#'
-#' @description 
-#' Calculates the surplus production for a biomass dynamic model given a level of stock biomass
-#' 
-#' @param object an object of class \code{biodyn} 
-#' @param biomass stock biomaas, may be a \code{numerix},  \code{FLQuant} or missing. In the latte case the stock slot will be used.
-#' @param ... other arguments
-#' 
-#  @aliases production,FLBRP,missing-method
-#'
-#' @return an \code{FLPar} object
-#' 
-#' @seealso \code{\link{plotProduction}}
-#' 
-#' @export
-#' @rdname production
-#'
-#' @aliases production production-method production,FLStock,missing-method production,biodyn,FLQuant-method production,biodyn,numeric-method production,biodyn,FLQuant-method production,biodyn,missing-method production,biodyn,numeric-method production,FLBRP,FLStock-method production,FLStock,missing-method 
-#' 
-#' @examples
-#' \dontrun{ production(bd,seq(0,params(bd)['k'])) }
-#'  
-setMethod('production', signature(object='biodyn',   biomass='missing'),     
-          function(object,biomass=stock(object))  prdFn(model(object),params(object),biomass))
-setMethod('production', signature(object='biodyn',   biomass='numeric'),     
-          function(object,biomass)                prdFn(model(object),params(object),biomass))
-setMethod('production', signature(object='biodyn',   biomass='FLQuant'),     
-          function(object,biomass)                prdFn(model(object),params(object),biomass))
-
-  # calcLogLik
 
 calcSigma <- function(obs,hat=rep(1,length(obs)),error='log'){
   yrs=dimnames(obs)$year

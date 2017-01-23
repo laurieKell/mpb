@@ -28,7 +28,4 @@ by projecting the last year.
 tac(bd,FLQuant(0.1,dimnames=list(year=dims(bd)$maxyear)))
 }
 }
-\seealso{
-\code{\link{hcr}},  \code{\link{fwd}}
-}
 

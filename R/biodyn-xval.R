@@ -32,7 +32,7 @@ xvalFnBiodyn=function(object,index,minyear=range(object)["maxyear"]-4,maxyear=ra
 #' @aliases xval-method xval,biodyn-method
 #'
 #' @export
-#' @rdname xval
+#' @rdname biodyn-xval
 #'
 #' @details Returns a data.frame with index, year, obs and hat
 #' @examples

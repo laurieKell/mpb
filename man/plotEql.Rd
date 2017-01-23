@@ -25,7 +25,4 @@ Creates a \code{ggplot2} object that plots time series of biomass, harvest rate 
  refpts('logistic',FLPar(msy=100,k=500))
 }
 }
-\seealso{
-\code{\link{plotProduction}}\code{\link{plotMSE}}
-}
 

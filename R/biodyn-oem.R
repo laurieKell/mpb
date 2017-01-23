@@ -65,7 +65,7 @@ setMethod( 'sim',   signature(stock='missing',brp='missing'),
   for(i in names(args))
     slot(object, i) <- args[[i]]
   
-  object <- fwd(object, harvest=harvest)
+  object <- mpb::fwd(object, harvest=harvest)
   
   return(object)}) 
 
@@ -114,15 +114,16 @@ setMethod('sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
 #' @param object \code{FLStock} for which an index is to be generated
 #' @param cv either a \code{numeric} with a CV on the logscale or an \code{FLQuant} 
 #' with random deviates
+#' @param q \code{numeric} or \code{FLQuant} that specifies change in catchability
+#' @param sel \code{FLQuant} vector at age that shapes the catch or biomass.
+#' additive, by default set to \code{TRUE},  
+#' @param hyper \code{FLPar} 
 #' @param mult \code{logical} that determines whether the deviates are multiplicative or
 #' @param fishDepend \code{logical} that determines whether the index is proportional to the 
 #' stock or catch/effort, by default set to \code{TRUE}
 #' @param effort \code{character} c("h","f") that determines what proxy to use for effort,
 #' i.e. harvest rate or instanteous fishing mortality 
 #' @param mass \code{logical} default is TRUE, whether index is in mass or numbers
-#' @param q \code{numeric} or \code{FLQuant} that specifies change in catchability
-#' @param sel \code{FLQuant} vector at age that shapes the catch or biomass.
-#' additive, by default set to \code{TRUE},  
 #' @param ... other arguments
 #' 
 #' @aliases 
@@ -145,14 +146,15 @@ setMethod('sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
 setMethod( 'oem',   signature(object='FLStock'),
            function(object,
                     cv        =rlnorm(dim(stock(object))[6],FLQuant(0,dimnames=dimnames(stock(object))[-6]),0.3),
+                    q         =FLQuant(cumprod(1+rep(0,dim(fbar(object))[2])),
+                                       dimnames=dimnames(fbar(object))),
+                    sel       =FLQuant(FLQuant(1,dimnames=dimnames(harvest(object)))),
+                    hyper     =FLPar(omega=1,ref=NA),
                     timing    =0.5,
                     mult      =TRUE,
                     fishDepend=FALSE,
                     effort    =c("f","h"),
                     mass      =TRUE,
-                    q         =FLQuant(cumprod(1+rep(0,dim(fbar(object))[2])),
-                                       dimnames=dimnames(fbar(object))),
-                    sel=FLQuant(FLQuant(1,dimnames=dimnames(harvest(object)))),
                     seed=NULL){
 
   if (!is.null(seed)) set.seed(seed)
@@ -187,7 +189,7 @@ setMethod( 'oem',   signature(object='FLStock'),
       cpue=apply((stock.n(object)[,yrs]%*%stock.wt(object)[,yrs]%*%sel),2:6,sum)
     else  
       cpue=apply((stock.n(object)[,yrs]%*%sel),2:6,sum)
-  
+
   q[,yrs]%*%cpue%*%cv[,yrs]})
 
 #setMethod('survey', signature(object='FLStock'),
@@ -213,6 +215,10 @@ survey=function(object,timing=FLQuant(0,dimnames=dimnames(m(object))),wt=stock.w
     if (!log) res=apply(res,2:6,function(x,sd) rnorm( 1,x,sd=sd),sd=sd) else 
       res=apply(res,2:6,function(x,sd) rlnorm(1,x,sdlog=sd),sd=sd)
   }
+
+  #HYPERSTABILITY
+  if (is.na(hyper["ref"])) (print("no hyperstability"))
+  else res=res%*%exp(log(stock(object)%/%hyper["ref"])%*%(omega))
   
   res}
 
@@ -287,6 +293,26 @@ oemFn<-function(flt,om,paa=paa,dev=uCV){
     dev=rlnorm(dims(res)$iter,FLQuant(0,dimnames=dimnames(iter(res,1))),dev[flt])}
   
   res*dev[,dimnames(res)$year]}
+
+
+oem2=function(om,cv,trendQ=FLQuant(1,dimnames=dimnames(stock(om))),
+              omega =1,refB=1,
+              fishDepend=FALSE){
+  
+  nits=max(dims(stock(om))$iter,dims(catch(om))$iter)
+  rnd=rlnorm(nits,FLQuant(0,dimnames=list(year=dims(om)$minyear:dims(om)$maxyear)),cv)
+  
+  if (fishDepend)
+    cpue=catch(om)/fbar(om)
+  else
+    cpue=computeStock(om)
+  
+  cpue=trendQ[,dimnames(cpue)$year]*cpue
+  cpue=cpue*(stock(om)%/%refB)^(omega)
+  cpue=rnd*cpue
+  
+  cpue}
+
 
 # cpue
 # /AvCatch(iAge,iYear,pTune->GetStartFishing(iFleet), pTune->GetEndFishing(iFleet));

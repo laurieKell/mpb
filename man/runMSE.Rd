@@ -7,9 +7,9 @@
 \usage{
 mseBiodyn(om, eql, srDev, uDev, mp, start = range(om)["maxyear"],
   end = start + 30, interval = 3, oem = oem, hcrPar = function(mp, ftar
-  = 0.7, btrig = 0.6, fmin = 0 - 1, blim = 0.001) hcrParam(ftar = ftar *
+  = 0.7, btrig = 0.6, fmin = 0 - 1, blim = 0.001) {     hcrParam(ftar = ftar *
   fmsy(mp), btrig = btrig * bmsy(mp), fmin = fmin * fmsy(mp), blim = blim *
-  bmsy(mp)), bndF = NULL, bndTac = NULL, maxF = 1, omega = 1,
+  bmsy(mp)) }, bndF = NULL, bndTac = NULL, maxF = 1, omega = 1,
   refB = 1, qTrend = 0)
 }
 \arguments{
@@ -45,22 +45,24 @@ Runs a full MSE using an \code{FLStock} object as the Operating Model and \code{
 \examples{
 \dontrun{
 library(mpb)
+library(FLash)
+library(FLBRP)
 
 load(om)
 load(eql)
 
-om=mpb:::fwdWindow(om,eql,end=2030)
+om=mpb::fwdWindow(om,eql,end=2030)
 om=propagate(om,100)
 
 srDev=FLQuant(0,dimnames=list(year=2000:2030))
 srDev=rlnorm(100,srDev,0.3)
 
-om=mpb:::fwd(om,catch=catch(om)[,ac(2000:2011)],sr=eql,sr.residuals=srDev)
+om=mpb::fwd(om,catch=catch(om)[,ac(2000:2011)],sr=eql,sr.residuals=srDev)
 
 library(popbio)
 
-mp=mpb:::FLBRP2biodyn(  eql,"biodyn")
-mp=mpb:::FLStock2biodyn(om, "biodyn")
+mp=mpb::FLBRP2biodyn(  eql,"biodyn")
+mp=mpb::FLStock2biodyn(om, "biodyn")
 }
 }
 \seealso{

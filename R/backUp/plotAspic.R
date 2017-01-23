@@ -10,18 +10,17 @@ utils::globalVariables(c("ggplot","geom_line","aes","yield",
 #'
 #' @return an \code{ggplot2} object
 #' 
-#' @seealso \code{\link{plotSP}} 
 #' @method plot
 #' @export
 #' @docType methods
-#' @rdname plot
+#' @rdname plot-aspic
 #'
 #' @examples
 #' refpts("logistic",FLPar(msy=100,k=500))
 #'  
 # setMethod('plot', signature(x="aspics", y="missing"),
 #   function(x, y, probs=c(0.95,0.50,0.05), size=c(0.5,1.0,0.5), lty=c(2,1,2),
-#     facet=facet_wrap(~qname,scale="free",ncol=1),
+#     facet=facet_wrap(~qname,scales="free",ncol=1),
 #     fn=list("Stock"  =function(x) stock(x), 
 #             "Harvest"=function(x) harvest(x),
 #             "Yield"  =function(x) catch(x)),...)

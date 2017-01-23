@@ -2,6 +2,8 @@ utils::globalVariables(c("year","swon","year","B","obs"))
 utils::globalVariables(c("m_ply","b"))
 utils::globalVariables(c("%dopar%","foreach","i"))
 
+setGeneric('fit',       function(object,index,...)  standardGeneric('fit'), package='mpb')
+
 #' @title fit
 #'
 #' @description

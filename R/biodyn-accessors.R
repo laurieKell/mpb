@@ -63,37 +63,6 @@ validity<-function(object) {
   
   return(TRUE)}
 
-#' @title control
-#' 
-#' @description sets initial guess and lower and upper bounds
-#'
-#' @param object \code{biodyn} object
-#' 
-#' @return FLPar
-#' @export
-#' @examples
-#' \dontrun{control(biodyn())}
-setMethod( 'control',   signature(object='biodyn'),function(object, ...)   object@control)
-   
-#' @title control<-
-#'
-#' @description sets in \code{biodyn} initial guess and lower and upper bounds
-#' 
-#' @return \code{biodyn} with new control slot
-#' @export
-#' 
-#' @rdname biodynAccessors
-#' @docType methods
-#' 
-#' @examples
-#'  
-#' \dontrun{control(biodyn())}
-setMethod('control<-', signature(object='biodyn', value='FLPar'),
-             function(object, value){
-               updateFLComp(object, 'control', value)
-               return(object)})   
-   
-
 setMethod('catch',   signature(object='biodyn'),function(object, ...)   object@catch)
 setMethod('catch<-', signature(object='biodyn', value='FLQuant'),
           function(object, value){

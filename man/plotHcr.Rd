@@ -30,7 +30,4 @@ simBiodyn()
 }
 
 }
-\seealso{
-\code{\link{hcr}},  \code{\link{msy}},  \code{\link{bmsy}}, \code{\link{fmsy}}
-}
 

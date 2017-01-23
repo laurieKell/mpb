@@ -23,7 +23,4 @@ Combines reference points into the HCR breakpts
 tac('logistic',FLPar(msy=100,k=500))
 }
 }
-\seealso{
-\code{\link{hcr}}
-}
 

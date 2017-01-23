@@ -1,3 +1,5 @@
+setGeneric("setIndex<-",  function(object,value)  standardGeneric('setIndex<-'))
+
 setIndexFn=function(object,value){
   res=aspic()
   

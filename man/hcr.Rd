@@ -40,7 +40,4 @@ for (i in seq(29,49,1))
 bd=fwd(bd,harvest=hcr(bd,yr=i,yr=i+1)$hvt)
 }
 }
-\seealso{
-\code{\link{bmsy}}, \code{\link{fmsy}}, \code{\link{fwd}} and \code{\link{hcrParam}}
-}
 

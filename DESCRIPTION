@@ -6,16 +6,17 @@ Description: mpb is an R package for running and simulation testing biomass base
 VignetteBuilder: knitr
 Depends:
     R(>= 3.3.1),
-    FLCore(>= 2.5.2),
-    plyr,
-    reshape,
-    ggplot2
+    FLCore(>= 2.5.2)
 Imports:
     methods,
     stringr,
+    ggplotFL,
+    plyr,
+    reshape,
     Rcpp
-Suggests: rmarkdown,
-          knitr
+Suggests: 
+    rmarkdown,
+    knitr
 LinkingTo: Rcpp
 Maintainer: Laurence Kell<laurie.kell@iccat.int>
 License: GPL-2
@@ -82,6 +83,7 @@ Collate:
     rwalk.R
     aspic-xval.R
     weighted.var.se.R
+    biodyn-FLBRP2biodyn.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1
