@@ -149,7 +149,7 @@ setQ=function(object,value,error='log'){
     object@params=propagate(object@params,its)
   t.=try(rbind(object@params,FLPar(as.FLQuant(res)[,1,drop=T])),silent=TRUE)
   
-  if (is(t.)=="try-error")
+  if (is(t., "try-error"))
     t.=as(rbind(as.data.frame(object@params),
                 as.data.frame(FLPar(as.FLQuant(res)[,1,drop=T]))),"FLPar")
   
