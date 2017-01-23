@@ -167,7 +167,7 @@ FLStock2biodynSimple=function(from){
   res}
 
 setAs('FLStock','biodyn',
-      function(from) FLStock2biodyn(from))
+      function(from) FLStock2biodynSimple(from))
 
 # FLBRP2biodyn=function(from,quantity=c("ssb","biomass","exploitable")[1]){
 #   
