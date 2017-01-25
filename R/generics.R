@@ -226,8 +226,6 @@ setGeneric('diags<-',  function(object,value)         standardGeneric('diags<-')
 
 setGeneric("profile", useAsDefault = profile)
 
-setGeneric('fwd',      function(object,ctrl,...) standardGeneric('fwd'))
-setGeneric('fwd',      function(object, ctrl, ...)    standardGeneric('fwd'))
 setGeneric('hcr',      function(object,refs,...)      standardGeneric('hcr'))
 setGeneric('tac',      function(object, harvest, ...) standardGeneric('tac'))
 setGeneric('hcr<-',    function(object,value)         standardGeneric('hcr<-'))
