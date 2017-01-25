@@ -117,7 +117,7 @@ setMethod('sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
 #' @param q \code{numeric} or \code{FLQuant} that specifies change in catchability
 #' @param sel \code{FLQuant} vector at age that shapes the catch or biomass.
 #' additive, by default set to \code{TRUE},  
-#' @param hyper \code{FLPar} 
+#' @param bias \code{FLPar} 
 #' @param mult \code{logical} that determines whether the deviates are multiplicative or
 #' @param fishDepend \code{logical} that determines whether the index is proportional to the 
 #' stock or catch/effort, by default set to \code{TRUE}
@@ -145,52 +145,45 @@ setMethod('sim', signature(stock='FLStock',brp='ANY'),function(stock,brp) {
 #'  }
 setMethod( 'oem',   signature(object='FLStock'),
            function(object,
-                    cv        =rlnorm(dim(stock(object))[6],FLQuant(0,dimnames=dimnames(stock(object))[-6]),0.3),
-                    q         =FLQuant(cumprod(1+rep(0,dim(fbar(object))[2])),
-                                       dimnames=dimnames(fbar(object))),
                     sel       =FLQuant(FLQuant(1,dimnames=dimnames(harvest(object)))),
-                    hyper     =FLPar(omega=1,ref=NA),
+                    bias      =FLPar(q=0),
                     timing    =0.5,
-                    mult      =TRUE,
-                    fishDepend=FALSE,
+                    fish.dependent=TRUE,
                     effort    =c("f","h"),
-                    mass      =TRUE,
-                    seed=NULL){
+                    mass      =TRUE){
 
-  if (!is.null(seed)) set.seed(seed)
-             
-  nits=max(dims(stock(object))$iter,dims(catch(object))$iter)
-  
-  if ("numeric"%in%is(cv))
-    cv=rlnorm(nits,FLQuant(0,dimnames=list(year=dims(object)$minyear:
-                                                dims(object)$maxyear)),cv)
-  
   timing=pmax(pmin(timing,1.0),0.0)
   stock=(stock(object)[,-dim(stock(object))[2]]*timing+stock(object)[,-1]*(1.0-timing))
   
-  yrs=dimnames(stock)$year
-  yrs=yrs[yrs%in%dimnames(cv)$year]
-  sel=sel[,yrs]
+  object=window(object,start=range(object)["minyear"],end=range(object)["maxyear"])
   
-  object=window(object,start=min(as.numeric(yrs)),end=max(as.numeric(yrs)))
-  
-  if (effort[1]=="h")
-    E=catch(object)%/%stock
-  else  
-    E=fbar(object)
-  
-  if (fishDepend) 
-      if (mass)
-        cpue=apply((catch.n(object)[,yrs]%*%catch.wt(object)[,yrs]%*%sel)%/%E[,yrs],2:6,sum)
-      else
-        cpue=apply((catch.n(object)[,yrs]%*%sel)%/%E[,yrs],2:6,sum)
-  else 
-    if (mass)
-      cpue=apply((stock.n(object)[,yrs]%*%stock.wt(object)[,yrs]%*%sel),2:6,sum)
+  if (fish.dependent) {
+    if (effort[1]=="h")
+      E=catch(object)%/%stock
     else  
-      cpue=apply((stock.n(object)[,yrs]%*%sel),2:6,sum)
+      E=fbar(object)
+    
+    if (mass){
+        cpue=apply((catch.n(object)%*%catch.wt(object)%*%sel)%/%E,2:6,sum)
+        }
+      else
+        cpue=apply((catch.n(object)%*%sel)%/%E,2:6,sum)
+  }else 
+    if (mass){
+      cpue=apply((stock.n(object)%*%stock.wt(object)%*%sel),2:6,sum)
+      }
+    else  
+      cpue=apply((stock.n(object)%*%sel),2:6,sum)
+  
+  #HYPERSTABILITY
+  if (all(c("ref","omega")%in%dimnames(bias)$params))
+     cpue=cpue%*%exp(log(stock(object)%/%bias["ref"])%*%(bias["omega"]))
 
-  q[,yrs]%*%cpue%*%cv[,yrs]})
+  if ("q"%in%dimnames(bias)$params){
+    cpue=cpue%*%FLQuant(cumprod(1+rep(c(bias["q"]),dim(fbar(object))[2])), dimnames=dimnames(fbar(object)))
+    }
+  
+  cpue})
 
 #setMethod('survey', signature(object='FLStock'),
 survey=function(object,timing=FLQuant(0,dimnames=dimnames(m(object))),wt=stock.wt(object),sd=0,log=FALSE,...){
@@ -216,11 +209,7 @@ survey=function(object,timing=FLQuant(0,dimnames=dimnames(m(object))),wt=stock.w
       res=apply(res,2:6,function(x,sd) rlnorm(1,x,sdlog=sd),sd=sd)
   }
 
-  #HYPERSTABILITY
-  if (is.na(hyper["ref"])) (print("no hyperstability"))
-  else res=res%*%exp(log(stock(object)%/%hyper["ref"])%*%(omega))
-  
-  res}
+   res}
 
 #setMethod('cpue', signature(object='FLStock'),
 u=function(object,partialf=FLQuant(1,dimnames=dimnames(m(object))),wt=catch.wt(object),sd=0,log=FALSE,...){
