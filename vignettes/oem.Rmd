@@ -158,8 +158,8 @@ stable =cpue^0.1
 deplete=cpue^2
 
 plot(FLQuants("CPUE"          =cpue,
-              `Hyper Stable`  =stable,
-              `Hyper Depleted`=deplete))
+              `Hyper_Stable`  =stable,
+              `Hyper_Depleted`=deplete))
 ```
 
 
