@@ -282,6 +282,8 @@ setGeneric('fitmb',      function(object,index,...)  standardGeneric('fitmb'))
 
 setGeneric('msy',        function(object,params,...)  standardGeneric('msy'))
 
+setGeneric('production',function(object,biomass,...) standardGeneric('production'))
+
 # #' Sum of vector elements.
 # #' 
 # #' \code{sum} returns the sum of all the values present in its arguments.

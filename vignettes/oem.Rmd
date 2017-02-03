@@ -158,12 +158,13 @@ stable =cpue^0.1
 deplete=cpue^2
 
 plot(FLQuants("CPUE"          =cpue,
-              "Hyper Stable"  =stable,
-              "Hyper Depleted"=deplete))
+              `Hyper Stable`  =stable,
+              `Hyper Depleted`=deplete))
 ```
 
 
 ```{r example7,echo=TRUE}
+
 trend=FLQuant(seq(1,2,length.out=dim(stock(ple4))[2]),dimnames=dimnames(stock(ple4)))
 var  =trend*abs(cv)*sign(cv)
 

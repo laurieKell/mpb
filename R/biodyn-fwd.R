@@ -13,6 +13,9 @@ utils::globalVariables('par')
 utils::globalVariables('finite')
 globalVariables("ctrl")
 
+setMethod('production', signature(object='biodyn',biomass='FLQuant'),
+          function(object,biomass) prdFn("pellat",params(object),biomass))
+          
 prdFn=function(mdl,params,biomass=0) {
   if (!is.FLQuant(biomass)) biomass=FLQuant(biomass)  
   

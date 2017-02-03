@@ -18,7 +18,6 @@ utils::globalVariables('ssb.obs')
 #' 
 #' @aliases production,biodyn-method 
 #'  
-setGeneric('production',function(object,biomass,...) standardGeneric('production'))
 
 productionFn=function(object,biomass="missing",
                       slots=c("landings.sel","discards.sel",
@@ -150,7 +149,6 @@ productionFn=function(object,biomass="missing",
 #                                       "harvest.spwn","m.spwn"))
 #             productionFn(object,biomass,slots))
 
-setGeneric('production',function(object,biomass,...) standardGeneric('production'))
 setMethod('production', signature(object='FLStock',biomass='missing'),
           function(object,biomass)  {
             
