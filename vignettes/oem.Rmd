@@ -3,7 +3,7 @@ title: "Observation Error Model"
 subtitle: "To simulate indices of relative abundance"
 author: "Laurence Kell"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: rmarkdown:::pdf_document
+output: rmarkdown:::html_document
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Vignette Title}
@@ -64,8 +64,8 @@ The link between the OM and the MP is the Observation Error Model (OEM), which g
 
 The simplest way to obtain mpb is to install it from CRAN by using the following command in the R console:
 
-```{r install,echo=TRUE,eval=FALSE}
-install.packages("mpb", repos = "http://cloud.r-project.org/")
+```{r install,eval=FALSE}
+install.packages("mpb", repos = "http://flr-project.org/R")
 ```
 
 The repos options can be changed depending on personal preferences and includes options such as choosing the directories in which to install the packages see help(install.packages) for more details.

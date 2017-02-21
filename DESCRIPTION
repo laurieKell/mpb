@@ -85,6 +85,7 @@ Collate:
     aspic-xval.R
     weighted.var.se.R
     biodyn-FLBRP2biodyn.R
+    jackknife-vpa2box.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1
