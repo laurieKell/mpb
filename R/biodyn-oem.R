@@ -8,7 +8,6 @@ globalVariables("uCV")
 
 setGeneric('oem2',    function(object,...) standardGeneric('oem2'))
 
-
 #' @title oem
 #'
 #' @description Creates an \code{FLQuant} to represent an index of relative abundance
@@ -187,7 +186,7 @@ oemFn<-function(flt,om,paa=paa,dev=uCV){
   res*dev[,dimnames(res)$year]}
 
 
-oem2=function(om,cv,trendQ=FLQuant(1,dimnames=dimnames(stock(om))),
+oemOld=function(om,cv,trendQ=FLQuant(1,dimnames=dimnames(stock(om))),
               omega =1,refB=1,
               fishDepend=FALSE){
   
