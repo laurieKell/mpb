@@ -11,7 +11,7 @@ utils::globalVariables('par')
 # $Id:  $
 
 utils::globalVariables('finite')
-globalVariables("ctrl")
+globalVariables("control")
 
 setMethod('production', signature(object='biodyn',biomass='FLQuant'),
           function(object,biomass) prdFn("pellat",params(object),biomass))
@@ -124,7 +124,7 @@ iavFn=function(val,bnd,lag=1){
 #' one of these has to be supplied as an argument.
 #'
 #' @param object an object of class \code{biodyn} or  \code{biodyns}
-#' @param ctrl missing
+#' @param control missing
 # @param catch   an \code{FLQuant} or \code{FLQuants} containing future catches
 # @param harvest an \code{FLQuant} or \code{FLQuants} containing future harvest
 # @param stock   an \code{FLQuant} or \code{FLQuants} containing future stock    
@@ -153,9 +153,12 @@ iavFn=function(val,bnd,lag=1){
 #' plot(bdHat,worm=c(2,8))+
 #' theme(legend.position="bottom")
 #'  }
-setMethod( 'fwd', signature(object='biodyn',ctrl='missing'),
-   function(object, catch  =NULL, 
+setMethod( 'fwd', signature(object='biodyn',fishery='missing',control='missing'),
+#setMethod( 'fwd', signature(object='biodyn',control='missing'),
+   function(object, fishery, control,
+                    catch  =NULL, 
                     harvest=NULL, 
+                    f      =NULL, 
                     stock  =NULL, 
                     hcr    =NULL, 
                     pe     =NULL, peMult=TRUE,
@@ -169,20 +172,22 @@ setMethod( 'fwd', signature(object='biodyn',ctrl='missing'),
                     ...) {
      
      ## target arg is an FLQuant
+     if (is.null(harvest)&('FLQuant' %in% class(f)|'FLQuant' %in% class(f))) harvest=f
+       
      if ('FLQuant' %in% class(stock)   |
          'FLQuant' %in% class(harvest) |
          'FLQuant' %in% class(catch))
-        res=fwdFn(object,ctrl=ctrl,
+        res=fwdFn(object,control=control,
               catch,harvest,stock,pe,peMult,minF,maxF,bounds,lag,end,
               starvationRations=starvationRations,...)
      else if ('FLQuants' %in% class(stock))  
-        res=biodyns(llply(stock, function(x) fwdFn(object,ctrl=ctrl,
+        res=mpb:::biodyns(llply(stock, function(x) fwdFn(object,control=control,
                  catch,harvest,x,pe,peMult,minF,maxF,bounds,lag,end,...)))
       else if ('FLQuants' %in% class(harvest))
-        res=biodyns(llply(harvest, function(x) fwdFn(object,ctrl=ctrl,
+        res=mpb:::biodyns(llply(harvest, function(x) fwdFn(object,control=control,
                  catch,x,stock,pe,peMult,minF,maxF,bounds,lag,end,...))) 
       else if ('FLQuants' %in% class(catch))  
-        res=biodyns(llply(catch, function(x) fwdFn(object,ctrl=ctrl,
+        res=mpb:::biodyns(llply(catch, function(x) fwdFn(object,control=control,
                 x,harvest,stock,pe,peMult,minF,maxF,bounds,lag,end,...)))
                         
      res})
@@ -317,38 +322,40 @@ fwdFn=function(object,
     
         return(object)}
 
-setMethod('fwd', signature(object='biodyn',ctrl='FLQuants'),
-  function(object, ctrl, pe=NULL, peMult=TRUE,minF=0,maxF=2,lag=0,
+setMethod( 'fwd', signature(object='biodyn',fishery='FLQuants',control='missing'),
+#setMethod('fwd', signature(object='biodyn',control='FLQuants'),
+  function(object,fishery,control, pe=NULL, peMult=TRUE,minF=0,maxF=2,lag=0,
            bounds=list(catch=c(Inf,Inf)),...) {
+  control=fishery
+  res=mlply(seq(length(names(control))),
+      function(x,object,control,pe,peMult,minF,maxF,lag,bounds){
+        if (names(control)[x]=='catch')  return(fwd(object,catch  =control[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds))
+        if (names(control)[x]=='harvest')return(fwd(object,harvest=control[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds))
+        if (names(control)[x]=='stock')  return(fwd(object,stock  =control[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds))},
+       object=object,control=control,pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds)
  
-  res=mlply(seq(length(names(ctrl))),
-      function(x,object,ctrl,pe,peMult,minF,maxF,lag,bounds){
-        if (names(ctrl)[x]=='catch')  return(fwd(object,catch  =ctrl[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds))
-        if (names(ctrl)[x]=='harvest')return(fwd(object,harvest=ctrl[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds))
-        if (names(ctrl)[x]=='stock')  return(fwd(object,stock  =ctrl[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds))},
-       object=object,ctrl=ctrl,pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds)
- 
-  names(res)=names(ctrl)
+  names(res)=names(control)
         
-  return(biodyns(res))})
+  return(mpb:::biodyns(res))})
 
 ## this is wrapper for a HCR projection, but now being done by the HCR method
-# setMethod('fwd', signature(object='biodyn',ctrl='list'),
-#   function(object, ctrl, pe=NULL, peMult=TRUE,minF=0,maxF=2,lag=0,
+# setMethod('fwd', signature(object='biodyn',control='list'),
+#   function(object, control, pe=NULL, peMult=TRUE,minF=0,maxF=2,lag=0,
 #            bounds=list(catch=c(Inf,Inf)),end=range(object,'maxyear')+15,...) {
 #     
-#   res=mlply(seq(length(names(ctrl))),
-#       function(x,object,ctrl,pe,peMult,minF,maxF,lag,bounds,end){
-#         return(fwd(object,hcr=ctrl[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds,end=end))},
-#        object=object,ctrl=ctrl,pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds,end=end)
+#   res=mlply(seq(length(names(control))),
+#       function(x,object,control,pe,peMult,minF,maxF,lag,bounds,end){
+#         return(fwd(object,hcr=control[[x]],pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds,end=end))},
+#        object=object,control=control,pe=pe,peMult=peMult,minF=minF,maxF=maxF,lag=lag,bounds=bounds,end=end)
 #   
-#   names(res)=names(ctrl)
+#   names(res)=names(control)
 #         
 #   return(biodyns(res))})
       
-
-setMethod( 'fwd', signature(object='FLPar',ctrl='missing'),
-  function(object,...){
+setMethod( 'fwd', signature(object='FLPar',fishery='missing',control='missing'),
+#setMethod( 'fwd', signature(object='FLPar',control='missing'),
+  function(object,fishery,control,...){
+  
    args=list(...)
    if ("catch"%in%names(args)){
      catch=args[["catch"]]

@@ -29,7 +29,7 @@ utils::globalVariables('optimx')
 #' @aliases fit,aspic-method fit,aspics-method fit,biodyn,FLQuant-method fit,biodyn,FLQuants-method  
 #' @seealso  \code{\link{aspic}}, \code{\link{biodyn}}, \code{\link{jk}}, \code{\link{boot}}
 setGeneric('fit',       function(object,index,...)  standardGeneric('fit'), package='mpb')
-setMethod('fit',signature(object='biodyn',index='FLQuant'),
+  setMethod('fit',signature(object='biodyn',index='FLQuant'),
           function(object,index=index,exeNm='pella',package='mpb', 
                    dir=tempdir(),
                    cmdOps=paste('-maxfn 500 -iprint 0'),
