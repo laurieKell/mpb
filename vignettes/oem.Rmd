@@ -102,7 +102,7 @@ The `ggplot` functions expects a `data.frame` for its first argument, `data`; th
 The phase plot plots stock status against fishing mortality relative to target reference points as a two-dimensional phase plot. 
 
 ```{r plot,echo=TRUE}
-plot(FLQuants(ple4,"Stock"=stock,"Index"=oem))
+plot(FLQuants(ple4,"Stock"=stock,"Index"=function(x) apply(oem(x),2,sum)))
 ```
 
 [Back to Top](#top)
@@ -110,15 +110,16 @@ plot(FLQuants(ple4,"Stock"=stock,"Index"=oem))
 # Examples {#Examples}
 
 
+Create an index aggregated over ages
 ```{r example1,echo=TRUE,eval=TRUE}
-oem(ple4)
+apply(oem(ple4),2,sum)
 ```
 
 The age structure can be shaped by `sel`, and trends in q and hyperstability can be specified.`
 The type of the index e.g. the form of the index (`mass`), whether it is fishery dependent (`fish.dependendent`) and how the effort is derived in which case how the effort is derived (`effort`)
 
 ```{r plot-2,echo=TRUE}
-ggplot(model.frame(mcf(FLQuants(ple4,"Stock"=stock,"Index"=oem))))+
+ggplot(model.frame(mcf(FLQuants(ple4,"Stock"=stock,"Index"=function(x) apply(oem(x),2,sum)))))+
   geom_point( aes(Stock,Index))+
   geom_smooth(aes(Stock,Index),method="lm")+
   facet_null()
@@ -164,7 +165,6 @@ plot(FLQuants("CPUE"          =cpue,
 
 
 ```{r example7,echo=TRUE}
-
 trend=FLQuant(seq(1,2,length.out=dim(stock(ple4))[2]),dimnames=dimnames(stock(ple4)))
 var  =trend*abs(cv)*sign(cv)
 
@@ -176,17 +176,27 @@ ggplot(FLQuants("Log Normal" =cv,
 
 ```{r example8,echo=TRUE}
 bias=FLPar(omega=1,ref=mean(stock(ple4)),q=0)
+
+hyperstability<-function(object,omega=1,ref=apply(object,c(1,3:6),mean)) 
+  ref%*%((object%/%ref)^omega)
+
+bias<-function(object,bias=0.02) 
+     FLQuant(cumprod(1+rep(bias,dim(object)[2])),dimnames=dimnames(object))
+
 ```
 
 ```{r example9,echo=TRUE}
-u     =FLQuants("Unbiased"      =rlnorm(100,log(oem(ple4)),.3),
-                "Hyperstability"=rlnorm(100,log(oem(ple4,bias=bias)),.3),
-                "Trend"         =rlnorm(100,log(oem(ple4,bias=bias)),.3),
-                "AR"            =oem(ple4)*exp(rnoise(100,oem(ple4)*0,.3,b=.7)),
+set.seed(1234)
+u     =FLQuants("Unbiased"      =rlnorm(100,log(apply(oem(ple4),2:6,sum)),.3),
+                "Hyperstability"=rlnorm(100,log(apply(oem(ple4),2:6,sum)%*%
+                                                  hyperstability(stock(ple4),0.52)),.3),
+                "Trend"         =rlnorm(100,log(apply(oem(ple4),2:6,sum)%*%bias(stock(ple4),0.02)),.3),
+                "AR"            =apply(oem(ple4),2:6,sum)%*%
+                                   exp(rnoise(100,apply(oem(ple4),2:6,sum)*0,.3,b=.7)),
                 "Variable"      =var,
-                "Juvenile"      =rlnorm(100,log(oem(ple4,sel=mat(ple4))),.3),
-                "Mature"        =rlnorm(100,log(oem(ple4,sel=1-mat(ple4))),.3),
-                "Numbers"       =rlnorm(100,log(oem(ple4,mass=FALSE)),.3))
+                "Juvenile"      =rlnorm(100,log(apply(oem(ple4,sel=mat(ple4)),2:6,sum)),.3),
+                "Mature"        =rlnorm(100,log(apply(oem(ple4,sel=1-mat(ple4)),2:6,sum)),.3),
+                "Numbers"       =rlnorm(100,log(apply(oem(ple4,mass=FALSE),2:6,sum),.3)))
 
 u=FLQuants(llply(u,function(x) x/mean(x)))
 u=ldply(u,as.data.frame)

@@ -63,6 +63,7 @@ Collate:
     biodyn-hcr.R
     FLStock-hcr.R
     biodyn-boot.R
+    biodyn-sim.R
     biodyn-feasible.R
     biodyn-kobe.R
     biodyn-nll.R

@@ -6,21 +6,16 @@ globalVariables("phaseQ")
 globalVariables("bounds")
 globalVariables("uCV")
 
-setGeneric('oem2',    function(object,...) standardGeneric('oem2'))
+setGeneric('oem',    function(object,...) standardGeneric('oem'))
 
 #' @title oem
 #'
 #' @description Creates an \code{FLQuant} to represent an index of relative abundance
 #' 
 #' @param object \code{FLStock} for which an index is to be generated
-#' @param cv either a \code{numeric} with a CV on the logscale or an \code{FLQuant} 
-#' with random deviates
-#' @param q \code{numeric} or \code{FLQuant} that specifies change in catchability
 #' @param sel \code{FLQuant} vector at age that shapes the catch or biomass.
 #' additive, by default set to \code{TRUE},  
-#' @param bias \code{FLPar} 
-#' @param mult \code{logical} that determines whether the deviates are multiplicative or
-#' @param fishDepend \code{logical} that determines whether the index is proportional to the 
+#' @param fish.depenpent \code{logical} that determines whether the index is proportional to the 
 #' stock or catch/effort, by default set to \code{TRUE}
 #' @param effort \code{character} c("h","f") that determines what proxy to use for effort,
 #' i.e. harvest rate or instanteous fishing mortality 
@@ -44,15 +39,13 @@ setGeneric('oem2',    function(object,...) standardGeneric('oem2'))
 #'  data(ple4) 
 #'  cpue=oem(ple4) 
 #'  }
-setMethod('oem2',   signature(object='FLStock'),
+setMethod('oem',   signature(object='FLStock'),
            function(object,
                     sel       =FLQuant(FLQuant(1,dimnames=dimnames(harvest(object)))),
-                    bias      =FLPar(q=0),
                     timing    =0.5,
                     fish.dependent=TRUE,
                     effort    =c("f","h"),
-                    mass      =TRUE,
-                    aggregated=FALSE){
+                    mass      =TRUE){
 
   timing=pmax(pmin(timing,1.0),0.0)
   stock=(stock(object)[,-dim(stock(object))[2]]*timing+stock(object)[,-1]*(1.0-timing))
@@ -65,26 +58,13 @@ setMethod('oem2',   signature(object='FLStock'),
     else  
       E=fbar(object)
     
-    if (mass){
-        cpue=apply((catch.n(object)%*%catch.wt(object)%*%sel)%/%E,2:6,sum)
-        }
-      else
-        cpue=apply((catch.n(object)%*%sel)%/%E,2:6,sum)
+    cpue=(catch.n(object)%*%sel)%/%E
   }else 
-    if (mass){
-      cpue=apply((stock.n(object)%*%stock.wt(object)%*%sel),2:6,sum)
-      }
-    else  
-      cpue=apply((stock.n(object)%*%sel),2:6,sum)
+      cpue=apply((stock%*%sel),2:6,sum)
   
-  #HYPERSTABILITY
-  if (all(c("ref","omega")%in%dimnames(bias)$params))
-     cpue=cpue%*%exp(log(stock(object)%/%bias["ref"])%*%(bias["omega"]))
+  if (mass)
+    cpue=cpue%*%catch.wt(object)
 
-  if ("q"%in%dimnames(bias)$params){
-    cpue=cpue%*%FLQuant(cumprod(1+rep(c(bias["q"]),dim(fbar(object))[2])), dimnames=dimnames(fbar(object)))
-    }
-  
   cpue})
 
 #setMethod('survey', signature(object='FLStock'),
@@ -222,3 +202,22 @@ oemOld=function(om,cv,trendQ=FLQuant(1,dimnames=dimnames(stock(om))),
 #   
 #   return (exp(-StartFishing*Z) - exp(-EndFishing*Z))/((EndFishing-StartFishing)*Z); 
 # }
+
+setMethod('oem<-', signature(object='biodyn',value="FLStock"), 
+          function(object,value, 
+                   sel           =FLQuant(FLQuant(1,dimnames=dimnames(harvest(value)))),
+                   timing        =0.5,
+                   fish.dependent=TRUE,
+                   effort        =c("f","h"),
+                   mass          =TRUE){
+          res=oem(value,sel,timing,fish.dependent,effort,mass)  
+          res=apply(res,2:6,sum)
+          object@indices=FLQuants(res)
+          object})
+
+hyperstability<-function(object,omega=1,ref=apply(object,c(1,3:6),mean)) 
+  ref%*%((object%/%ref)^omega)
+
+bias<-function(object,bias=0.02) 
+  FLQuant(cumprod(1+rep(bias,dim(object)[2])),dimnames=dimnames(object))
+

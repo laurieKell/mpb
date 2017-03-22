@@ -46,6 +46,7 @@ validity<-function(object) {
 #' @slot model   {A \code{factor} giving name of production function, for now this is only `pellat`}
 #' @slot obj     { \code{factor} that determines the objective function type -LL or LAV}  
 #' @slot catch   {An \code{FLQuant} with total catch by year}        
+#' @slot index   {An \code{FLQuants} with indices year}        
 #' @slot stock   {An \code{FLQuant} which will hold the estimated stock by year}       
 #' @slot control {An \code{FLPar} which sets initial guess (val) and bounds (min and max) for each parameter. The phase allows a parameter to be fixed if less <0 and for paramters to be estimated sequentially}       
 #' @slot hcr     {A \code{data.frame} with harvest control rule options}       
@@ -91,7 +92,8 @@ validity<-function(object) {
     'FLComp',
     model         ='factor',   
     obj           ='factor',   
-    catch         ='FLQuant',
+    catch         ='FLQuant',  
+    indices       ='FLQuants',
     stock         ='FLQuant',
     diags         ='data.frame',
     params        ='FLPar',

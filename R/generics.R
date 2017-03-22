@@ -248,8 +248,9 @@ setGeneric('setFeasible<-', function(object,value)        standardGeneric('setFe
 setGeneric('sim',   function(stock,brp,...)     standardGeneric('sim'))
 setGeneric('xval',  function(object,index,...) standardGeneric('xval'))
 
-setGeneric('oem',    function(object,...) standardGeneric('oem'))
-setGeneric('survey', function(object,...) standardGeneric('survey'))
+setGeneric('oem',    function(object,...)       standardGeneric('oem'))
+setGeneric('oem<-',  function(object,value,...) standardGeneric('oem<-'))
+setGeneric('survey', function(object,...)       standardGeneric('survey'))
 
 #' @title jk
 #'
