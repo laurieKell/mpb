@@ -20,8 +20,8 @@ library(ggplot2)
 theme_set(theme_bw())
 options(digits=3)
 
-## ----install,echo=TRUE,eval=FALSE----------------------------------------
-## install.packages("mpb", repos = "http://cloud.r-project.org/")
+## ----install,eval=FALSE--------------------------------------------------
+## install.packages("mpb", repos = "http://flr-project.org/R")
 
 ## ----lib,echo=TRUE-------------------------------------------------------
 library(ggplot2)
@@ -35,13 +35,13 @@ library(plyr)
 data(ple4)
 
 ## ----plot,echo=TRUE------------------------------------------------------
-plot(FLQuants(ple4,"Stock"=stock,"Index"=oem))
+plot(FLQuants(ple4,"Stock"=stock,"Index"=function(x) apply(oem(x),2,sum)))
 
 ## ----example1,echo=TRUE,eval=TRUE----------------------------------------
-oem(ple4)
+apply(oem(ple4),2,sum)
 
 ## ----plot-2,echo=TRUE----------------------------------------------------
-ggplot(model.frame(mcf(FLQuants(ple4,"Stock"=stock,"Index"=oem))))+
+ggplot(model.frame(mcf(FLQuants(ple4,"Stock"=stock,"Index"=function(x) apply(oem(x),2,sum)))))+
   geom_point( aes(Stock,Index))+
   geom_smooth(aes(Stock,Index),method="lm")+
   facet_null()
@@ -72,8 +72,8 @@ stable =cpue^0.1
 deplete=cpue^2
 
 plot(FLQuants("CPUE"          =cpue,
-              "Hyper Stable"  =stable,
-              "Hyper Depleted"=deplete))
+              `Hyper_Stable`  =stable,
+              `Hyper_Depleted`=deplete))
 
 ## ----example7,echo=TRUE--------------------------------------------------
 trend=FLQuant(seq(1,2,length.out=dim(stock(ple4))[2]),dimnames=dimnames(stock(ple4)))
@@ -87,15 +87,25 @@ ggplot(FLQuants("Log Normal" =cv,
 ## ----example8,echo=TRUE--------------------------------------------------
 bias=FLPar(omega=1,ref=mean(stock(ple4)),q=0)
 
+hyperstability<-function(object,omega=1,ref=apply(object,c(1,3:6),mean)) 
+  ref%*%((object%/%ref)^omega)
+
+bias<-function(object,bias=0.02) 
+     FLQuant(cumprod(1+rep(bias,dim(object)[2])),dimnames=dimnames(object))
+
+
 ## ----example9,echo=TRUE--------------------------------------------------
-u     =FLQuants("Unbiased"      =rlnorm(100,log(oem(ple4)),.3),
-                "Hyperstability"=rlnorm(100,log(oem(ple4,bias=bias)),.3),
-                "Trend"         =rlnorm(100,log(oem(ple4,bias=bias)),.3),
-                "AR"            =oem(ple4)*exp(rnoise(100,oem(ple4)*0,.3,b=.7)),
+set.seed(1234)
+u     =FLQuants("Unbiased"      =rlnorm(100,log(apply(oem(ple4),2:6,sum)),.3),
+                "Hyperstability"=rlnorm(100,log(apply(oem(ple4),2:6,sum)%*%
+                                                  hyperstability(stock(ple4),0.52)),.3),
+                "Trend"         =rlnorm(100,log(apply(oem(ple4),2:6,sum)%*%bias(stock(ple4),0.02)),.3),
+                "AR"            =apply(oem(ple4),2:6,sum)%*%
+                                   exp(rnoise(100,apply(oem(ple4),2:6,sum)*0,.3,b=.7)),
                 "Variable"      =var,
-                "Juvenile"      =rlnorm(100,log(oem(ple4,sel=mat(ple4))),.3),
-                "Mature"        =rlnorm(100,log(oem(ple4,sel=1-mat(ple4))),.3),
-                "Numbers"       =rlnorm(100,log(oem(ple4,mass=FALSE)),.3))
+                "Juvenile"      =rlnorm(100,log(apply(oem(ple4,sel=mat(ple4)),2:6,sum)),.3),
+                "Mature"        =rlnorm(100,log(apply(oem(ple4,sel=1-mat(ple4)),2:6,sum)),.3),
+                "Numbers"       =rlnorm(100,log(apply(oem(ple4,mass=FALSE),2:6,sum),.3)))
 
 u=FLQuants(llply(u,function(x) x/mean(x)))
 u=ldply(u,as.data.frame)
