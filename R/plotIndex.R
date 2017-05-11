@@ -34,6 +34,7 @@ plotIndexFn<-function(object,...){
     facet_wrap(~name)
   }
 
+
 plotIndexResidualFn<-function(object,...){
   
   dat=FLQuants(llply(object,stdz)) 

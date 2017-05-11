@@ -422,7 +422,7 @@ fitPella=function(object,index=index,exeNm='pella',package='mpb',
 
      # run
      #system(paste('./', exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
-     system(paste(exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
+     system(paste(exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE, ignore.stderr=TRUE)
 
      # gets results
      object[[1]]=getPella(object[[1]], exeNm)     
