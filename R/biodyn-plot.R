@@ -32,6 +32,8 @@ setGeneric('plotProduction', function(data,biomass,...)  standardGeneric('plotPr
 setGeneric('plotMSE',        function(x,y,z,...)         standardGeneric('plotMSE'))
 setGeneric('plotHcr',        function(object,...)        standardGeneric('plotHcr'))
 setGeneric('plotJack',       function(object,...)        standardGeneric('plotJack'))
+setGeneric('plotIndexResidual', function(data,...)       standardGeneric('plotIndexResidual'))
+
 
 #' @title plot
 #' 
