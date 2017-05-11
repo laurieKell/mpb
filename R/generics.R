@@ -269,7 +269,6 @@ setGeneric('survey', function(object,...)       standardGeneric('survey'))
 setGeneric('jk',        function(object,index,...)        standardGeneric('jk'))
 setGeneric('boot',        function(object,...)        standardGeneric('boot'))
 setGeneric('randJack',    function(n,object,sim,...)  standardGeneric('randJack'))
-setGeneric("jackSummary", function(object, ...)       standardGeneric("jackSummary"))
 setGeneric("FLQuantJKs",  function(object, ...)     standardGeneric("FLQuantJKs"))
 
 setGeneric('rand',        function(n,object,sim,...)  standardGeneric('rand'))
@@ -279,6 +278,7 @@ setGeneric('timeSeries', function(object,params,...) standardGeneric('timeSeries
 setGeneric('mng',        function(object,params,...) standardGeneric('mng'))
 setGeneric('kobe',       function(object,method,...) standardGeneric('kobe'))
 
+setGeneric('fit',        function(object,index,...)  standardGeneric('fit'))
 setGeneric('fitmb',      function(object,index,...)  standardGeneric('fitmb'))
 
 setGeneric('msy',        function(object,params,...)  standardGeneric('msy'))

@@ -52,6 +52,8 @@ saveNF<-function(i,spd,dir){
 
 jackknife.vpa2box<-function(file,m=0.2){
   
+  sink("/dev/null")
+  
   path=getPath(file)
   ctl =getFile(file)
   setwd(getPath(file))
@@ -79,18 +81,23 @@ jackknife.vpa2box<-function(file,m=0.2){
     system(paste("wine vpa-2box.exe", ctl))
     saveNF(i,file.path(path,fls[5]),dirTmp)})
   
+  file.remove(fls[1])
   file.copy(dFl,fls[1])
   file.remove(dFl)
   
-  yf=as.data.frame(maply(idx[-length(idx)],function(x) as.numeric(unlist(strsplit(x,"\t"))))[,1:2])
+  yf=as.data.frame(maply(idx[-length(idx)],function(x) as.numeric(unlist(strsplit(x,"\t"))[1:2])))
   names(yf)=c("name","year")
   yf=rbind(data.frame(name=0,year=0),yf)
   dimnames(yf)[[1]]=c(0,seq(dim(yf)[1]-1))
   
-  n =read.table("/tmp/RtmpvBNDtE/n.txt")
+  n =read.table(file.path(dirTmp,"n.txt"))
   n =as.FLQuant(transmute(melt(n,id=c("V1","V2")),age=as.numeric(variable),data=value,year=V2,iter=V1))
-  f =read.table("/tmp/RtmpvBNDtE/f.txt")
+  f =read.table(file.path(dirTmp,"f.txt"))
   f =as.FLQuant(transmute(melt(f,id=c("V1","V2")),age=as.numeric(variable),data=value,year=V2,iter=V1))
+  
+  file.remove(file.path(dirTmp,"n.txt"))
+  file.remove(file.path(dirTmp,"f.txt"))
+  file.remove(dirTmp)
   
   stk=readVPA2Box(file,m=m)
   
@@ -98,8 +105,20 @@ jackknife.vpa2box<-function(file,m=0.2){
   harvest(stk)=f
   units(harvest(stk))="f"
   
-  attributes(stk)[["iter.key"]]=yf
+  attributes(stk)[["iter.key"]]=yf[-1]
   
-  return(stk)}
+  rf1=stk
+  stock.n(rf1)=stock.n(iter(stk,1))
+  harvest(rf1)=harvest(iter(stk,1))
+  dimnames(stock.n(rf1))$iter=1
+  dimnames(harvest(rf1))$iter=1
+  
+  rfs=stk
+  rfs@stock.n=stock.n(iter(rfs,-1))
+  rfs@harvest=harvest(iter(rfs,-1))
+
+  sink(NULL)
+ 
+  return(FLStocks("fit"=rf1,"jackknife"=rfs))}
 
 

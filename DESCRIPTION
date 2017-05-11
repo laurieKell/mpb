@@ -23,6 +23,8 @@ Maintainer: Laurence Kell<laurie.kell@iccat.int>
 License: GPL-2
 Collate:
     generics.R
+    biodyn-fit.R
+    aspic-fit.R
     biodyn-class.R
     biodyns.R
     aspic-class.R
@@ -45,8 +47,6 @@ Collate:
     aspic-control.R
     aspic-constructors.R
     aspic-coerce.R
-    aspic-fit.R
-    biodyn-fit.R
     biodyn-fwd.R
     biodyn-setParams.R
     aspic-plot.R

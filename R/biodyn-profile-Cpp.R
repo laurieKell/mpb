@@ -125,7 +125,8 @@ tmp<-function(fitted,
   if (comp){
     rsd=mdply(data.frame(iter=seq(dims(f)$iter)), function(iter){
         ft =fit(iter(fitted,iter),index)
-        dgs=ft@diags[,c(".id","year","residual")]
+        print(head(ft@diags))
+        dgs=ft@diags[,c("name","year","residual")]
         names(dgs)=c("name","year","residual")
             
         dgs})

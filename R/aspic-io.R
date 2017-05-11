@@ -3,7 +3,6 @@ utils::globalVariables('read.table')
 utils::globalVariables('read.table')
 utils::globalVariables('qqnorm')
 
-
 checkFile=function(x){
   
   ln=tolower(scan(x,nlines=1,what=character(),sep="\n"))

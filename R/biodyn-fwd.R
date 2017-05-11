@@ -173,7 +173,7 @@ setMethod( 'fwd', signature(object='biodyn',fishery='missing',control='missing')
      
      ## target arg is an FLQuant
      if (is.null(harvest)&('FLQuant' %in% class(f)|'FLQuant' %in% class(f))) harvest=f
-       
+     
      if ('FLQuant' %in% class(stock)   |
          'FLQuant' %in% class(harvest) |
          'FLQuant' %in% class(catch))

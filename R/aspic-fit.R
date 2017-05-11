@@ -2,8 +2,6 @@ utils::globalVariables(c("year","swon","year","B","obs"))
 utils::globalVariables(c("m_ply","b"))
 utils::globalVariables(c("%dopar%","foreach","i"))
 
-setGeneric('fit',       function(object,index,...)  standardGeneric('fit'), package='mpb')
-
 #' @title fit
 #'
 #' @description
@@ -107,9 +105,9 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE){
   
   if (.Platform$OS.type == "windows")
     file.copy(paste(paste(system.file("bin", "windows", package="mpb", mustWork=TRUE),exeNm, sep="/"),"exe",sep="."), dir)
-  else  
-    file.copy(     paste(system.file("bin", "linux", package="mpb", mustWork=TRUE),exeNm, sep="/"),                 dir)
-  
+  else
+    file.copy(paste(system.file("bin", "linux", package="mpb", mustWork=TRUE),  exeNm, sep="/"),                dir)
+    
   ## Jack knife if wished
   j=1
   if (jk){
@@ -141,7 +139,10 @@ runExe=function(object,package="mpb",exeNm="aspic",dir=tempdir(),jk=FALSE){
     #inp=file.path(getwd(),"aspic.inp")
     #system(paste(exeNm, paste(" ",exeNm,".inp",sep=""),sep=""))
     
-    system(paste("aspic.exe aspic.inp"),ignore.stdout=TRUE)
+    if (.Platform$OS=="windows")
+      system(paste("aspic.exe aspic.inp"),ignore.stdout=TRUE)
+    else  
+      system(paste("./aspic aspic.inp"),ignore.stdout=TRUE)
     
     rdat=dget(file.path(getwd(),paste(exeNm,"rdat",sep=".")))
     
