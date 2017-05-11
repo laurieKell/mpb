@@ -300,7 +300,7 @@ getPella=function(obj, exeNm='pella') {
   obj@params[grep('q',dimnames(obj@params)$params),]=q. 
   obj@params[grep('s',dimnames(obj@params)$params),]=s. 
     
-  err=try(t3<-t(array(read.table('lls.txt',sep="\n"))))
+  err=try(t3<-t(array(read.table('lls.txt',sep="\n"))),silent=TRUE)
 
   if (!(any(is(err)=="try-error"))){
     

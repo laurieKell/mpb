@@ -87,6 +87,7 @@ Collate:
     weighted.var.se.R
     biodyn-FLBRP2biodyn.R
     jackknife-vpa2box.R
+    plotIndex.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1
