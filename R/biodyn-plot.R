@@ -66,7 +66,7 @@ setGeneric('plotIndexResidual', function(data,...)       standardGeneric('plotIn
 #' plot(bd)
 #' } 
 setMethod('plot', signature(x='biodyn', y='missing'),
-  function(x, y, probs=c(0.95,0.75,0.50,0.25,0.05), na.rm=FALSE, type = 7, 
+  function(x, y, probs=c(0.90,0.75,0.50,0.25,0.10), na.rm=FALSE, type = 7, 
     worm =NULL,
     fn   =list('Stock'  =function(x) stock(x), 
               'Harvest'=function(x) harvest(x),
@@ -136,7 +136,7 @@ setMethod('plot', signature(x='biodyns', y='missing'),
       p=ggplot(res)+
         geom_ribbon(aes(year,ymax=ymax,ymin=ymin,alpha=CI,group=paste(.id,CI),fill=.id))+
         geom_line(  aes(year,data,col=.id,group=.id),data=mdn)+
-        scale_alpha_manual(values=seq(.1,.75,length.out=length(unique(res$CI))))
+        scale_alpha_manual(values=seq(.1,.5,length.out=length(unique(res$CI))))
       
     }else{
       p=ggplot(res)+

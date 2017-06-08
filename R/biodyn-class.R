@@ -116,7 +116,7 @@ validity<-function(object) {
     catch       =FLQuant(),
     stock       =FLQuant(),
     model       =models[3],
-    params      =FLPar(c(.5,as.numeric(NA),1,1),dimnames=list(params=c('r','k','p','b0'),iter=1)),
+    params      =FLPar(c(.5,as.numeric(NA),0.000001,0.8),dimnames=list(params=c('r','k','p','b0'),iter=1)),
     control     =FLPar(array(c(1,1,-1,-1,rep(NA,each=6),1,rep(NA,5)), dim=c(4,4,1), dimnames=list(params=c('r','k','p','b0'),option=c('phase','min','val','max'),iter=1))),
     priors      =array(rep(c(0,0,0.3,1),       each=7), dim=c(7,4),   dimnames=list(params=c('r','k','p','b0','msy','bmsy','fmsy'),c('weight','a','b','type'))),
     vcov        =FLPar(array(as.numeric(NA), dim=c(4,4,1), dimnames=list(params=c('r','k','p','b0'),params=c('r','k','p','b0'),iter=1))),

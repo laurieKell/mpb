@@ -21,10 +21,6 @@ setMethod('biodyn', signature(object='FLQuant',params='FLPar'),
     k=  guessK(mean(c(res@params["r",,flag],na.rm=TRUE)),
                mean(c(res@catch),na.rm=TRUE),
                mean(c(res@params["p",,flag]),na.rm=TRUE))
-    
-    res@params["k",,is.na(res@params["k"])]=k
-    
-    
     }
       
   res@control=propagate(res@control,dims(res@params)$iter)
@@ -189,9 +185,39 @@ setMethod('biodyn', signature(object='missing',params='missing'),
   res=new('biodyn')
             
   # Load given slots
+  ##check indices/index
+  if ("index"%in%names(args))
+    names(args[names(args)=="index"])="indices"
+  
+  if ("indices"%in%names(args)&is.FLQuant(args[["indices"]]))
+        args[["indices"]]=FLQuants(args[["indices"]])
+        
   for(i in names(args))
     slot(res, i) = args[[i]]
-            
+  
+  #set k if missing  
+  if ("catch"%in%names(args)&any(is.na(res@params["k"]))){
+
+    res@params=propagate(res@params,dim(catch(res))[6])
+
+    flg=is.na(res@params["k"])
+    if (any(flg))
+      res@params["k",flg]=c(apply(catch(res)[,,,,,flg],6,mean,na.rm=TRUE)*15)
+    }  
+
+  if ("catch"%in%names(args)){
+     res@stock=window(FLQuant(NA,dimnames=dimnames(res@catch)),end=dims(res@catch)$maxyear+1)
+     res@range[1:2][]=as.numeric(range(dimnames(res@stock)$year))
+
+     res=fwd(res,catch=catch(res))
+  
+     if ("indices"%in%names(args)){
+        setParams(res) =res@indices
+        setControl(res)=res@params
+        control(res)[c("q1","sigma1"),"phase"]=-2
+     }
+   }   
+
   range(res)=unlist(dims(catch(res))[c("minyear","maxyear")])
             
   return(res)})

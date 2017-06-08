@@ -1,20 +1,19 @@
-## ----knitr_init, echo=FALSE, results="hide"----
+## ----knitr_init, echo=FALSE, results="hide"------------------------------
 library(knitr)
 ## Global options
 opts_chunk$set(echo    =TRUE,
                eval    =TRUE,
-               cache   =!FALSE,
-               cache.path="cache/",
+               cache   =FALSE,
                prompt  =FALSE,
                comment =NA,
                message =FALSE,
                tidy    =FALSE,
-               warning =FALSE,
+               warnings=FALSE,
                fig.height=4.5,
                fig.width =4.5,
                fig.path  ="tex/")
 
-## ----echo=FALSE----------------------------
+## ----echo=FALSE----------------------------------------------------------
 sink(NULL)
 warn=options()$warn
 options(warn=-1)
@@ -26,16 +25,17 @@ library(mpb)
 theme_set(theme_bw())
 options(digits=3)
 options(warn=warn)
+
 sink()
 
-## ----classCreate---------------------------
+## ----classCreate---------------------------------------------------------
 bd=biodyn()
 
-## ----classCoerce2,eval=FALSE,echo=TRUE-----
+## ----classCoerce2,eval=FALSE,echo=TRUE-----------------------------------
 #  asp=aspic("aspic.inp")
 #  bd =as(asp,"biodyn")
 
-## ----classSim,eval=FALSE-------------------
+## ----classSim,eval=FALSE-------------------------------------------------
 #  bd=sim()
 
 ## ----plot, fig.margin=TRUE, fig.width=4, fig.height=5, fig.cap="Production function with simulated time series"----
@@ -51,7 +51,7 @@ plotProduction(bd)+
              model.frame(FLQuants(bd,"stock","catch")))+
   theme_bw()+theme(legend.position="none")
 
-## ----fitU, fig.margin=TRUE, fig.cap="Simulated CPUE series"----
+## ----fitU, fig.margin=TRUE, fig.cap="Simulated CPUE series"--------------
 cpue=(stock(bd)[,-dims(bd)$year]+
       stock(bd)[,-1])/2
 set.seed(7890)
@@ -63,22 +63,21 @@ ggplot(as.data.frame(cpue))+
             data=as.data.frame(stock(bd)))+
   theme_bw()
 
-## ----fitGuess2,size="tiny"-----------------
+## ----fitGuess2,size="tiny"-----------------------------------------------
 params(bd)["k"]=mpb:::guessK(params(bd)["r"],mean(catch(bd),na.rm=T),params(bd)["p"])
 
-## ----fitParams,fig.margin=TRUE,fig.width=4,fig.height=6----
+## ----fitParams,fig.margin=TRUE,fig.width=4,fig.height=6------------------
 setParams(bd)=cpue
 params(bd)
 
-## ----fitControl,fig.margin=TRUE,fig.width=4,fig.height=6----
+## ----fitControl,fig.margin=TRUE,fig.width=4,fig.height=6-----------------
 setControl(bd)=params(bd)
 control(bd)
 
-## ----fitrun,fig.margin=TRUE,fig.width=4,fig.height=6----
+## ----fitrun,fig.margin=TRUE,fig.width=4,fig.height=6---------------------
 control(bd)[c("p","b0"),"phase"]=-1
 control(bd)["r","max"]=1.0
 bdHat=fit(bd,cpue)
-save(bd,bdHat,cpue,file="/home/laurie/Desktop/flr/mpb/data/sims.RData")
 
 ## ----fitcheck, eval=TRUE, fig.margin=TRUE, fig.height=6,fig.cap="A comparison of the true and fitted time series"----
 params(bdHat)
@@ -88,7 +87,7 @@ plot(mpb:::biodyns(list("True"=bd,"Hat"=bdHat)))+
   theme(legend.position="bottom")+
   theme_bw()
 
-## ----diag,echo=TRUE------------------------
+## ----diag,echo=TRUE------------------------------------------------------
 print(head(bdHat@diags),digits=3)
 
 ## ----diagQQ, fig.width=4,fig.height=4,fig.margin=TRUE, fig.cap="Quantile-quantile plot to compare residual distribution with the normal distribution."----
@@ -183,13 +182,13 @@ ggplot(prfl)+
   theme(legend.position="bottom")+
   theme_bw()
 
-## ----prflADMB,echo=FALSE,eval=FALSE--------
+## ----prflADMB,echo=FALSE,eval=FALSE--------------------------------------
 #  bd2=fit(bdHat,cpue,cmdOps="-lprof")
 #  prf=subset(bd@profile, param %in% c("bbmsy","ffmsy"))
 #  prf=data.frame(What="Profile",t(daply(prf, .(param), with, sample(value,500,prob=p,replace=T))))
 #  names(prf)[2:3]=c("Stock","Harvest")
 
-## ----uncertainty, fig.margin=TRUE----------
+## ----uncertainty, fig.margin=TRUE----------------------------------------
 bd   =window(sim(),end=39)
 cpue=(stock(bd)[,-dims(bd)$year]+
       stock(bd)[,-1])/2
@@ -204,7 +203,7 @@ bdHat=fit(bdHat,cpue)
 
 sims=mpb:::biodyns(list("True"=bd,"Best Fit"=bdHat))
 
-## ----uncertaintyCov,fig.height=6, fig.margin=TRUE----
+## ----uncertaintyCov,fig.height=6, fig.margin=TRUE------------------------
 v=vcov(  bdHat)[c("r","k"),c("r","k"),1]
 p=params(bdHat)[c("r","k")]
 #refs=mvn(500,p,v)
@@ -220,20 +219,20 @@ bdJK =fit(bdHat,FLQuant(jackknife(cpue)))
 
 sims[["Jack Knife"]]=bdJK
 
-## ----uncertaintyMCMC, eval=FALSE-----------
+## ----uncertaintyMCMC, eval=FALSE-----------------------------------------
 #  sims[["MCMC"]]=fit(bdHat,cpue,cmdOps=c("-mcmc 1000000, -mcsave 5000"))
 
-## ----uncertaintyMCMC2, eval=FALSE,fig.height=4,fig.margin=TRUE----
+## ----uncertaintyMCMC2, eval=FALSE,fig.height=4,fig.margin=TRUE-----------
 #  acf(c(params(sims[["MCMC"]])["r"]))
 
-## ----fig.height=4,fig.margin=TRUE, fig.cap=""----
+## ----fig.height=4,fig.margin=TRUE, fig.cap=""----------------------------
 plot(sims[-4])+
   theme_bw()
 
-## ----ref,eval=FALSE------------------------
+## ----ref,eval=FALSE------------------------------------------------------
 #  bdHat@mng
 
-## ----ref2,eval=FALSE-----------------------
+## ----ref2,eval=FALSE-----------------------------------------------------
 #  bdHat@mngVcov
 
 ## ----ref3,eval=FALSE,fig.margin=TRUE,fig.width=4,fig.height=6,fig.cap=""----
@@ -284,25 +283,25 @@ plot(bdHat,worm=c(2,8))+
   theme(legend.position="bottom")+
   theme_bw()
 
-## ----hcr1----------------------------------
+## ----hcr1----------------------------------------------------------------
 bd=window(sim(),end=29)
 for (i in seq(29,49,1))
   bd=fwd(bd,harvest=mpb:::hcr(bd,yr=i-1,hyr=i+1:2))
 simHCR=mpb:::biodyns(list("Annual"=bd))
 
-## ----hcr3----------------------------------
+## ----hcr3----------------------------------------------------------------
 bd=window(bd,end=29)
 for (i in seq(29,49,3))
   bd=fwd(bd,harvest=mpb:::hcr(bd,yr=i,hyr=i+1:3))
 simHCR[["Triennial"]]=bd
 
-## ----hcrF----------------------------------
+## ----hcrF----------------------------------------------------------------
 bd=window(bd,end=29)
 for (i in seq(29,49,3))
   bd=fwd(bd,harvest=mpb:::hcr(bd,yr=i,byr=i,hyr=i+1:3,bndF=c(0.9,1.1)))
 simHCR[["bound F"]]=bd
 
-## ----hcrY----------------------------------
+## ----hcrY----------------------------------------------------------------
 bd=window(bd,end=29)
 for (i in seq(29,49,3))
   bd=fwd(bd,catch=mpb:::hcr(bd,yr=i,hyr=i+1:3,tac=TRUE,bndTac=c(0.9,1.1)))
@@ -312,4 +311,48 @@ simHCR[["bound TAC"]]=bd
 plot(simHCR)+
   theme_bw()+
   theme(legend.position="bottom")
+
+## ----MC,fig.margin=TRUE,fig.width=6,fig.height=6-------------------------
+set.seed(7890)
+pe=rlnorm(500,FLQuant(0,dimnames=list(year=1:50)),0.5)
+
+bd=window(sim(),end=30)
+bd.=bd
+bd@stock =propagate(bd@stock, 500)
+bd=fwd(bd,harvest=harvest(bd)[,2:30],pe=pe)
+
+for (i in seq(30,48,1))
+  bd=fwd(bd,
+         catch=hcr(bd,yr=i,hyr=i+1,tac=TRUE,bndTac=c(0.9,1.1)),
+         pe   =pe)
+
+plot(bd)+
+  theme_bw()
+
+## ----MCkobe,fig.margin=TRUE,fig.width=6,fig.height=6---------------------
+library(plyr)
+library(mpb)
+library(reshape)
+library(kobe)
+bd=sim()
+
+#source('~/Desktop/flr/mpb/R/biodyn-msy.R')
+#source('~/Desktop/flr/mpb/R/biodyn-hcr.R')
+
+trks=kobe(bd,what="trks")
+trks=mdply(data.frame(Year=seq(33,49,3)), 
+           function(Year) subset(trks,year<=Year))
+
+pts =mdply(data.frame(Year=seq(33,49,3)),function(Year)
+                 kobe(bd,year=Year,what="pts"))
+
+kobePhase()+    
+    geom_line(aes(stock,harvest),data=plotHcr(bd),
+              col="brown",size=1.5)                             +    
+    geom_path( aes(stock,harvest),data=subset(trks,pctl=="50%"),col="blue")+
+    geom_point(aes(stock,harvest),data=subset(pts,year>=33),size=.3,col="cyan")    +
+    facet_wrap(~Year)
+
+## ----mse,eval=FALSE------------------------------------------------------
+#  mseBiodyn
 

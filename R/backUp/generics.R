@@ -294,14 +294,15 @@ setGeneric('production',function(object,biomass,...) standardGeneric('production
 
 setGeneric('pellat',    function(object,...)         standardGeneric('pellat'))
 
-setGeneric('plot',           function(x,y)               standardGeneric('plot'))
-setGeneric('plotIndex',      function(data,...)          standardGeneric('plotIndex'))
-setGeneric('plotDiags',      function(data,...)          standardGeneric('plotDiags'))
-setGeneric('plotProduction', function(data,biomass,...)  standardGeneric('plotProduction'))
-setGeneric('plotEql',        function(data,biomass,...)  standardGeneric('plotEql'))
-setGeneric('plotMSE',        function(x,y,z,...)         standardGeneric('plotMSE'))
-setGeneric('plotHcr',        function(object,...)        standardGeneric('plotHcr'))
-setGeneric('plotCc',         function(data,...)          standardGeneric('plotCc'))
+setGeneric('plot',              function(x,y)               standardGeneric('plot'))
+setGeneric('plotIndex',         function(data,...)          standardGeneric('plotIndex'))
+setGeneric('plotIndexResidual', function(data,...)          standardGeneric('plotIndexResidual'))
+setGeneric('plotDiags',         function(data,...)          standardGeneric('plotDiags'))
+setGeneric('plotProduction',    function(data,biomass,...)  standardGeneric('plotProduction'))
+setGeneric('plotEql',           function(data,biomass,...)  standardGeneric('plotEql'))
+setGeneric('plotMSE',           function(x,y,z,...)         standardGeneric('plotMSE'))
+setGeneric('plotHcr',           function(object,...)        standardGeneric('plotHcr'))
+setGeneric('plotCc',            function(data,...)          standardGeneric('plotCc'))
 
 setGeneric("rate",         function(object,...)   standardGeneric('rate'))
 setGeneric('hrate',        function(object)       standardGeneric('hrate'))

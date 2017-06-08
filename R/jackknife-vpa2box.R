@@ -50,6 +50,13 @@ saveNF<-function(i,spd,dir){
   write.table(cbind(iter=i,N),file=file.path(dir,"n.txt"),append=TRUE,row.names=FALSE,col.names=FALSE)
   write.table(cbind(iter=i,F),file=file.path(dir,"f.txt"),append=TRUE,row.names=FALSE,col.names=FALSE)   }
 
+saveQ<-function(i,dgs,dir){
+  res=diagsVpa2box(dgs)
+  res=res[!duplicated(res$name),c("name","q")]
+  
+  write.table(cbind(iter=i,res),file=file.path(dir,"q.txt"),append=TRUE,row.names=FALSE,col.names=FALSE)
+  }
+  
 jackknife.vpa2box<-function(file,m=0.2){
   
   sink("/dev/null")
@@ -73,13 +80,16 @@ jackknife.vpa2box<-function(file,m=0.2){
   dirTmp= tempdir() 
   system(paste("wine vpa-2box.exe", ctl))
   saveNF(0,fls[5],dirTmp)
+  saveQ(0,fls[3],dirTmp)
   
   m_ply(data.frame(i=seq(length(idx)-1)), function(i){
     cat(d1,     file=fls[1],sep="\n")
     cat(idx[-i],file=fls[1],sep="\n",append=TRUE)
     cat(d2,     file=fls[1],sep="\n",append=TRUE)
     system(paste("wine vpa-2box.exe", ctl))
-    saveNF(i,file.path(path,fls[5]),dirTmp)})
+    saveNF(i,file.path(path,fls[5]),dirTmp)
+    saveQ( i,file.path(path,fls[3]),dirTmp)
+    })
   
   file.remove(fls[1])
   file.copy(dFl,fls[1])
@@ -94,9 +104,11 @@ jackknife.vpa2box<-function(file,m=0.2){
   n =as.FLQuant(transmute(melt(n,id=c("V1","V2")),age=as.numeric(variable),data=value,year=V2,iter=V1))
   f =read.table(file.path(dirTmp,"f.txt"))
   f =as.FLQuant(transmute(melt(f,id=c("V1","V2")),age=as.numeric(variable),data=value,year=V2,iter=V1))
+  q =read.table(file.path(dirTmp,"q.txt"))
   
   file.remove(file.path(dirTmp,"n.txt"))
   file.remove(file.path(dirTmp,"f.txt"))
+  file.remove(file.path(dirTmp,"q.txt"))
   file.remove(dirTmp)
   
   stk=readVPA2Box(file,m=m)
@@ -119,6 +131,6 @@ jackknife.vpa2box<-function(file,m=0.2){
 
   sink(NULL)
  
-  return(FLStocks("fit"=rf1,"jackknife"=rfs))}
+  return(list(stock=FLStocks("fit"=rf1,"jackknife"=rfs),q=q))}
 
 
