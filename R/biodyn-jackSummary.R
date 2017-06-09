@@ -121,4 +121,15 @@ if (FALSE){
   n       <- 15
   theta   <- function(x,xdata){ cor(xdata[x,1],xdata[x,2]) }
   results <- jackknife(1:n,theta,xdata)
-  }
+}
+
+
+covJK=function(object,...) {
+            
+  n  =dims(object)$iter 
+
+  FLPar(cov(model.frame(object)[,dimnames(object)$params])*(n-1)*(n-1)/n)}
+
+corJK=function(object,...)   {
+  res=covJK(object)
+  FLPar(cor(res[drop=T]))}
