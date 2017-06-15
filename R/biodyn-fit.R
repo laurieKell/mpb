@@ -31,13 +31,14 @@ utils::globalVariables('optimx')
 setGeneric('fit',       function(object,index,...)  standardGeneric('fit'))
   setMethod('fit',signature(object='biodyn',index='FLQuant'),
           function(object,index=index, 
-                   dir=tempdir(),
+                   dir=tempfile("tmpdir"),
                    cmdOps=paste('-maxfn 500 -iprint 0'),
                    lav=FALSE){
 
             #sink(file = "/home/laurie/Desktop/temp/output.txt")          
 
-            res=fitPella(object,index=index, 
+            object@indices=FLQuants("1"=index)
+            res=fitPella(object, 
                          dir=dir,cmdOps=cmdOps,lav=lav)
             #sink()
             
@@ -45,44 +46,60 @@ setGeneric('fit',       function(object,index,...)  standardGeneric('fit'))
 
 setMethod('fit',signature(object='biodyn',index='FLQuants'),
           function(object,index=index, 
-                   dir=tempdir(),
+                   dir=tempfile("tmpdir"),
                    cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE){
-          fitPella(object,index, 
+          
+            object@indices=index
+            fitPella(object, 
                      dir=dir,
                      cmdOps=cmdOps,lav=lav)})
 
-setMethod('fit',signature(object='biodyn',index='FLQuantJKs'),
+
+setMethod('fit',signature(object='biodyn',index="missing"),
           function(object,index=index, 
-                   dir=tempdir(),
+                   dir=tempfile("tmpdir"),
+                   cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE){
+            
+            fitPella(object, 
+                     dir=dir,
+                     cmdOps=cmdOps,lav=lav)})
+
+setMethod('jackknife',signature(object='biodyn'),
+         function(object,index="missing", 
+                   dir=tempfile("tmpdir"),
                    cmdOps=paste('-maxfn 500 -iprint 0'),
                    lav=FALSE){
-           
-            nits  =max(laply(index,function(x) as.numeric(dims(x)$iter)))
-            control(object)=propagate(control(object),nits)
-            object@params=propagate(object@params,nits)
-            object@stock   =propagate(stock(  object),nits)
-            index =FLQuants(llply(index,as.FLQuant))
-            object=fitPella(object,index=index, 
-                            dir=dir,cmdOps=cmdOps,lav=lav)
+
+            orig=object
+            if (index!="missing"){
+              if      (is(index)=="FLQuantJK") object@indices=FLQuants("1"=index)
+              else if (is(index)=="FLQuant")   object@indices=FLQuants("1"=jackknife(index))
+              else if (is(index)=="FLQuants") {
+                if (any(laply(index,function(x) (is(x)=="FLQuantJK")))) object@indices=index
+                else object@indices=jackknife(index)}
+              else stop("index either has to be missing or of FLQuant, FLQuants, or FLQuantJK")
+              }
+            
+            nits  =max(laply(object@indices,function(x) as.numeric(dims(x)$iter)))
+            if (dim(control(object))[3]==1)
+               control(object)=propagate(control(object),nits)
+            if (dim(object@params)[2]==1)
+              object@params=propagate(object@params,nits)
+            if (dims(object@stock)["iter"]==1)
+              object@stock   =propagate(stock(  object),nits)
+            object=fitPella(object,dir=dir,cmdOps=cmdOps,lav=lav)
+            
+            object@stock=as(stock(object),"FLQuantJK")
+            
+            for (iSlot in names(getSlots("biodyn")[getSlots("biodyn")=="FLPar"])){
+              slot(object,iSlot)      =as(slot(object,iSlot),"FLParJK")
+              slot(object,iSlot)@orig=slot(orig,iSlot)
+              }
+
             attributes(object)['jk']=TRUE
+            
             object})
 
-setMethod('fit',signature(object='biodyn',index='FLQuantJK'),
-          function(object,index=index, 
-                   dir=tempdir(),
-                   cmdOps=paste('-maxfn 500 -iprint 0'),
-                   lav=FALSE){
-            
-            object=propagate(object,dims(index)$iter)
-            
-            index =as.FLQuant(index)
-            
-            object=fitPella(object,index=index, 
-                            dir=dir,cmdOps=cmdOps,lav=lav)
-            
-            attributes(object)['jk']=TRUE
-            
-            object})
 
 #' @title fit
 #' 
@@ -161,14 +178,14 @@ diagsFn=function(res){
 #tmp=as.data.frame(FLPar(array(NA,dim=c(3,2,1),dimnames=list(param=c('a','b','c'),var=c('x','y'),iter=1))))
 
 ## copies exe into temp dir ready to run
-setExe=function(dir=tempdir()){
+setExe=function(dir=tempfile("tmpdir")){
   ##### set up temp dir with exe for data files
    
   # Linux
   if (R.version$os=='linux-gnu') {
     exe = paste(system.file('bin', 'linux', package="mpb", mustWork=TRUE),"pella", sep='/')
-    if (length(grep("-rwxrwxr-x",system(paste("ls -l",exe),intern=TRUE)))==0)
-      warning("Executable privilege not set for \n",exe,call.=FALSE)
+    if (length(grep("-rwxrwxr-x",system(paste("ls -l","pella"),intern=TRUE)))==0)
+      warning("Executable privilege not set for \n","pella",call.=FALSE)
     
     file.copy(exe, dir)
     dir = paste(dir, '/', sep='')
@@ -190,99 +207,79 @@ setExe=function(dir=tempdir()){
   
   oldwd}
 
-setPella=function(obj,dir=tempdir(), lav=FALSE) {
+setPella=function(x,dir=tempfile("tmpdir"),lav=FALSE) {
+  
+  setExePath()
+  system(paste("mkdir",dir))
+  setwd(dir)
+  
   # create input files ################################
+  
   dgts=options()$digits
   options(digits=22)
 
   # cpue
-  if (is.FLQuant(obj[[2]])){  
-     idx=model.frame(FLQuants(index=obj[[2]]), drop=TRUE)
-     idx=data.frame(idx,name=1)
-  }else if ('FLQuants' %in% class(obj[[2]])){  
-     idx=as.data.frame(obj[[2]], drop=TRUE)
-     names(idx)[2:3]=c('index','name')
-     idx=transform(idx,name=as.numeric(name))
-  }
+  idx=as.data.frame(x@indices, drop=TRUE)
+  names(idx)[2:3]=c('index','name')
+  idx=transform(idx,name=as.numeric(name))
   idx=idx[!is.na(idx$index),]
 
-  bd.=obj[[1]]
- 
-  nms=c(modelParams('pellat'),'b0')
+  nms=c(mpb:::modelParams('pellat'),'b0')
   if (length(unique(idx$name))>0)
     nmIdx=paste(c('q','sigma'), rep(unique(idx$name),each=2),sep='')
-  else  
-    nmIdx=c('q','sigma')
+  else nmIdx=c('q','sigma')
 
-  ctl = bd.@control[nms,]
+  ctl = x@control[nms,]
   ctl[,2:4] = ctl[,c(2,4,3)]
   ctl=alply(array(c(ctl),dim=dim(ctl),dimnames=dimnames(ctl))[,,1,drop=T],1)
-#  ctl = alply(ctl,1)
   names(ctl) = nms
-#   
-#   # ctl file
-#   ctl        =bd.@control[nms,,1]
-#   ctl[,2:4,1]=ctl[,c(2,4,3),1]
-# print("set 1")
-#   ctl        =alply(ctl,1)
-# print("set 2")
-#   names(ctl) =nms
 
-  writeADMB(ctl, paste(dir, '/', 'pella', '.ctl', sep=''),append=FALSE)
-  writeADMB(ifelse(lav,0,1), paste(dir, '/', 'pella', '.obj', sep=''),append=FALSE)
+  mpb:::writeADMB(ctl, paste(dir, '/', 'pella', '.ctl', sep=''),append=FALSE)
+  mpb:::writeADMB(ifelse(lav,0,1), paste(dir, '/', 'pella', '.obj', sep=''),append=FALSE)
 
   cat('# q ####################\n', file=paste(dir, '/', 'pella', '.ctl', sep=''),append=TRUE)
 
-  ctl           = bd.@control[nmIdx[grep('q',nmIdx)],,1]
+  ctl           = x@control[nmIdx[grep('q',nmIdx)],,1]
   ctl[,2:4,1]   = ctl[,c(2,4,3),1]
   ctl           = alply(t(matrix(ctl,dim(ctl))),1)
   names(ctl)    = c('phase','lower','upper','guess')
 
-  writeADMB(ctl, paste(dir, '/', 'pella', '.ctl', sep=''),append=TRUE)
+  mpb:::writeADMB(ctl, paste(dir, '/', 'pella', '.ctl', sep=''),append=TRUE)
   
   cat('# sigma ################\n', file=paste(dir, '/', 'pella', '.ctl', sep=''),append=TRUE)
-  ctl           = bd.@control[nmIdx[grep('s',nmIdx)],,1]
+  ctl           = x@control[nmIdx[grep('s',nmIdx)],,1]
   ctl[,2:4,1]   = ctl[,c(2,4,3),1]
   ctl           = alply(t(matrix(ctl,dim(ctl))),1)
   names(ctl)    = c('phase','lower','upper','guess')
 
-  writeADMB(ctl, paste(dir, '/', 'pella', '.ctl', sep=''),append=TRUE)
+  mpb:::writeADMB(ctl, paste(dir, '/', 'pella', '.ctl', sep=''),append=TRUE)
 
     # prr file
-  prr = bd.@priors[c(nms,c('msy','bmsy','fmsy'),nmIdx),] 
+  prr = x@priors[c(nms,c('msy','bmsy','fmsy'),nmIdx),] 
   prr = alply(prr,1)
-  names(prr) = dimnames(bd.@priors)$params[1:9]
-  writeADMB(prr, paste(dir, '/', 'pella', '.prr', sep=''),append=FALSE)
+  names(prr) = dimnames(x@priors)$params[1:9]
+  mpb:::writeADMB(prr, paste(dir, '/', 'pella', '.prr', sep=''),append=FALSE)
  
   # ref file
-  if (is.na(bd.@ref["yr"])) 
-       bd.@ref["yr"]=as.integer(range(bd.)["maxyear"]-(range(bd.)["minyear"]+range(bd.)["maxyear"])/2)
+  if (is.na(x@ref["yr"])) 
+       x@ref["yr"]=as.integer(range(x)["maxyear"]-(range(x)["minyear"]+range(x)["maxyear"])/2)
   
-  writeADMB(bd.@ref, paste(dir, '/', 'pella', '.ref', sep=''),append=FALSE)
+  mpb:::writeADMB(x@ref, paste(dir, '/', 'pella', '.ref', sep=''),append=FALSE)
 
   # write data
-  ctc = as.list(model.frame(FLQuants("catch"=bd.@catch), drop=TRUE))
+  ctc = as.list(model.frame(FLQuants("catch"=x@catch), drop=TRUE))
   ctc = c(nYrs=length(ctc[[1]]), ctc)
   res = c(ctc, c(nIdxYrs=dim(idx)[1], nIdx=length(unique(idx$name)), idx))
 
-  writeADMB(res, paste(dir, '/', 'pella', '.dat', sep=''),append=FALSE)
+  mpb:::writeADMB(res, paste(dir, '/', 'pella', '.dat', sep=''),append=FALSE)
 
-#   # propagate as required
-#   its = dims(bd)$iter
-#   
-#   # params
-#   bd@params = propagate(params(bd)[,1], its)
-#   # stock
-#   stock(bd)  = FLQuant(dimnames=dimnames(stock(bd))[1:5], iter=its)
-#   
-  
   # vcov
-  vcov(bd.)=FLPar(array(NA, dim     =c(dim(params(bd.))[1],dim(params(bd.))[1],1), 
-                           dimnames=list(params=dimnames(params(bd.))[[1]],
-                                         params=dimnames(params(bd.))[[1]],iter=1)))
+  vcov(x)=FLPar(array(NA, dim     =c(dim(params(x))[1],dim(params(x))[1],1), 
+                           dimnames=list(params=dimnames(params(x))[[1]],
+                                         params=dimnames(params(x))[[1]],iter=1)))
   
   options(digits=dgts)
-  return(bd.)}
+  return(x)}
 
 getPella=function(obj) {
   ow=options("warn");options(warn=-1)
@@ -317,273 +314,22 @@ getPella=function(obj) {
   # stock biomass
   obj@stock[,1:dim(t1)[1]] = unlist(c(t1['stock'])) 
 
+  #unlink(FLCore:::getFile(getwd()), recursive=TRUE, force=TRUE)
+   
+  system("rm pella.*")
+  system("rm admodel.dep admodel.hes debug.txt fmin.log lls.txt mcmc_bio.csv mcmc_par.csv trace.txt")
+  whereNow=getwd()
+  setwd(FLCore:::getDir(whereNow))
+  system(paste("rm -r",FLCore:::getFile(whereNow)))
+  
   options(ow)
   
   return(obj)} 
 
 #FLParBug sim@control['r','val',1]=c(.5,.6)
-#exe(object, exeNm='biodyn', dir=tempdir(), set=set, get=biodyn::set, cmdOps=paste('-maxfn 500'))
+#exe(object, exeNm='biodyn', dir=tempfile("tmpdir"), set=set, get=biodyn::set, cmdOps=paste('-maxfn 500'))
   
 activeParams=function(obj) dimnames(obj@control)$params[c(obj@control[,'phase']>-1)]
-
-fitPella=function(object,index=index,
-                  dir=tempdir(),
-                  cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE,maxF=2.5,silent=TRUE)          
-  {
-  if (silent){
-    ow=options("warn");options(warn=-1)
-    
-    tmp <- tempfile()
-    sink(tmp)
-    on.exit(sink())
-    on.exit(file.remove(tmp),add=TRUE)
-    }
-print(1)  
-  first=TRUE   
-  catch=NULL
-  if ('FLQuant'%in%is(index))
-    index=FLQuants(index)
-  
-  its=max(laply(index,function(x) dims(x)$iter),dims(catch(object))$iter)
-              
-  catch(object)=propagate(catch(object),its)   
-
-  max=min(dims(catch(object))$maxyear,max(laply(index,function(x) dims(x)$maxyear)))
-  if (!is.na(range(object)['maxyear'])) max=min(max,range(object)['maxyear']) 
-  min=min(dims(catch(object))$minyear,max(laply(index,function(x) dims(x)$minyear)))
-  if (!is.na(range(object)['minyear'])) min=max(min,range(object)['minyear'])
-
-  object=window(object,start=min,end=max)
-  
-  index=FLQuants(llply(index, window,start=min,end=max))
-  
-  its=max(its,dims(object@control)$iter)
-  
-  slts=getSlots('biodyn')
-  slts=slts[slts %in% c('FLPar','FLQuant')]
- 
-  oldwd =setExe(dir)
-  oldwd=getwd()
-  setwd(dir)
-  exe()
-  
-  object=list(object,index)
-  bd =object[[1]]
-  its=max(maply(names(slts), function(x) { 
-          dims(slot(bd,x))$iter 
-          }))
-  
-  nms=dimnames(params(bd))$params
-  bd@vcov   =FLPar(array(as.numeric(NA), dim=c(length(nms),length(nms),its), dimnames=list(params=nms,params=nms,iter=seq(its))))
-  bd@hessian=bd@vcov
-
-  bd@ll=FLPar(NA,dimnames=list(params=c("ll","rss","sigma","n"),
-                               index =paste('u',seq(length(dimnames(params(bd))$params[grep('q',dimnames(params(bd))$params)])),sep=''),
-                               iter  =seq(1)))
-
-  
-  if (its>1){
-   
-      ## these are all results, so doesnt loose anything
-      bd@stock  =FLCore::iter(bd@stock,  1)
-      bd@params =FLCore::iter(bd@params, 1)
-      bd@objFn  =FLCore::iter(bd@objFn,  1)
-      bd@vcov   =FLCore::iter(bd@vcov,   1)
-      bd@ll     =FLCore::iter(bd@ll,     1)
-      bd@hessian=FLCore::iter(bd@hessian,1)
-      bd@mng    =FLPar(a=1)
-      bd@mngVcov=FLPar(a=1,a=1)
-      
-      if (dim(bd@stock)[6]==1) bd@stock=propagate(bd@stock, iter=its, fill.iter=TRUE)      
-      if (dim(bd@catch)[6]==1) bd@stock=propagate(bd@catch, iter=its, fill.iter=TRUE)     
-
-      for(i in c("params","control","vcov","hessian","objFn")){
-        slot(bd, i)=FLCore::iter(slot(bd, i),1)
-        slot(bd, i)<-propagate(slot(bd, i), its)}
-      }
-
-  slot(bd, "ll")<-propagate(slot(bd, "ll"), its)
-
-  cpue=object[[2]]
-  bd2 =object[[1]]
-  
-  for (i in seq(its)){       
-     object[[2]] = FLCore::iter(cpue,i) 
-     
-     for (s in names(slts)[-(7:8)]){      
-        slot(object[[1]],s) = FLCore::iter(slot(bd2,s),i) 
-        }  
-
-    ##set data
-    exeDir=tempfile("dir",dir) 
-    object[[1]]=setPella(object,dir=dir,lav=lav)
-
-    exe = paste(system.file('bin', 'linux', package="mpb", mustWork=TRUE),'pella', sep='/')      
-  
-    #bug in windows
-    try(if (length(grep("-rwxrwxr-x",system(paste("ls -l",exe),intern=TRUE)))==0)
-           warning("Executable privilege not set for \n",exe,call.=FALSE),silent=FALSE)
-
-     #run
-     #system(paste('./', exeNm, ' ', cmdOps, sep=''),ignore.stdout=TRUE)
-     system(paste('pella', ' ', cmdOps, sep='')) #,ignore.stdout=TRUE, ignore.stderr=TRUE)
-
-     #gets results
-     
-     object[[1]]=getPella(object[[1]])     
-     s=names(slts)[slts%in%c('FLQuant','FLPar')]
-    
-     for (s in s[!("hessian"%in%s)]){
-
-       try(FLCore::iter(slot(bd,s),i) <- slot(object[[1]],s)) 
-       }
-
-     if (its<=1 & file.exists(paste(dir,'admodel.hes',sep='/'))){
-       ##hessian
-       x<-file(paste(dir,'admodel.hes',sep='/'),'rb')
-       nopar<-readBin(x,'integer',1)
-       H<-matrix(readBin(x,'numeric',nopar*nopar),nopar)
-       
-       try(bd@hessian@.Data[activeParams(object[[1]]),activeParams(object[[1]]),i] <- H, silent=TRUE)
-       close(x)
-     
-       ## vcov
-       #print(file.exists(paste(dir,'admodel.cov',sep='/')))
-       
-       if (file.exists(paste(dir,'admodel.cov',sep='/')))
-         try(bd@vcov@.Data[activeParams(object[[1]]),activeParams(object[[1]]),i] <- cv(paste(dir,'admodel.hes',sep='/')), silent=TRUE) 
-        
-       #if (file.exists(paste(dir,'admodel.cov',sep='/'))){
-       #   x<-file(paste(dir,'admodel.cov',sep='/'),'rb')
-       #   nopar<-readBin(x,'integer',1)
-       #   H<-matrix(readBin(x,'numeric',nopar*nopar),nopar)
-       #   try(bd@vcov@.Data[activeParams(object[[1]]),activeParams(object[[1]]),i] <- H, silent=TRUE)
-       #close(x)}
-     
-       if (file.exists(paste(dir,'pella.hst',sep='/')))
-          bd@hst=admbProfile(paste(dir,'pella.hst',sep='/'))$profile
-       if (file.exists(paste(dir,'lpr.plt',sep='/')))
-          bd@profile=mdply(data.frame(var=c("r", "k","bnow","fnow",
-                                            "bnow","fnow","bnowthen","fnowthen",
-                                            "msy","bmsy","fmsy","cmsy",
-                                            "bmsy","ffmsy","bk","fr",
-                                            "bratio","fratio","slopeb","slopef")),
-                                function(var){
-                                    #print(var)
-                                    fl=paste("lp",var,".plt",sep="")
-                                    if (file.exists(fl))
-                                      admbPlt(fl)})
-       }
- 
-     bd@params@.Data[  ,i] = object[[1]]@params
-     bd@control@.Data[,,i] = object[[1]]@control
-
-     wrn=options()$warn
-     options(warn=-1)
-     err=try(bd@objFn@.Data[,i]<-object[[1]]@objFn,silent=TRUE)
-     if (!(any(is(err)=="try-error"))) {
-       #print(dim(bd@objFn@.Data))
-       #print(dim(object[[1]]@objFn))
-       #print("warning bug when objFn has iters")
-       }
-     options(warn=wrn)
-     
-     bd@ll@.Data[,,i] = object[[1]]@ll
-     
-     if (file.exists('pella.std')){
-       err1=try(mng.<-read.table('pella.std',header=T)[,-1])
-    
-       #err2=try(mngVcov.<-fitFn(paste(dir,'pella',sep='/'))$vcov)
-       
-     ## FLPar hack
-     if (first) {
-
-       if (any(is(err1)!='try-error')) 
-         bd@mng=FLPar(array(unlist(c(mng.[   ,-1])), dim     =c(dim(mng.)[1],2,its),
-                                                     dimnames=list(param=mng.[,1],var=c('hat','sd'),iter=seq(its))))
-        
-       #if (any(is(err2)!='try-error')) 
-       #   bd@mngVcov<-FLPar(array(unlist(c(mngVcov.)),dim     =c(dim(mng.)[1],dim(mng.)[1],its),
-       #                                               dimnames=list(param=dimnames(mngVcov.)[[1]],
-       #                                                             param=dimnames(mngVcov.)[[1]],iter=seq(its))))
- 
-       first=!first  
-    }else{    
-      
-       try(if (all(is(err1)!='try-error')) bd@mng@.Data[    ,,i][]=unlist(c(mng.[,-1])))
-       #try(if (all(is(err2)!='try-error')) bd@mngVcov@.Data[,,i][]=unlist(c(mngVcov.)))
-       }}
-  }
-  
-  units(bd@mng)='NA'  
-
-  bd=fwd(bd,catch=catch(bd)[,rev(dimnames(catch(bd))$year)[1]],starvationRations=2) 
-  
-  if (length(grep('-mcmc',cmdOps))>0 & length(grep('-mcsave',cmdOps))>0){
-    #'-mcmc 100000 -mcsave 100'
-     setMCMC=function(obj,dir){
-       ps=read.psv(paste(dir,'pella.psv',sep='/'))
-
-       dmns=list(params=activeParams(obj),iter=seq(dim(ps)[1]))
-
-       ps=array(t(ps),dim=unlist(llply(dmns,length)),dimnames=dmns)
-       ps=FLPar(ps)
-       
-       units(ps)='NA'
-       ps}
-     
-    par=setMCMC(bd,dir)  
-    
-    cmd=strsplit(cmdOps,',')
-    grp=unlist(gregexpr('-mcmc',cmd[[1]])) 
-    mcmc =sub(' +', '', cmd[[1]][grp>0]) 
-    mcmc =as.numeric(substr(mcmc,6,nchar(mcmc)))
-    grp=unlist(gregexpr('-mcsave',cmd[[1]])) 
-    mcsave=sub(' +', '', cmd[[1]][grp>0])
-    mcsave=sub(' +', '', mcsave)
-    mcsave=as.numeric(substr(mcsave,8,nchar(mcsave)))
-    
-    bd@params=propagate(bd@params[,1],dims(par)$iter)
-    bd@objFn =propagate(bd@objFn[ ,1],dims(par)$iter)
-
-    bd@params[dims(par)$params,]=par
-    bd@stock=propagate(bd@stock,dim(params(bd))[2])
-    bd=fwd(bd,catch=catch(bd),starvationRations=2)  
-
-    attributes(bd@params)[['mcmc']]  =mcmc
-    attributes(bd@params)[['mcsave']]=mcsave 
-    } 
-
-  if ("FLQuant"%in%class(index)) index=FLQuants("1"=index)
-
-  bd=fwd(bd,catch=catch(bd)) 
-  #stock(bd)=fwd(params(bd),catch=catch(bd)) 
-  if (its<=1){
-      bd@diags=mdply(seq(length(index)),function(i,index){
-          stockHat=(stock(bd)[,-dims(stock(bd))$year]+stock(bd)[,-1])/2
-          hat     =stockHat*params(bd)[paste("q",i,sep="")]
-        
-          res=model.frame(mcf(FLQuants(
-            obs     =index[[i]],
-            hat     =hat,
-            residual=log(index[[i]]/hat))),drop=T)
-        
-        diagsFn(res)},index=index)
-  
-      names(bd@diags)[1]="name"
-  }else 
-    bd@diags=dgsFn(bd,index)
-    
-  
-  setwd(oldwd) 
-
-#  if (!is.null(catch)) catch(object)=catch
-
-  bd@stock=stock(mpb::fwd(bd,catch=catch(bd)))
-  
-  if (silent) options(ow)
-  
-  return(bd)}
             
 #library(matrixcalc)
 #is.positive.definite(H)
@@ -669,7 +415,7 @@ calcElasticity=function(bd,mn=3,rg=5){
   
   parNms=c(modelParams(model(bd)),'b0')
 
-  jbn=jacobian(elasFn,log(c(bd@params[parNms])),dmns=parNms,bd=bd,mn=mn,rg=rg)
+  jbn=jacobian(elasFn,log(c(object@params[parNms])),dmns=parNms,bd=bd,mn=mn,rg=rg)
   
   
   dimnms=list(params=parNms,
@@ -684,7 +430,7 @@ calcElasticity=function(bd,mn=3,rg=5){
   
   return(jbn)}
 
-exe=function(){
+setExePath=function(){
 
   sep =  function() if (R.version$os=='linux-gnu') ':' else if (.Platform$OS=='windows') ';' else ','
   
@@ -869,3 +615,256 @@ setMethod('fit',signature(object='FLPar',index='FLQuant'),
   
   
   res})
+
+runExe<-function(bd,indices=bd@indices,wkdir=tempfile(),cmdOps=paste('-maxfn 500 -iprint 0')){
+    if (os.type("linux")) {
+              
+        wkdir=tempfile("tmpdir")
+        system(paste("mkdir",wkdir))
+        setwd(wkdir)
+        
+        mpb:::setPella(bd,wkdir)
+        system(paste("cp",system.file(package="mpb","bin/linux/pella"),file.path(wkdir,"pella")))
+        system(paste("./pella"))}
+}
+
+
+fitPella=function(object,
+                  dir=tempdir(),
+                  cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE,maxF=2.5,silent=TRUE){
+  if (silent){
+    ow=options("warn");options(warn=-1)
+    
+    tmp <- tempfile()
+    sink(tmp)
+    on.exit(sink())
+    on.exit(file.remove(tmp),add=TRUE)
+  }
+  
+  oldwd=getwd()
+  
+  its=max(laply(object@indices,function(x) dims(x)$iter),dims(catch(object))$iter)
+  its=max(its,dims(object@control)$iter)
+
+  catch(object)=propagate(catch(object),its)   
+  
+  max=min(dims(catch(object))$maxyear,max(laply(object@indices,function(x) dims(x)$maxyear)))
+  if (!is.na(range(object)['maxyear'])) max=min(max,range(object)['maxyear']) 
+  min=min(dims(catch(object))$minyear,max(laply(object@indices,function(x) dims(x)$minyear)))
+  if (!is.na(range(object)['minyear'])) min=max(min,range(object)['minyear'])
+  
+  object=window(object,start=min,end=max)
+  
+  #index=FLQuants(llply(object@indices, window,start=min,end=max))
+  
+  slts=getSlots('biodyn')
+  slts=slts[slts %in% c('FLPar','FLQuant')]
+  
+  its=max(maply(names(slts), function(x) {  dims(slot(object,x))$iter}))
+  
+  nms=dimnames(params(object))$params
+  object@vcov   =FLPar(array(as.numeric(NA), dim=c(length(nms),length(nms),its), dimnames=list(params=nms,params=nms,iter=seq(its))))
+  object@hessian=object@vcov
+  
+  object@ll=FLPar(NA,dimnames=list(params=c("ll","rss","sigma","n"),
+                                   index =paste('u',seq(length(dimnames(params(object))$params[grep('q',dimnames(params(object))$params)])),sep=''),
+                                   iter  =seq(1)))
+  
+  if (its>1){
+    
+    ## these are all results, so doesnt loose anything
+    object@stock  =FLCore::iter(object@stock,  1)
+    object@params =FLCore::iter(object@params, 1)
+    object@objFn  =FLCore::iter(object@objFn,  1)
+    object@vcov   =FLCore::iter(object@vcov,   1)
+    object@ll     =FLCore::iter(object@ll,     1)
+    object@hessian=FLCore::iter(object@hessian,1)
+    object@mng    =FLPar(a=1)
+    object@mngVcov=FLPar(a=1,a=1)
+    
+    if (dim(object@stock)[6]==1) object@stock=propagate(object@stock, iter=its, fill.iter=TRUE)      
+    if (dim(object@catch)[6]==1) object@stock=propagate(object@catch, iter=its, fill.iter=TRUE)     
+    
+    for(i in c("params","control","vcov","hessian","objFn")){
+      slot(object, i)=FLCore::iter(slot(object, i),1)
+      slot(object, i)<-propagate(slot(object, i), its)}
+  }
+  
+  slot(object, "ll")<-propagate(slot(object, "ll"), its)
+  
+  for (i in seq(its)){       
+    
+    tmpObj         = FLCore::iter(object,i) 
+    tmpObj@indices = FLQuants(llply(object@indices, FLCore::iter,i)) 
+    
+    for (s in names(slts)[-(7:8)])
+      slot(tmpObj,s) = FLCore::iter(slot(object,s),i) 
+    
+    ##set data
+    tmpObj=setPella(tmpObj,dir=dir,lav=lav)
+    
+    #bug in windows
+    # try(if (length(grep("-rwxrwxr-x",system(paste("ls -l","pella"),intern=TRUE)))==0)
+    #        warning("Executable privilege not set for \n","pella",call.=FALSE),silent=FALSE)
+    
+    #run
+    system(paste('pella', ' ', cmdOps, sep='')) #,ignore.stdout=TRUE, ignore.stderr=TRUE)
+    
+    #gets results
+    print(1)
+    tmpObj=getPella(tmpObj)     
+    print(1)
+    s=names(slts)[slts%in%c('FLQuant','FLPar')]
+    
+    for (s in s[!("hessian"%in%s)]){
+      try(FLCore::iter(slot(object,s),i) <- slot(tmpObj,s)) 
+    }
+    
+    if (its<=1 & file.exists(paste(dir,'admodel.hes',sep='/'))){
+      ##hessian
+      x<-file(paste(dir,'admodel.hes',sep='/'),'rb')
+      nopar<-readBin(x,'integer',1)
+      H<-matrix(readBin(x,'numeric',nopar*nopar),nopar)
+      
+      try(object@hessian@.Data[activeParams(tmpObj),activeParams(tmpObj),i] <- H, silent=TRUE)
+      close(x)
+      
+      ## vcov
+      #print(file.exists(paste(dir,'admodel.cov',sep='/')))
+      
+      if (file.exists(paste(dir,'admodel.cov',sep='/')))
+        try(object@vcov@.Data[activeParams(tmpObj),activeParams(tmpObj),i] <- cv(paste(dir,'admodel.hes',sep='/')), silent=TRUE) 
+      
+      #if (file.exists(paste(dir,'admodel.cov',sep='/'))){
+      #   x<-file(paste(dir,'admodel.cov',sep='/'),'rb')
+      #   nopar<-readBin(x,'integer',1)
+      #   H<-matrix(readBin(x,'numeric',nopar*nopar),nopar)
+      #   try(object@vcov@.Data[activeParams(tmpObj),activeParams(tmpObj),i] <- H, silent=TRUE)
+      #close(x)}
+      
+      if (file.exists(paste(dir,'pella.hst',sep='/')))
+        object@hst=admbProfile(paste(dir,'pella.hst',sep='/'))$profile
+      if (file.exists(paste(dir,'lpr.plt',sep='/')))
+        object@profile=mdply(data.frame(var=c("r", "k","bnow","fnow",
+                                              "bnow","fnow","bnowthen","fnowthen",
+                                              "msy","bmsy","fmsy","cmsy",
+                                              "bmsy","ffmsy","bk","fr",
+                                              "bratio","fratio","slopeb","slopef")),
+                             function(var){
+                               #print(var)
+                               fl=paste("lp",var,".plt",sep="")
+                               if (file.exists(fl))
+                                 admbPlt(fl)})
+    }
+    
+    object@params@.Data[  ,i] = tmpObj@params
+    object@control@.Data[,,i] = tmpObj@control
+    
+    wrn=options()$warn
+    options(warn=-1)
+    err=try(object@objFn@.Data[,i]<-tmpObj@objFn,silent=TRUE)
+    if (!(any(is(err)=="try-error"))) {
+      #print(dim(object@objFn@.Data))
+      #print(dim(tmpObj@objFn))
+      #print("warning bug when objFn has iters")
+    }
+    options(warn=wrn)
+    
+    object@ll@.Data[,,i] = tmpObj@ll
+    
+    if (file.exists('pella.std')){
+      err1=try(mng.<-read.table('pella.std',header=T)[,-1])
+      
+      #err2=try(mngVcov.<-fitFn(paste(dir,'pella',sep='/'))$vcov)
+      
+      ## FLPar hack
+      if (first) {
+        
+        if (any(is(err1)!='try-error')) 
+          object@mng=FLPar(array(unlist(c(mng.[   ,-1])), dim     =c(dim(mng.)[1],2,its),
+                                 dimnames=list(param=mng.[,1],var=c('hat','sd'),iter=seq(its))))
+        
+        #if (any(is(err2)!='try-error')) 
+        #   object@mngVcov<-FLPar(array(unlist(c(mngVcov.)),dim     =c(dim(mng.)[1],dim(mng.)[1],its),
+        #                                               dimnames=list(param=dimnames(mngVcov.)[[1]],
+        #                                                             param=dimnames(mngVcov.)[[1]],iter=seq(its))))
+        
+        first=!first  
+      }else{    
+        
+        try(if (all(is(err1)!='try-error')) object@mng@.Data[    ,,i][]=unlist(c(mng.[,-1])))
+        #try(if (all(is(err2)!='try-error')) object@mngVcov@.Data[,,i][]=unlist(c(mngVcov.)))
+      }}
+  }
+  
+  units(object@mng)='NA'  
+  
+  object=fwd(object,catch=catch(object)[,rev(dimnames(catch(object))$year)[1]],starvationRations=2) 
+  
+  if (length(grep('-mcmc',cmdOps))>0 & length(grep('-mcsave',cmdOps))>0){
+    #'-mcmc 100000 -mcsave 100'
+    setMCMC=function(obj,dir){
+      ps=read.psv(paste(dir,'pella.psv',sep='/'))
+      
+      dmns=list(params=activeParams(obj),iter=seq(dim(ps)[1]))
+      
+      ps=array(t(ps),dim=unlist(llply(dmns,length)),dimnames=dmns)
+      ps=FLPar(ps)
+      
+      units(ps)='NA'
+      ps}
+    
+    par=setMCMC(object,dir)  
+    
+    cmd=strsplit(cmdOps,',')
+    grp=unlist(gregexpr('-mcmc',cmd[[1]])) 
+    mcmc =sub(' +', '', cmd[[1]][grp>0]) 
+    mcmc =as.numeric(substr(mcmc,6,nchar(mcmc)))
+    grp=unlist(gregexpr('-mcsave',cmd[[1]])) 
+    mcsave=sub(' +', '', cmd[[1]][grp>0])
+    mcsave=sub(' +', '', mcsave)
+    mcsave=as.numeric(substr(mcsave,8,nchar(mcsave)))
+    
+    object@params=propagate(object@params[,1],dims(par)$iter)
+    object@objFn =propagate(object@objFn[ ,1],dims(par)$iter)
+    
+    object@params[dims(par)$params,]=par
+    object@stock=propagate(object@stock,dim(params(object))[2])
+    object=fwd(object,catch=catch(object),starvationRations=2)  
+    
+    attributes(object@params)[['mcmc']]  =mcmc
+    attributes(object@params)[['mcsave']]=mcsave 
+  } 
+  
+  if ("FLQuant"%in%class(index)) index=FLQuants("1"=index)
+  
+  object=fwd(object,catch=catch(object)) 
+  #stock(object)=fwd(params(object),catch=catch(object)) 
+  
+  # if (its<=1){
+  #   object@diags=mdply(seq(length(index)),function(i,index){
+  #     stockHat=(stock(object)[,-dims(stock(object))$year]+stock(object)[,-1])/2
+  #     hat     =stockHat*params(object)[paste("q",i,sep="")]
+  #     
+  #     res=model.frame(mcf(FLQuants(
+  #       obs     =index[[i]],
+  #       hat     =hat,
+  #       residual=log(index[[i]]/hat))),drop=T)
+  #     
+  #     diagsFn(res)},index=object@indices)
+  #   
+  #   names(object@diags)[1]="name"
+  # }else 
+  #   object@diags=dgsFn(object,object@indices)
+  # 
+  setwd(oldwd) 
+  
+  #  if (!is.null(catch)) catch(object)=catch
+  
+  object@stock=stock(mpb::fwd(object,catch=catch(object)))
+  
+  if (silent) options(ow)
+  
+  return(object)}
+
+  
