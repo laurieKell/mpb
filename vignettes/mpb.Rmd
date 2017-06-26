@@ -1,18 +1,16 @@
 ---
 title: "Biomass Dynamic Management Procedures"
 author: "Laurence Kell"
-date: "August 13th, 2016"
-output:
-    tufte::tufte_handout:
-    citation_package: natbib
-    latex_engine: xelatex
-bibliography: /home/laurie/bib/refs.bib
-link-citations: yes
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: pdf_document
 vignette: >
-  %\VignetteIndexEntry{mpb}
+  %\VignetteIndexEntry{diags}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
+  \usepackage[utf8]{inputenc}
+bibliography: refs.bib
+tags: FLPKG FLR
+license: Creative Commons Attribution-ShareAlike 4.0 International
+--- 
 
 ```{r knitr_init, echo=FALSE, results="hide"}
 library(knitr)
@@ -42,31 +40,34 @@ library(mpb)
 theme_set(theme_bw())
 options(digits=3)
 options(warn=warn)
-sink()
 ```
-
 # Introduction
 
-The `mpb` package implements biomass based methods for stock assessment and simulation testing using Management Strategy Evaluation (MSE).
+The `mpb` package implements biomass based methods for stock assessment and simulation testing using Management Strategy Evaluation (MSE). There are two classes `biodyn` and `aspic`, the former implements a Pella-Tomlinson production function using ADMB, while the later calls the ASPIC executable from R. Both classes use a common interface making it easy to compare the two implementations. 
+
+The provision of fisheries management advice requires the assessment of stock status relative to reference points, the prediction of the response of a stock to management, and checking that predictions are consistent with reality. Therefore `mpb` includes methods for the estimation of historical stock status, the calcuation of reference points, estimation of uncertainty in parameters, a variety of diagnostic methods, stock projection for a range of management options and tools for simulation testing, e.g. self and cross-testing and for conducting Management Strategy Evaluation (MSE) 
+
+## Methods
 
 The main processes influencing the dynamics of exploited populations are gains due to growth and recruitment and losses due to fishing and natural mortality. In a biomass dynamic stock assessment model recruitment, growth and natural mortality are simplified into a single production function ($P$), for example that of @pella1969generalized.
 
-\begin{marginfigure}
+<!--\begin{marginfigure}-->
 \begin{equation}  B_{t+1}=B_{t}-C_{t}+P_{t}\end{equation}  
-\caption{Biomass next year equals the biomass this year less catches and plus production.}
-\end{marginfigure}
+<!--\caption{Biomass next year equals the biomass this year less catches and plus production.}
+\end{marginfigure}-->
 
-\begin{marginfigure}
-\begin{equation}\frac{r}{p}\cdot~B(1-(\frac{B}{K})^p)\end{equation}  
-\caption{Production function.}
-\end{marginfigure}
+where
 
-The dynamics are determined by the population growth rate ($r$, in the abscence of density dependence) and the shape of the production function ($p$). if $p=1$ then the maximum sustainable yield (MSY) is found halfway between 0 and virgin biomass ($K$); as p deccreases MSY shifts to the left.
-There is seldom suffcient infomation in the catch data to estimate even these few parameters and so additional data are required, e.g. time series of relative abundance from catch per unit effort (CPUE), or surveys.
+<!--\begin{marginfigure}-->
+\begin{equation}P_t=\frac{r}{p}\cdot~B(1-({\frac{B}{K}})^p)\end{equation}  
+<!--\caption{Production function.}
+\end{marginfigure}-->
 
-The provision of fisheries management advice requires the assessment of stock status relative to reference points, the prediction of the response of a stock to management, and checking that predictions are consistent with reality. Biomass dynamic models have been criticised as being too simplistic to capture the actual population dynamics, however, if a simple model can provide robust advice on stock status and the response of a stock to management why use anything more complicated  [@ludwig1985age]?  For example the Pella-Tomlinson model is used by the IWC to set catch limits. Neither the form of the model nor its parameters are meant to provide an accurate representation of the dynamics of the population. Rather, it has been demonstrated by simulation that when a biomass dynamic model is used as part of a management strategy with a harvest control rule (HCR) it allows the robust calculation and setting of catches limits @butterworth1999experiences. 
+The dynamics are determined by the population growth rate ($r$) at low population size, i.e. in the absence of density dependence. and the shape of the production function ($p$). if $p=1$ then the maximum sustainable yield (MSY) is found halfway between 0 and virgin biomass ($K$); as p deccreases MSY shifts to the left. There is seldom suffcient infomation in the catch data to estimate even these few parameters and so additional data are required, e.g. time series of relative abundance from catch per unit effort (CPUE), or surveys.
 
-# `biodyn` Class
+Biomass dynamic models have been criticised as being too simplistic to capture the actual population dynamics, however, if a simple model can provide robust advice on stock status and the response of a stock to management why use anything more complicated  [@ludwig1985age]?  For example the Pella-Tomlinson model is used by the IWC to set catch limits. Neither the form of the model nor its parameters are meant to provide an accurate representation of the dynamics of the population. Rather, it has been demonstrated by simulation that when a biomass dynamic model is used as part of a management strategy with a harvest control rule (HCR) it allows the robust calculation and setting of catches limits @butterworth1999experiences. 
+
+# `biodyn`
 
 The main class is `biodyn`, which has methods for importing data, exporting results, fitting models, checking diagnostics, plotting, estimation of uncertainly, projection, simulating HCRs, and for the provision of advice. The robustness of the methods can be simulation tested using MSE. `biodyn` also includes slots for catch, parameters, historical stock status, reference points, diagnostics, and summary statistics (use `??biodyn` for more information)
 

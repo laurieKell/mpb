@@ -40,9 +40,19 @@ setMethod('refpts', signature(object='character', params='FLPar'),
 setMethod('refpts', signature(object='factor',    params='FLPar'),   
           function(object=       object,  params=params)          refptsFn(object, params))
 setMethod('refpts', signature(object='biodyn',    params='missing'), 
-          function(object)  {  model=model(object)
-                               par  =params(object)
-                               refptsFn(model,par)})
+          function(object)  {  
+            model=model( object)
+            par  =params(object)
+            
+            sim=refptsFn(model,par)
+            
+            if (!("FLParJK"%in%is(par)))
+              return(sim)
+            else{
+              org=refptsFn(model,par@orig)
+              return(FLParJK(sim,orig=org))}
+            })
+
 setMethod('refpts', signature(object='FLPar', params='missing'),    
           function(object=params)  refptsFn(factor("pellaT"),params=object))
 

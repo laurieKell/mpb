@@ -94,3 +94,4 @@ setMethod('randJack', signature(n="numeric",object='FLPar',sim="FLPar"),
             else  
               rlnorm(n,res$hat,res$se)
           })
+

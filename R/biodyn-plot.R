@@ -321,34 +321,38 @@ plotEqlfn=function(data,biomass=FLQuant(seq(0,max(params(data)['k']),length.out=
 
 
 ## compares age and biomass based time series      
-plotMSEfn=function(mp,om,brp){
+plotMSEfn=function(mp,om,brp="missing"){
   ### OM ######################################
   ## absolute
   omAbs=cbind(Type='Absolute',
               rbind(as.data.frame(FLQuants(om,'stock','ssb','catch'),          drop=T),
                     as.data.frame(FLQuants(harvest=catch(om)/stock(om)),drop=T)))
   
-  ## relative
-  omRel=cbind(Type='Relative',as.data.frame(mcf(
-    FLQuants('stock'  =stock(om)%/%refpts(brp)['msy','biomass'],
-             'ssb'    =ssb(  om)%/%refpts(brp)['msy','biomass'],
-             'harvest'=fbar( om)%/%refpts(brp)['msy','harvest'],
-             #'harvest'=catch(om)/stock(om)%/%(refpts(brp)['msy','yield']/refpts(brp)['msy','biomass']),
-             'catch'  =catch(om)%/%refpts(brp)['msy','yield'])),drop=T))
-  
-  ### MP ######################################
-  ## absolute
   mpAbs=cbind(Type='Absolute',as.data.frame(FLQuants(mp,'stock','harvest','catch'),drop=T))
   
-  ## relative
-  mpRel=cbind(Type='Relative',as.data.frame(FLQuants('stock'  =stock(  mp)%/%bmsy(mp),
-                                                     'harvest'=harvest(mp)%/%fmsy(mp),
-                                                     'catch'  =catch(  mp)%/%msy( mp)),drop=T))
-  
-  ggplot(subset(rbind(cbind(What='OM',rbind(omAbs,omRel)),
-                      cbind(What='MP',rbind(mpAbs,mpRel))),qname!='ssb'))+
-    geom_line(aes(year,data,group=What,col=What))+
-    facet_wrap(qname~Type,scales='free',ncol=2)  }
+   if ("FLBRP"%in%is(brp)){
+    omRel=cbind(Type='Relative',as.data.frame(mcf(
+      FLQuants('stock'  =stock(om)%/%brp@refpts['msy','biomass'],
+               'ssb'    =ssb(  om)%/%brp@refpts['msy','biomass'],
+               'harvest'=fbar( om)%/%brp@refpts['msy','harvest'],
+               #'harvest'=catch(om)/stock(om)%/%(brp@refpts['msy','yield']/brp@refpts['msy','biomass']),
+               'catch'  =catch(om)%/%brp@refpts['msy','yield'])),drop=T))
+      mpRel=cbind(Type='Relative',as.data.frame(FLQuants('stock'  =stock(  mp)%/%bmsy(mp),
+                                                         'harvest'=harvest(mp)%/%fmsy(mp),
+                                                         'catch'  =catch(  mp)%/%refpts( mp)["msy"]),drop=T))
+      
+    ggplot(subset(rbind.fill(cbind(What='OM',rbind(omAbs,omRel)),
+                           cbind(What='MP',rbind(mpAbs,mpRel))),qname!='ssb'))+
+      geom_line(aes(year,data,group=What,col=What))+
+      facet_wrap(qname~Type,scales='free',ncol=2)+
+      xlab("Year")+ylab("")
+    }else
+   ggplot(subset(rbind.fill(cbind(What='OM',omAbs),
+                            cbind(What='MP',mpAbs)),qname!='ssb'))+
+      geom_line(aes(year,data,group=What,col=What))+
+      facet_grid(qname~.,scales='free')+
+      xlab("Year")+ylab("")  
+}
 
 #' @title plotJack
 #' 
@@ -389,12 +393,28 @@ plotMSEfn=function(mp,om,brp){
 #' plotJack(bdJK)
 #' bd  =randJack(100,bd)
 #' }
-plotJack=function(x,y,ncol=1){
-   
+plotJack=function(x,ncol=1){
+  
+  jkS=function(object,sim,...) {
+    
+    n   <- dims(sim)$iter
+    
+    mn  <- object
+    u   <- sim
+    mnU <- apply(u, 1:5, mean)   
+    
+    SS  <- apply(sweep(u, 1:5, mnU,"-")^2, 1:5, sum)
+    
+    bias<- (n-1)*(mn-mnU)
+    se  <- sqrt(((n-1)/n)*SS)
+    
+    return(FLQuants(mean=mn, se=se, bias=bias))}
+  
+  #bug in orig harvest 
   df=rbind(cbind(qname='stock',  
-                 model.frame(jackSummary(stock(  x),stock(  y)),drop=TRUE)),
+                 model.frame(jkS(stock(  x)@orig,as.FLQuant(stock(  x))),drop=TRUE)),
            cbind(qname='harvest',
-                 model.frame(mcf(jackSummary(harvest(x),harvest(y))),drop=TRUE)))
+                 model.frame(jkS(iter(harvest(x)@orig,1),as.FLQuant(harvest(x))),drop=TRUE)))
   
   # basic plot data vs. year
   p=ggplot(data=df, aes(x=year, y=mean))+

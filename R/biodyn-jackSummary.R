@@ -1,6 +1,6 @@
 setGeneric("jackSummary", function(object,sim,...) standardGeneric("jackSummary"))
 
-setMethod("jackSummary", signature(object="FLQuant",sim="FLQuantJK"),
+setMethod("jackSummary", signature(object="FLQuant",sim="FLQuant"),
   function(object,sim,...) {
             
     n   <- dims(sim)$iter

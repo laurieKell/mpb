@@ -155,7 +155,8 @@ FLStock2biodynSimple=function(from){
   dmns=dimnames(res@params)
   
   res@params=FLPar(as.numeric(NA),dimnames=dmns)
-  res@params[]=c(.6,4*mean(res@catch),1,1)
+  res@params[]=c(.6,2*mean(res@stock,na.rm=TRUE),1,1)
+  res@params[c("p","b0")]=c(1e-6,0.9)
   
   res@control[,'val']=res@params
   res@control[,'min']=res@control[,'val']*.1

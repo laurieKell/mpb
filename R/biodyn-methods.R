@@ -17,12 +17,13 @@ setMethod('harvest', signature(object='biodyn',catch="missing"),function(object)
              
   yrs1=  dimnames(stock(object))$year
   yrs2=c(dimnames(stock(object))$year[-1],as.numeric(max(dimnames(stock(object))$year))+1)
-             
-  #res <- catch(object)/(stock(object)[,yrs1]*(1-when)+
-  #                        stock(object)[,yrs2]*when)
-             
-  yrs=dimnames(stock(object))$year[dimnames(stock(object))$year %in% dimnames(catch(object))$year]
-  res <- catch(object)[,yrs]%/%stock(object)[,yrs]
+  yrs =dimnames(stock(object))$year[dimnames(stock(object))$year %in% dimnames(catch(object))$year]
+  
+  if ("FLQuantJK"%in%is(stock(object))){
+    res=FLQuantJK(catch(object)[,yrs]%/%stock(object)[,yrs],orig=catch(object)[,yrs]%/%stock(object)@orig[,yrs])
+  }else
+    res =catch(object)[,yrs]%/%stock(object)[,yrs]
+
   units(res) <- 'hr'
   return(res)
   })

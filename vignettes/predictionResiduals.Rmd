@@ -18,12 +18,14 @@ MathJax.Hub.Config({
 </script>
 
 
+/home/laurie/Desktop/flr/mpb/vignettes/predictionResiduals.Rmd
+
 #Bugs
 ```{r, bugs, eval=FALSE}
 library(mpb)
 library(plyr)
 
-## should be example dataset
+## Example dataset
 data(swon)
 
 ## problem with only 1 flQuant in FLQuants
@@ -49,22 +51,25 @@ indices(jk)<-indices(bds[[1]])
 ## not working
 stock(jk)<-stock(jk)
 
+#wht not 1 yearx   
+orig(stock(jk)[,ac(dims(catch(jk))$maxyear)])
+
+#res=as.data.frame(FLQuants(b=b,f=f,bbmsy=bbmsy,ffmsy=ffmsy,ymsy=ymsy),drop=T)[,c("iter","data","qname")]
+
+#bug
+#res=as(res,"FLPar")
+
 # lots of @ in biodyn
 ```
-
 
 Here is an example for mpb that runs
 
 +  Jackknife
 +  leave-one-out crossvalidation, this is the same algorithm as the jackknife the post processing is different.
-+  hindcast, i.e. retrospective tail cutting with projection for cut years. This could be for 1 year in which case the outputs are in the jackknife results. If n>1 then the results are different
++  hindcast, i.e. retrospective tail cutting with projection for cut years. This could be for 1 year in which case the outputs are in the jackknife results. 
++ If n>1 then need to run projections
 
-Issues are
 
-+  post processing, i.e. methods needed for jackSummary, with signatures of FLQuantJK,FLParJK,FLQuants,FLPars,data.frame, see jackFn
-+  prediction residuals, predict out-of-sample predicted value, see presFn
-+  dfbeta, i.e. how much does a parameter or derived value change when you remove a point, see dfbetaFn
-+  cooks distance etc. from regression of CPUE v biomass, see cksdFn
     
 ```{r, echo=FALSE}
 library(knitr)
@@ -72,7 +77,7 @@ library(knitr)
 opts_chunk$set(comment=NA, 
                fig.width =8, 
                fig.height=5,
-               fig.path  ="../tex/mpb-",
+               fig.path  ="../tex/PRESS-",
                warning=FALSE, 
                message=FALSE, 
                error  =FALSE, 
@@ -86,13 +91,16 @@ iTab=0
 ```
 
 ```{r, echo=FALSE}
+library(ggplot2)
+library(reshape)
+library(plyr)
+library(dplyr)
+library(scales)
+
 library(FLCore)
 library(ggplotFL)
 library(mpb)
 
-library(reshape)
-library(plyr)
-library(scales)
 
 theme_set(theme_bw(10))
 
@@ -105,97 +113,19 @@ dirTex=file.path(dirMy,"mpb/tex")
 ```
 
 ```{r func}
-jackknifeKey=function(object){
-  ## Points that were jackknifed
-  orig=ldply(object@indices,function(x) {res=as.data.frame(orig(x),drop=TRUE)
-                                         res[!is.na(res$data),]})
-  sim =ldply(object@indices,function(x) {res=as.data.frame(x,drop=TRUE)
-                                         res[is.na(res$data),]})
-  key=merge(sim,orig,by=c(".id","year"))[,-4]
-  names(key)[4]="obs"
-  
-  key}
-
-press=function(object){
-  key=jackknifeKey(object)
-  
-  prsdl=mdply(key,function(.id,year,iter,obs) {
-       hat=stock(object,0.5)[,ac(year),,,,iter]%*%params(object)[paste("q",(as.numeric(factor(.id))),sep=""),iter]
-       c(log(obs/hat))})
-    
-  names(prsdl)[5]="residual.p"
-  prsdl}
-
-relDif<-function(object){
-  n=seq(length(dim(object))-1)
-  sweep(sweep(as(object,is(object)[2]),n,orig(object),"-"),n,orig(object),"/")}
-
-dfbetaFn=function(object){
-  key=jackknifeKey(object)
-  
-  t1=relDif(params(object))
-  t2=relDif(refpts(object))
-  t3=stock(  object)[,ac(dims(catch(object))$maxyear)]
-  t4=harvest(object)[,ac(dims(catch(object))$maxyear)]
-  t5=relDif(t3%/%bmsy(object))
-  t6=relDif(t4%/%fmsy(object))
-  
-  smryStats=rbind(t1,t2,t3,t4,t5,t6)
-  
-  smryStats}
-
-cooksdFn=function(bd){
-  dgs=subset(diags(bd),!is.na(obs))[,c("year","obs")]
-  dat=merge(dgs,as.data.frame(stock(bd,0.5),drop=TRUE))
-  
-  dat=data.frame(year    =dgs$year,
-                 cooksd  =cooks.distance(lm(obs~data-1,dat)),
-                 hat     =hatvalues(lm(obs~data-1,dat)),
-                 residual=residuals(lm(obs~data-1,dat)))
-  dat}
-
-jackSmry<-function(object,sim,...) {
-            
-    nms =names(dimnames(object))
-    idx =seq(length(nms))[nms != 'iter']
-    n   =dims(sim)$iter 
-          
-    mn  =object
-    u   =sim
-    mnU =apply(u, idx, mean)   
-            
-    SS =apply(sweep(u, idx, mnU,"-")^2, idx, sum)
-            
-    bias = (n-1)*(mn-mnU)
-    se   = sqrt(((n-1)/n)*SS)
-            
-  # cov  =FLPar(cov(model.frame(u)[,dimnames(u)[[1]]])*(n-1)*(n-1)/n)
-  # cor  =FLPar(cor(cov[drop=T]))
-            
-    return(FLPars("hat"=mn, "mean"=mnU, "se"=se, "cv"=se%/%mnU,
-                  "bias"=bias, "biasRel"=bias/mn))} #bug =bias%/%mnU, "cov"=cov, "cor"=cor))}
-
+source('~/Desktop/flr/mpb/R/biodyn-func.R')
 ```
 
-```{r aspic,fig.width=8,fig.height=8}
+```{r aspic}
 asp2013=fit(aspic(aspic))
 ```
-
-```{r cpue,fig.width=8,fig.height=4}
-idx=index(asp2013,FALSE)
-#idx[,14]=NA
-
-plot(idx)+
-  geom_point()+
-  theme_bw()+xlab("Year")+ylab("CPUE")
-
-u=FLQuants("All"=idx,"Short"=window(idx,start=1975))
-```
-**Figure `r iFig=iFig+1; iFig`.** Time series of CPUE used in the 2013 assessment.
 
 ```{r biodyn,fig.width=8,fig.height=10}
 source('~/Desktop/flr/mpb/R/biodyn-fit.R')
 library(stringr)
+
+idx=index(asp2013,FALSE)
+u  =FLQuants("All"=idx,"Short"=window(idx,start=1975))
 
 bd=as(asp2013,"biodyn")
 
@@ -224,6 +154,7 @@ bds[["Skewed"]]@indices  =FLQuants(u["All"])
 bds[["Logistic Short"]]@indices=FLQuants(u["Short"])
 bds[["Skewed Short"]]@indices  =FLQuants(u["Short"])
 
+
 p=plot(bds)+
   scale_fill_brewer(palette = "Set1")
   # scale_colour_manual("Production Function",
@@ -234,6 +165,10 @@ p=plot(bds)+
 ```{r, jk}
 jks=mpb:::biodyns(llply(bds,function(x) 
   jackknife(x,FLQuants("1"=jackknife(x@indices[[1]])))))
+```
+
+```{r}
+save(jks,file="/home/laurie/Desktop/tmp/jks.RData")
 ```
 
 ```{r, xval}
@@ -248,139 +183,238 @@ hind=ldply(bds, function(bd) mdply(dims(catch(bd))$maxyear-(1:10), function(cut)
 names(hind)[1:2]=c("Scenario","Cut")
 ```
 
-```{r, aspic-plot,fig.height=8}
-plot(asp2013)+
- theme_bw()
+```{r catch,fig.width=6,fig.height=3}
+plot(catch(asp2013))+
+  geom_point()+
+  theme_bw(12)+xlab("Year")+ylab("Catch")
 ```
-**Figure `r iFig=iFig+1; iFig`.** Assessed stock status.
+**Figure `r iFig=iFig+1; iFig`.** Time series of catch.
+
+```{r cpue,fig.width=6,fig.height=3}
+plot(idx)+
+  geom_point()+
+  theme_bw(12)+xlab("Year")+ylab("CPUE")
+```
+**Figure `r iFig=iFig+1; iFig`.** Time series of catch per unit effort.
+
+```{r, aspic-plot,fig.height=8,eval=FALSE}
+plot(asp2013)+
+ theme_bw(16)
+```
 
 ```{r, press}
 pres=ldply(jks,press)
 ```
 
-```{r, dfbeta, fig.height=10}
-#(params(jks[[1]])%-%orig(params(jks[[1]])))%/%params(params(jks[[1]]))
-
-sweep(sweep(FLPar(params(jks[[1]])),1,orig(params(jks[[1]])),"-"),1,orig(params(jks[[1]])),"/")
-
-
-dfb=ldply(jks,dfbetaFn)
-
-ggplot(subset(dfb,!(variable%in%c("p","b0","sigma1","q1"))))+
-  geom_point(aes(iter,data,colour=.id))+
-  facet_grid(variable~.,scale="free_y",space="free_y")+
-  scale_y_continuous(labels=percent)+
-  theme_bw()+
-  xlab("Year")+ylab("")
+```{r}
+load("/home/laurie/Desktop/tmp/jks.RData")
 ```
-**Figure `r iFig=iFig+1; iFig`.** 
+
 
 ```{r cooks1,fig.height=6,fig.width=6}
-cksd=ldply(bds,cksdFn)
-
+cksd=merge(ldply(bds,cooksdFn),
+data.frame(
+.id     =c("Logistic","Skewed","Logistic Short","Skewed Short"),
+func    =c("Logistic","Skewed","Logistic",      "Skewed"),
+series  =c("All",     "All",   "Short",         "Short")))
 
 ggplot(cksd)+
-  geom_point(aes(hat,abs(residual),size=cooksd))+
-  facet_wrap(~.id)+
-  theme_bw()+
+  geom_point(aes(hat,abs(residual),size=cooksd^0.5))+
+  facet_grid(series~func,scale="free")+
+  theme_bw(12)+
+  theme(legend.position="none")+
+  xlab("Leverage")+ylab("Residual")
+```
+**Figure `r iFig=iFig+1; iFig`.** Influence diagrams showing the residual plotted against leverage, the size of points is equal to Cook's D statistic, a measure of the influence of a point.
+
+
+```{r}
+load("/home/laurie/Desktop/tmp/jks.RData")
+bias=ldply(jks,function(x) model.frame(jackSmry(refs(x))$biasRel))[,-c(4:7,16)]
+bias[,-1]=bias[,-1]*100
+
+cv=ldply(jks,function(x) model.frame(jackSmry(refs(x))$cv))[,-c(4:7,16)]
+cv[,-1]=cv[,-1]*100
+```
+
+```{r}
+infl=ldply(jks,function(x) model.frame(jackSmry(refs(x))$influence))[,-16]
+infl=melt(infl)
+
+dfb=ldply(jks,function(x) model.frame(dif(refs(x))))
+dfb=melt(dfb,id=c(".id","iter"))
+dfb=merge(dfb,infl,by=c(".id","variable"))
+dfb=transform(dfb,influential=abs(value.x)>value.y)
+
+dfb=transform(dfb,params=factor(variable,levels=c("b","f","r","k","bmsy","fmsy","msy",
+                                             "bbmsy","ffmsy","ymsy","p","b0","sigma1","q1")),
+                  .id   =factor(.id,levels=c("Logistic","Skewed","Logistic Short","Skewed Short")),
+                  iter  =as.numeric(iter))
+
+yrs=ldply(jks,function(x) subset(as.data.frame(x@indices[[1]],drop=TRUE),!is.na(data)))
+yrs=ddply(yrs,.(.id),transform,iter=seq(length(iter)))[,c(".id","iter","year")]
+dfb=merge(dfb,yrs,by=c(".id","iter"))
+rel=ldply(jks,function(x) as.data.frame(orig(refs(x)))[,-2])
+names(rel)[2]="variable"
+dfb=merge(dfb,rel,by=c(".id","variable"))
+dfb=transform(dfb,value=value.x/data)
+```
+
+```{r, dfbeta, fig.height=8}
+txt=melt(data.frame(bias[,c(".id","r","k")]),id=".id")
+txt=merge(transform(txt,value=paste(round(value,2),"%",sep="")),
+data.frame(
+.id     =c("Logistic","Skewed","Logistic Short","Skewed Short"),
+func    =c("Logistic","Skewed","Logistic",      "Skewed"),
+series  =c("All",     "All",   "Short",         "Short")))
+          
+
+dfb=merge(dfb,
+data.frame(
+.id     =c("Logistic","Skewed","Logistic Short","Skewed Short"),
+func    =c("Logistic","Skewed","Logistic",      "Skewed"),
+series  =c("All",     "All",   "Short",         "Short")))
+
+head(dfb)
+
+ggplot(subset(dfb,(params%in%c("k","r"))))+
+  geom_hline(aes(yintercept=0))+
+  geom_point(aes(year,value,shape=influential),size=2)+
+  geom_label(aes(2008,0.05,label=value),data=txt)+
+  facet_grid(series+func~params,scale="free")+
+  scale_y_continuous(labels=percent,breaks=c(-0.05,0,0.05),limits=c(-0.055,0.055))+
+  scale_shape_manual(values=c(21,19))+
+  theme_bw(16)+
+  xlab("Year")+ylab("DF Beta")+
+  #theme(strip.text.y=element_text(angle=0))+
+  theme(legend.position="bottom")+
   theme(legend.position="none")
 ```
-**Figure `r iFig=iFig+1; iFig`.** 
+**Figure `r iFig=iFig+1; iFig`.** DFBetas from jackknife, by estimated parameters (r and K) for each scenario.
 
-```{r, cooks-plot-2,fig.height=10,fig.width=7}
+```{r, cooks-plot-2,fig.height=8,fig.width=8}
 stat=merge(dfb,cksd,merge="year")
-stat=subset(stat,!(variable%in%c("p","b0","sigma1","q1")))
+stat=subset(stat,!(params%in%c("p","b0","sigma1","q1")))
        
 stat[stat$cooksd>1,"cooksd"]=0.056
 stat$outlier=FALSE
 
+stat=subset(stat,params%in%c("r","k"))
+
 ggplot(stat)+
-  geom_point(aes(cooksd,abs(value)))+
+  #geom_hline(aes(yintercept=2/45^0.5))+
+  geom_point(aes(cooksd,abs(value),shape=influential),size=2)+
   geom_point(aes(cooksd,abs(value)),data=subset(stat,cooksd==0.056),col="red",size=4)+
   geom_label(aes(cooksd,abs(value)),label="1.8",alpha=0.5,data=subset(stat,cooksd==0.056))+
-  facet_grid(variable~Scenario,space="free",scale="free")+
+  facet_grid(series*func~params,space="free",scale="free")+
   scale_x_continuous(limits=c(0,.06))+
-  theme_bw()
+  scale_shape_manual(values=c(21,19))+
+  theme_bw(16)+xlab("Cooks Distance")+ylab("DF Beta")+
+  theme(legend.position="none")
 ```
-**Figure `r iFig=iFig+1; iFig`.** 
-
-```{r, hind}
-ggplot(subset(hind,Cut%in%c(10:6)),aes(y=log(obs/hat),x=factor(Cut)))+
-   geom_hline(aes(yintercept=0))+
-   geom_boxplot(fill="grey")+
-   geom_point(position=position_dodge(width=0.75),aes(group=factor(year),col=factor(year)))+
-   scale_colour_brewer(palette = "Set1")+
-   #scale_fill_manual("Production Function",
-   #                     labels = c("Logistic", "Skewed"),
-  #                     values = c("#E69F00", "#D55E00"))+
-   scale_x_discrete(breaks=c(1:5))+
-   theme_bw()+xlab("Length of Tail Cut")+ylab("Residual")+
-   theme(legend.position="none")+
-   facet_wrap(~Scenario)
-```
-**Figure `r iFig=iFig+1; iFig`.** Comparison of prediction residuals, by CPUE series and production function shape, for different lengths of tail cutting.
+**Figure `r iFig=iFig+1; iFig`.** Plots of DF Beta against Cook´s D for the estimated parameters (r and K) for each scenario.  
 
 
-```{r, residuals}
-ggplot(melt(pres[,c("Scenario","year","residual","p.residual")],id=c("Scenario","year")))+ 
-   geom_boxplot(aes(factor(variable,labels=c("Model","Prediction")),value))+
-   facet_wrap(~Scenario)+
-   theme_bw()+
-   xlab("Residual Type")+ylab("")
-```
-**Figure `r iFig=iFig+1; iFig`.** Comparison of model and prediction residuals, by CPUE series and production function shape.
+```{r production, fig.height=6,fig.width=8}
+ts =ldply(bds, function(x) model.frame(mcf(FLQuants(x,"stock","catch"))))
+
+ts=merge(ts,
+data.frame(
+.id     =c("Logistic","Skewed","Logistic Short","Skewed Short"),
+func    =c("Logistic","Skewed","Logistic",      "Skewed"),
+series  =c("All",     "All",   "Short",         "Short")))
+
+ts1=merge(ts,subset(dfb[,c(".id","year","influential","variable")],influential&variable%in%c("r","k")),by=c(".id","year"))
 
 
-```{r production}
-ts=ldply(bds, function(x) model.frame(mcf(FLQuants(x,"stock","catch"))))
-      
-plotProduction(bds)+
-  geom_path( aes(stock,catch,fill=.id,col=.id),data=ts,shape=21)+      
-  geom_point(aes(stock,catch,fill=.id),data=ts,shape=21,col="grey")+  
-  scale_fill_brewer(palette = "Set1")+
-  scale_colour_brewer(palette = "Set1")+
+dat=merge(plotProduction(bds)$data,
+data.frame(
+.id     =c("Logistic","Skewed","Logistic Short","Skewed Short"),
+func    =c("Logistic","Skewed","Logistic",      "Skewed"),
+series  =c("All",     "All",   "Short",         "Short")))
+
+ggplot(dat)+
+  geom_line(aes(stock,yield,group=.id))+
+  geom_path( aes(stock,catch),data=ts)+      
+  #geom_point(aes(stock,catch),data=ts,shape=21,fill="black",col="grey")+  
+  #scale_fill_brewer(palette = "Set1")+
+  scale_colour_manual(values=rep("black",4))+
+  #scale_colour_brewer(palette = "Set1")+
   # scale_colour_manual("Production Function",
   #                       labels = c("Logistic", "Skewed"),
   #                       values = c("#2121D9", "#D92121"))+
   # scale_fill_manual("Production Function",
   #                       labels = c("Logistic", "Skewed"),
   #                       values = c("#2121D9", "#D92121"))+
-  theme_bw()+
+  theme_bw(16)+
   theme(legend.position="none")+
-  facet_wrap(~.id)
+  facet_grid(series~func)+
+  geom_point(aes(stock,catch),shape=21,fill="black",col="grey",size=3,data=ts1)
+ 
 ```
 **Figure `r iFig=iFig+1; iFig`.** Production function for the logistic and skewed production functions, historic trajectory also shown.
 
-```{r tab-cor}
-cr=ddply(stat,.(Scenario,variable), with, cor(cooksd,value,method="spearman"))
 
-cast(cr,variable~Scenario)
 
-bias=rbind(cbind("Scenario"=names(bds)[1],model.frame(jackFn(params(bds[[1]]),params(jks[[1]]))$bias)),
-           cbind("Scenario"=names(bds)[2],model.frame(jackFn(params(bds[[2]]),params(jks[[2]]))$bias)),
-           cbind("Scenario"=names(bds)[3],model.frame(jackFn(params(bds[[3]]),params(jks[[3]]))$bias)),
-           cbind("Scenario"=names(bds)[4],model.frame(jackFn(params(bds[[4]]),params(jks[[4]]))$bias)))[,-c(4:5,8)]
+```{r, residuals2,fig.height=6,fig.width=6}
+dat=merge(pres,cksd,by=c(".id","year"))
+dat=melt(dat[,c(".id","year","residual","residual.p")],id=c(".id","year"))
 
-biasRef=rbind(cbind("Scenario"=names(bds)[1],model.frame(jackFn(refpts(bds[[1]]),refpts(jks[[1]]))$bias)),
-              cbind("Scenario"=names(bds)[2],model.frame(jackFn(refpts(bds[[2]]),refpts(jks[[2]]))$bias)),
-              cbind("Scenario"=names(bds)[3],model.frame(jackFn(refpts(bds[[3]]),refpts(jks[[3]]))$bias)),
-              cbind("Scenario"=names(bds)[4],model.frame(jackFn(refpts(bds[[4]]),refpts(jks[[4]]))$bias)))[,-5]
+dat2=merge(cast(dat,.id+year~variable),
+data.frame(
+.id     =c("Logistic","Skewed","Logistic Short","Skewed Short"),
+func    =c("Logistic","Skewed","Logistic",      "Skewed"),
+series  =c("All",     "All",   "Short",         "Short")))
 
-# biasB=rbind(cbind("Scenario"=names(bds)[1],model.frame(jackFn(stock(bds[[1]])[,"2012"]%/%refpts(bds[[1]])["bmsy"],
-#                                                              stock(jks[[1]])[,"2012"]%/%refpts(jks[[1]])["bmsy"])$bias)),
-#            cbind("Scenario"=names(bds)[2],model.frame(jackFn(stock(bds[[2]])[,"2012"]%/%refpts(bds[[2]])["bmsy"],
-#                                                              stock(jks[[2]])[,"2012"]%/%refpts(jks[[2]])["bmsy"])$bias)),
-#            cbind("Scenario"=names(bds)[3],model.frame(jackFn(stock(bds[[3]])[,"2012"]%/%refpts(bds[[3]])["bmsy"],
-#                                                              stock(jks[[3]])[,"2012"]%/%refpts(jks[[3]])["bmsy"])$bias)),
-#            cbind("Scenario"=names(bds)[4],model.frame(jackFn(stock(bds[[4]])[,"2012"]%/%refpts(bds[[4]])["bmsy"],
-#                                                              stock(jks[[4]])[,"2012"]%/%refpts(jks[[4]])["bmsy"])$bias)))
-
-#biasF=rbind(cbind("Scenario"=names(bds)[1],model.frame(jackFn(harvest(bds[[1]])[,"2011"]%/%refpts(bds[[1]])["fmsy"],
-#                                                              harvest(jks[[1]])[,"2011"]%/%refpts(jks[[1]])["fmsy"])$bias)),
-#            cbind("Scenario"=names(bds)[2],model.frame(jackFn(harvest(bds[[2]])[,"2011"]%/%refpts(bds[[2]])["fmsy"],
-#                                                              harvest(jks[[2]])[,"2011"]%/%refpts(jks[[2]])["fmsy"])$bias)),
-#            cbind("Scenario"=names(bds)[3],model.frame(jackFn(harvest(bds[[3]])[,"2011"]%/%refpts(bds[[3]])["fmsy"],
-#                                                              harvest(jks[[3]])[,"2011"]%/%refpts(jks[[3]])["fmsy"])$bias)),
-#            cbind("Scenario"=names(bds)[4],model.frame(jackFn(harvest(bds[[4]])[,"2011"]%/%refpts(bds[[4]])["fmsy"],
-#                                                              harvest(jks[[4]])[,"2011"]%/%refpts(jks[[4]])["fmsy"])$bias)))
+ggplot(dat2)+
+  geom_point(aes(residual,residual.p))+
+  geom_abline(aes(slope=1,intercept=0))+
+  geom_smooth(aes(residual,residual.p),se=F)+
+  facet_grid(series~func)+
+  xlab("Model Residuals")+ylab("Prediction Residuals")+
+  theme_bw(12)
 ```
+**Figure `r iFig=iFig+1; iFig`.** Comparison of model and prediction residuals.
+
+
+```{r, residuals}
+dat=merge(dat,
+data.frame(
+.id     =c("Logistic","Skewed","Logistic Short","Skewed Short"),
+func    =c("Logistic","Skewed","Logistic",      "Skewed"),
+series  =c("All",     "All",   "Short",         "Short")))
+
+ggplot(dat)+ 
+   geom_boxplot(aes(factor(variable,labels=c("Model","Prediction")),value))+
+   facet_grid(series~func)+
+   theme_bw(16)+
+   xlab("Residual Type")+ylab("")
+```
+**Figure `r iFig=iFig+1; iFig`.** Comparison of model and prediction residuals.
+
+
+```{r, hind}
+dat=merge(subset(hind,Cut%in%c(10:6)),
+data.frame(
+Scenario=c("Logistic","Skewed","Logistic Short","Skewed Short"),
+func    =c("Logistic","Skewed","Logistic",      "Skewed"),
+series  =c("All",     "All",   "Short",         "Short")))
+
+save(dat,file="/home/laurie/Desktop/tmp/dat.RData")
+
+ggplot(dat,aes(y=log(obs/hat),x=factor(Cut)))+
+   geom_hline(aes(yintercept=0))+
+   geom_boxplot(fill="grey",outlier.size=0)+
+   geom_point(position=position_dodge(width=0.75),aes(group=factor(year)))+
+   #scale_colour_brewer(palette = "Set1")+
+   #scale_fill_manual("Production Function",
+   #                     labels = c("Logistic", "Skewed"),
+  #                     values = c("#E69F00", "#D55E00"))+
+  # scale_x_discrete(breaks=c(1:5))+
+   theme_bw(16)+xlab("Length of Tail Cut")+ylab("Residual")+
+   theme(legend.position="none")+
+   facet_grid(series~func)
+```
+**Figure `r iFig=iFig+1; iFig`.** Comparison of prediction residuals, by CPUE series and production function shape, for different lengths of tail cutting.
+
+

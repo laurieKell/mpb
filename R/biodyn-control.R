@@ -68,7 +68,9 @@ setMethod( 'setControl<-', signature(object='biodyn',value='FLPar'), function(ob
   
   if (!is.na(any(value[nms]<0)) & any(value[nms]<0))
     object@control[nms[value[nms]<0],c('min','max')]=object@control[nms[value[nms]<0],c('max','min')]
-
+ 
+  object@control[-(1:4),"phase"]=-2
+  
   prr=object@priors
   nms=c(nms[!substr(dimnames(object@params)$params,1,1) %in% c('s','q')],
         'msy','bmsy','fmsy',

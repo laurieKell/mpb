@@ -90,6 +90,8 @@ setMethod('jackknife',signature(object='biodyn'),
             object=fitPella(object,dir=dir,cmdOps=cmdOps,lav=lav)
             
             object@stock=as(stock(object),"FLQuantJK")
+            object@stock@orig=stock(orig)
+            object@catch     =orig@catch
             
             for (iSlot in names(getSlots("biodyn")[getSlots("biodyn")=="FLPar"])){
               slot(object,iSlot)      =as(slot(object,iSlot),"FLParJK")
@@ -210,6 +212,7 @@ setExe=function(dir=tempfile("tmpdir")){
 setPella=function(x,dir=tempfile("tmpdir"),lav=FALSE) {
   
   setExePath()
+  if (file.exists(dir)) system(paste("rm", dir))
   system(paste("mkdir",dir))
   setwd(dir)
   
@@ -254,7 +257,7 @@ setPella=function(x,dir=tempfile("tmpdir"),lav=FALSE) {
 
   mpb:::writeADMB(ctl, paste(dir, '/', 'pella', '.ctl', sep=''),append=TRUE)
 
-    # prr file
+  # prr file
   prr = x@priors[c(nms,c('msy','bmsy','fmsy'),nmIdx),] 
   prr = alply(prr,1)
   names(prr) = dimnames(x@priors)$params[1:9]
@@ -632,6 +635,9 @@ runExe<-function(bd,indices=bd@indices,wkdir=tempfile(),cmdOps=paste('-maxfn 500
 fitPella=function(object,
                   dir=tempdir(),
                   cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE,maxF=2.5,silent=TRUE){
+  
+  first=TRUE
+  
   if (silent){
     ow=options("warn");options(warn=-1)
     
@@ -711,9 +717,8 @@ fitPella=function(object,
     system(paste('pella', ' ', cmdOps, sep='')) #,ignore.stdout=TRUE, ignore.stderr=TRUE)
     
     #gets results
-    print(1)
-    tmpObj=getPella(tmpObj)     
-    print(1)
+    tmpObj=getPella(tmpObj)  
+    
     s=names(slts)[slts%in%c('FLQuant','FLPar')]
     
     for (s in s[!("hessian"%in%s)]){
@@ -841,23 +846,29 @@ fitPella=function(object,
   object=fwd(object,catch=catch(object)) 
   #stock(object)=fwd(params(object),catch=catch(object)) 
   
-  # if (its<=1){
-  #   object@diags=mdply(seq(length(index)),function(i,index){
-  #     stockHat=(stock(object)[,-dims(stock(object))$year]+stock(object)[,-1])/2
-  #     hat     =stockHat*params(object)[paste("q",i,sep="")]
-  #     
-  #     res=model.frame(mcf(FLQuants(
-  #       obs     =index[[i]],
-  #       hat     =hat,
-  #       residual=log(index[[i]]/hat))),drop=T)
-  #     
-  #     diagsFn(res)},index=object@indices)
-  #   
-  #   names(object@diags)[1]="name"
-  # }else 
-  #   object@diags=dgsFn(object,object@indices)
+  # system("rm pella.*")
+  # system("rm admodel.dep admodel.hes debug.txt fmin.log lls.txt mcmc_bio.csv mcmc_par.csv trace.txt")
+  # whereNow=getwd()
+  # setwd(FLCore:::getDir(whereNow))
+  # system(paste("rm -r",FLCore:::getFile(whereNow)))
+  # setwd(oldwd) 
   # 
-  setwd(oldwd) 
+  if (its<=1){
+     object@diags=mdply(seq(length(index)),function(i,index){
+       stockHat=(stock(object)[,-dims(stock(object))$year]+stock(object)[,-1])/2
+       hat     =stockHat*params(object)[paste("q",i,sep="")]
+       
+        
+       res=model.frame(mcf(FLQuants(
+         obs     =index[[i]],
+         hat     =hat,
+         residual=log(index[[i]]%/%hat[,dimnames(index[[i]])$year]))),drop=T)
+       
+       diagsFn(res)},index=object@indices)
+     
+     names(object@diags)[1]="name"
+  }else 
+     object@diags=dgsFn(object,object@indices)
   
   #  if (!is.null(catch)) catch(object)=catch
   

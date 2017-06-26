@@ -116,11 +116,7 @@ hcrParam=function(ftar,btrig,fmin,blim){
 #' }
 setMethod('hcr', signature(object='biodyn',refs='missing'),
   function(object, 
-           params=hcrParam(ftar =0.70*refpts(object)['fmsy'],
-                           btrig=0.80*refpts(object)['bmsy'],
-                           fmin =0.01*refpts(object)['fmsy'],
-                           blim =0.40*refpts(object)['bmsy']),
-    
+           ftar =0.70, btrig=0.80, fmin =0.01, blim =0.40,
            yr =max(as.numeric(dimnames(catch(object))$year)),
            byr=yr-1,
            hyr=yr+1:3,
@@ -135,6 +131,11 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
            maxF  =1,
            ...) {
   
+  params=hcrParam(ftar =ftar *refpts(object)['fmsy'],
+                  btrig=btrig*refpts(object)['bmsy'],
+                  fmin =fmin *refpts(object)['fmsy'],
+                  blim =blim *refpts(object)['bmsy'])
+    
   ## HCR
   dimnames(params)$params=tolower(dimnames(params)$params)
   params=as(params,'FLQuant')  
@@ -192,7 +193,6 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
      
       rtn   =catch(mpb::fwd(object, harvest=rtn))[,ac(hyr)]
 
-      plot(rtn)
       if (!is.null(bndTac)){  
         rtn[,ac(min(hyr))]=qmax(rtn[,ac(min(hyr))],ref*bndTac[1])
         rtn[,ac(min(hyr))]=qmin(rtn[,ac(min(hyr))],ref*bndTac[2])
@@ -211,7 +211,7 @@ setMethod('hcr', signature(object='biodyn',refs='missing'),
   if (tac) {
     rtn=window(rtn,start=hyr[1]-1)
     rtn[,ac(hyr[1]-1)]=catch(object)[,ac(hyr[1]-1)]
-    return(rtn)
+    return(rtn[,-1])
   }else{
     hvt=hvt[,ac(c(hyr[1]-1,hyr))]
     hvt[,ac(hyr[1]-1)]=harvest(object)[,ac(hyr[1]-1)]
