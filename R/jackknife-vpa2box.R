@@ -51,7 +51,7 @@ saveNF<-function(i,spd,dir){
   write.table(cbind(iter=i,F),file=file.path(dir,"f.txt"),append=TRUE,row.names=FALSE,col.names=FALSE)   }
 
 saveQ<-function(i,dgs,dir){
-  res=diagsVpa2box(dgs)
+  res=diags.vpa2box(dgs)
   res=res[!duplicated(res$name),c("name","q")]
   
   write.table(cbind(iter=i,res),file=file.path(dir,"q.txt"),append=TRUE,row.names=FALSE,col.names=FALSE)

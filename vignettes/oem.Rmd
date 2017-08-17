@@ -8,7 +8,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEncoding{UTF-8}
-bibliography: /home/laurie/bib/refs.bib
+bibliography: refs.bib
 tags: FLPKG FLR
 license: Creative Commons Attribution-ShareAlike 4.0 International
 ---
@@ -112,6 +112,12 @@ plot(FLQuants(ple4,"Stock"=stock,"Index"=function(x) apply(oem(x),2,sum)))
 
 Create an index aggregated over ages
 ```{r example1,echo=TRUE,eval=TRUE}
+#source('~/Desktop/flr/mpb/R/generics.R')
+
+source('~/Desktop/flr/mse/R/generics.R')
+source('~/Desktop/flr/mse/R/oem.R')
+source('~/Desktop/flr/mse/R/noise.R')
+
 apply(oem(ple4),2,sum)
 ```
 
@@ -196,7 +202,7 @@ u     =FLQuants("Unbiased"      =rlnorm(100,log(apply(oem(ple4),2:6,sum)),.3),
                 "Variable"      =var,
                 "Juvenile"      =rlnorm(100,log(apply(oem(ple4,sel=mat(ple4)),2:6,sum)),.3),
                 "Mature"        =rlnorm(100,log(apply(oem(ple4,sel=1-mat(ple4)),2:6,sum)),.3),
-                "Numbers"       =rlnorm(100,log(apply(oem(ple4,mass=FALSE),2:6,sum),.3)))
+                "Numbers"       =rlnorm(100,log(apply(oem(ple4,mass=FALSE),2:6,sum)),.3))
 
 u=FLQuants(llply(u,function(x) x/mean(x)))
 u=ldply(u,as.data.frame)
