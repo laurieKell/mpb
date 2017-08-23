@@ -2,4 +2,4 @@
 ^\.Rproj\.user$
 ^\src/pellaTmb.cpp$
 ^\biodyn.Rmd$
-
+^R\biodyn-hcr.R$

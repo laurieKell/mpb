@@ -153,7 +153,7 @@ iavFn=function(val,bnd,lag=1){
 #' plot(bdHat,worm=c(2,8))+
 #' theme(legend.position="bottom")
 #'  }
-setMethod( 'fwd', signature(object='biodyn',fishery='missing',control='missing'),
+setMethod('fwd', signature(object='biodyn',fishery='missing',control='missing'),
 #setMethod( 'fwd', signature(object='biodyn',control='missing'),
    function(object, fishery, control,
                     catch  =NULL, 
@@ -322,7 +322,7 @@ fwdFn=function(object,
     
         return(object)}
 
-setMethod( 'fwd', signature(object='biodyn',fishery='FLQuants',control='missing'),
+setMethod('fwd', signature(object='biodyn',fishery='FLQuants',control='missing'),
 #setMethod('fwd', signature(object='biodyn',control='FLQuants'),
   function(object,fishery,control, pe=NULL, peMult=TRUE,minF=0,maxF=2,lag=0,
            bounds=list(catch=c(Inf,Inf)),...) {
@@ -351,8 +351,9 @@ setMethod( 'fwd', signature(object='biodyn',fishery='FLQuants',control='missing'
 #   names(res)=names(control)
 #         
 #   return(biodyns(res))})
-      
-setMethod( 'fwd', signature(object='FLPar',fishery='missing',control='missing'),
+
+
+setMethod('fwd', signature(object='FLPar',fishery='missing',control='missing'),
 #setMethod( 'fwd', signature(object='FLPar',control='missing'),
   function(object,fishery,control,...){
   

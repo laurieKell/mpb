@@ -67,3 +67,12 @@ importFrom(reshape,cast)
 importFrom(reshape,melt)
 importFrom(stringr,str_trim)
 useDynLib(mpb)
+export(mseXSA)
+export(mseMPB)
+export(mseEMP)
+export(fwdWindow)
+export(fmsy)
+export(bmsy)
+export(hcrParam)
+
+

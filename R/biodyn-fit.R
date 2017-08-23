@@ -205,7 +205,7 @@ setExe=function(dir=tempfile("tmpdir")){
   oldwd = getwd()
   
   # change wd to avoid exe case bug
-  setwd(dir)
+  try(setwd(dir))
   
   oldwd}
 
@@ -214,7 +214,7 @@ setPella=function(x,dir=tempfile("tmpdir"),lav=FALSE) {
   setExePath()
   if (file.exists(dir)) system(paste("rm", dir))
   system(paste("mkdir",dir))
-  setwd(dir)
+  try(setwd(dir))
   
   # create input files ################################
   

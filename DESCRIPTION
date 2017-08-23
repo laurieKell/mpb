@@ -48,6 +48,7 @@ Collate:
     aspic-constructors.R
     aspic-coerce.R
     biodyn-fwd.R
+    biodyn-fwdWindow.R
     biodyn-setParams.R
     aspic-plot.R
     biodyn-msy.R
@@ -60,8 +61,6 @@ Collate:
     biodyn-rand.R
     biodyn-jackSummary.R
     biodyn-oem.R
-    biodyn-hcr.R
-    FLStock-hcr.R
     biodyn-boot.R
     biodyn-sim.R
     biodyn-feasible.R
@@ -89,6 +88,13 @@ Collate:
     biodyn-FLBRP2biodyn.R
     jackknife-vpa2box.R
     plotIndex.R
+    msy.R
+    hcr.R
+    mseMPB.R
+    mseXSA.R
+    mseEMP.R
+    biodyn-hcr.R
+    FLStock-hcr.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1
