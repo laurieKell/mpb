@@ -8,16 +8,17 @@ output: pdf_document
 ```{r knitr, echo=FALSE}
 library(knitr)
 
-opts_chunk$set(comment=NA, 
+opts_chunk$set(comment   =NA, 
                fig.width =8, 
                fig.height=5,
-               fig.path  ="../tex/oem-",
-               warning=FALSE, 
-               message=FALSE, 
-               error  =FALSE, 
-               echo   =FALSE, 
-               eval   =TRUE,
-               cache  =TRUE)
+               fig.path  ="tex/test/",
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =FALSE, 
+               eval      =TRUE,
+               cache     =TRUE,
+               fig.path  ="cache/test/")
 iFig=0
 ```
 

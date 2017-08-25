@@ -15,17 +15,18 @@ license: Creative Commons Attribution-ShareAlike 4.0 International
 ```{r knitr_init, echo=FALSE, results="hide"}
 library(knitr)
 ## Global options
-opts_chunk$set(echo    =TRUE,
-               eval    =TRUE,
-               cache   =FALSE,
-               prompt  =FALSE,
-               comment =NA,
-               message =FALSE,
-               tidy    =FALSE,
-               warnings=FALSE,
+opts_chunk$set(echo      =TRUE,
+               eval      =TRUE,
+               cache     =FALSE,
+               cache.path="mpb/tex/",
+               prompt    =FALSE,
+               comment   =NA,
+               message   =FALSE,
+               tidy      =FALSE,
+               warnings  =FALSE,
                fig.height=4.5,
                fig.width =4.5,
-               fig.path  ="tex/")
+               fig.path  ="mpb/tex/")
 ```
 
 ```{r,echo=FALSE}

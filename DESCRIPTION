@@ -89,12 +89,10 @@ Collate:
     jackknife-vpa2box.R
     plotIndex.R
     msy.R
-    hcr.R
-    mseMPB.R
-    mseXSA.R
-    mseEMP.R
     biodyn-hcr.R
-    FLStock-hcr.R
+    mseMPB.R
+    mseEMP.R
+    mseXSA.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1

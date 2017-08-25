@@ -36,24 +36,24 @@ iFig=0
 
 [](#top)
 
-[Introduction](#Introduction)
+<!-- [Introduction](#Introduction) -->
 
-[Operating Model](#Operating Model)
+<!-- [Operating Model](#Operating Model) -->
 
-[Management Procedures](#Management Procedures)
+<!-- [Management Procedures](#Management Procedures) -->
 
-[Age Based](##Age Based)
+<!-- [Age Based](##Age Based) -->
 
-[Biomass Based](##Biomass Based)
+<!-- [Biomass Based](##Biomass Based) -->
 
-[Emprirical](##Emprirical)
+<!-- [Emprirical](##Emprirical) -->
 
-[References](#References)
+<!-- [References](#References) -->
 
 
 # Introduction
 
-`mpb` is an R package for running and simulation a variety of management procedures (MPs), i.e. the combination of pre-defined data, together with an algorithm to which the data are input to provide a value for a TAC or effort control measure. In this vignette the `FLife` package is used to condition an Operating Model (OM) using life history parameters and relationships. Both packages are part of `FLR` (@kell2007flr).
+`mpb` is an R package for conducting Management Strategy Evaluation (MSE) and simulating a variety of management procedures (MPs). An MP is the combination of pre-defined data, together with an algorithm to which the data are input to provide a value for a TAC or effort control measure. In this vignette the `FLife` package is used to condition an Operating Model (OM) using life history parameters and relationships. Both packages are part of `FLR` (@kell2007flr).
 
 ```{r init, echo=FALSE}
 library(FLife)
@@ -69,6 +69,7 @@ library(FLXSA)
 library(FLife)
 library(mpb)
 library(plyr)
+
 
 theme_set(theme_bw())
 
@@ -158,14 +159,12 @@ nits=200
 
 set.seed(1234)
 srDev=FLife:::rlnoise(nits,fbar(eql)[,-1,,,,1]*0,.3,b=0.0)
-set.seed(3321)
-uDev =rlnorm(nits,setPlusGroup(stock.n(eql),20)*0,.2)
 ```
 
 
 ```{r stock-stochastic-plot, echo=FALSE}
 plot(srDev)+
-    geom_line(aes(year,data,col=iter),data=as.data.frame(iter(srDev,1:3)))
+    geom_point(aes(year,data,col=iter),data=as.data.frame(iter(srDev,c(7,12,19))))
 ```
 
 **Figure `r iFig=iFig+1; iFig`** Time series of recruitment deviates
@@ -187,14 +186,16 @@ oms=FLStocks("Projection"=fwd(om,f=fbar(om)[,-1],sr.residuals=rlnorm(nits,fbar(o
 ```{r stock-stochastic-2, echo=FALSE}
 plot(oms[["Projection"]])+
   geom_line(aes(year,data,col=iter),
-            data=as.data.frame(FLQuants(iter(oms[["Projection"]],1:3),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
+            data=as.data.frame(FLQuants(iter(oms[["Projection"]],c(7,12,19)),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
   theme(legend.position="none")
 ```
 
 **Figure `r iFig=iFig+1; iFig`** Stochastic Time series of F, SSB, recruitment and yield
 
 
-[Back to Top](#top)
+<!-- [Back to Top](#top) -->
+
+\newpage
 
 # Management Procedures
 
@@ -270,7 +271,7 @@ oms[["Age"]]=mseXSA(oms[["Projection"]],eql, #OM
 ```{r xsa-mse-plot, echo=FALSE}
 plot(oms[["Age"]])+
   geom_line(aes(year,data,col=iter),
-            data=as.data.frame(FLQuants(iter(oms[["Age"]],1:3),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
+            data=as.data.frame(FLQuants(iter(oms[["Age"]],c(7,12,19)),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
   theme(legend.position="none")
 ```
 
@@ -305,19 +306,20 @@ mp=fit(mp)
 
 and compared to the OM
 
-```{r biodyn-xtest-plot}
-dat=plot(FLQuants(mp,"Biomass"=stock,"F"=function(x) catch(x)/stock(x)[,dimnames(catch(x))$year]))$data
 
-plot(FLQuants(window(oms[["Projection"]],end=75),"Biomass"=stock,"F"=function(x) catch(x)/stock(x)))+
-  geom_line(  aes(year,`50%`),data=dat)+
-  geom_ribbon(aes(year,ymax=`75%`,ymin=`25%`),data=dat,alpha=.5)
+```{r biodyn-test-2, echo=FALSE}
+setControl(mp)=params(mp)
+dat=plot(FLQuants(fit(mp),"Biomass"=stock,"F"=function(x) catch(x)/stock(x)[,dimnames(catch(x))$year]))$data
+
+plot(FLQuants(window(oms[["Projection"]],start=20,end=75),"Biomass"=stock,"F"=function(x) catch(x)/stock(x)))+
+  geom_line(  aes(year,`50%`),data=dat,fill="blue",col="blue")+
+  geom_ribbon(aes(year,ymax=`75%`,ymin=`25%`),data=dat,alpha=.25,fill="blue",col="blue")
 ```
 
 **Figure `r iFig=iFig+1; iFig`** Comparision of estimates and simulated time series of harvest rate and stock biomass.
 
+
 ```{r biodyn-mse, eval=!FALSE}
-#source('~/Desktop/flr/mpb/R/mseMPB.R')
-#source('~/Desktop/flr/mpb/R/biodyn-fwdWindow.R')
 source('~/Desktop/flr/mpb/R/hcr.R')
 
 setControl(mp)=params(mp)
@@ -329,7 +331,21 @@ oms[["Biomass"]]=
 ```{r biodyn-mse-plot, echo=FALSE}
 plot(window(oms[["Biomass"]],end=100))+
   geom_line(aes(year,data,col=iter),
-            data=as.data.frame(FLQuants(window(iter(oms[["Biomass"]],1:3),end=100),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
+            data=as.data.frame(FLQuants(window(iter(oms[["Biomass"]],c(7,12,19)),end=100),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
+  theme(legend.position="none")
+```
+**Figure `r iFig=iFig+1; iFig`** Time series from the MSE of F, SSB, recruitment and yield
+
+
+```{r biodyn-mse-2, eval=!FALSE}
+oms[["Biomass2"]]=
+  mseMPB(window(oms[["Projection"]],start=20,end=103),eql,mp,srDev=srDev,uDev=uDev,ftar=0.5,start=75,end=103)
+```
+
+```{r biodyn-mse-plot-2, echo=FALSE}
+plot(window(oms[["Biomass2"]],end=100))+
+  geom_line(aes(year,data,col=iter),
+            data=as.data.frame(FLQuants(window(iter(oms[["Biomass"]],c(7,12,19)),end=100),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
   theme(legend.position="none")
 ```
 **Figure `r iFig=iFig+1; iFig`** Time series from the MSE of F, SSB, recruitment and yield
@@ -344,15 +360,15 @@ oms[["Emprirical"]]=mseEMP(oms[["Projection"]],eql,srDev=srDev,uDev=uDev,start=7
 ```{r emp-mse-plot, echo=FALSE}
 plot(window(oms[["Emprirical"]],end=100))+
   geom_line(aes(year,data,col=iter),
-            data=as.data.frame(FLQuants(iter(window(oms[["Emprirical"]],end=100),1:3),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
-  theme(legend.position="none")
+            data=as.data.frame(FLQuants(iter(window(oms[["Emprirical"]],end=100),c(7,12,19)),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))
 ```
 
 **Figure `r iFig=iFig+1; iFig`** Time series from the MSE of F, SSB, recruitment and yield
 
 
-[Back to Top](#top)
+<!-- [Back to Top](#top) -->
 
+\newpage
 
 ## Software Versions
 
@@ -368,5 +384,5 @@ plot(window(oms[["Emprirical"]],end=100))+
 
 # References {#References}
 
-[Back to Top](#top)
+<!-- [Back to Top](#top) -->
 

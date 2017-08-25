@@ -19,7 +19,7 @@ library(knitr)
 opts_chunk$set(echo    =!TRUE,
                eval    =TRUE,
                cache   =FALSE,
-               cache.path="cache/",
+               cache.path="cache/oem",
                prompt  =FALSE,
                comment =NA,
                message =FALSE,
@@ -27,7 +27,7 @@ opts_chunk$set(echo    =!TRUE,
                warnings=FALSE,
                fig.height=4.5,
                fig.width =4.5,
-               fig.path  ="tex/")
+               fig.path  ="tex/oem")
 ```
 
 

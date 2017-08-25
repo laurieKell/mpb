@@ -63,7 +63,11 @@ mseMPB<-function(
     mp.<<-mp
     
     ## HCR
-    tac=hcr(mp,ftar=ftar,btrig=btrig,fmin=fmin,blim=blim, hcrYrs=iYr+seq(interval),tac=TRUE)
+    par=hcrParam(ftar =0.5*refpts(mp)["fmsy"],
+                 btrig=btrig*refpts(mp)["bmsy"],
+                 fmin =fmin*refpts(mp)["fmsy"],
+                 blim =blim*refpts(mp)["msy"])
+    tac=hcr(mp,params=par,hcrYrs=iYr+seq(interval),tac=TRUE)
   
     #### Operating Model Projectionfor TAC
     om =fwd(om,catch=tac,sr=eql,sr.residuals=srDev,maxF=mean(maxF))  
