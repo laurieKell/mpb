@@ -233,9 +233,11 @@ FUNCTION fwd
        B[t+1]=((r-F[t]))*B[t]*exp((alpha))/(alpha+(r/k)*B[t]*(exp(alpha)-1));
        B[t+1]=sfabs(B[t+1]);
     }else{
-       dvariable now=posfun(B[t]-C[t],.001,pen);
+       dvariable now=posfun(B[t]-C[t],B[t]*.001,pen);
   
        B[t+1]=now+r/p*B[t]*(1-pow(B[t]/k,p));
+       
+       //dvariable now=posfun(B[t]-C[t],.001,pen);
        }
        
     //index   
@@ -285,14 +287,14 @@ FUNCTION ll
 	  ss(i) =0;}
 
 	    	   
-	for (int i=1; i<=ni; i++){
+    for (int i=1; i<=ni; i++){
       ss[uNm(i)]+=pow(log(I(uYr[i])*q(uNm(i)))-log(u(i)),2.0);
       }
     
     neglogL=pen;    
     for (int i=1; i<=nU; i++){
 	  se[i] =exp(log(ss[i]/n[i])*0.5);
-  	  nll[i]=n[i]/2*log(3.14159265359*2)
+  	nll[i]=n[i]/2*log(3.14159265359*2)
 		    +n[i]*log(se[i])
 		    +ss[i]/(2*se[i]*se[i]);
 

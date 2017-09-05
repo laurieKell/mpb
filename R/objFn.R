@@ -5,7 +5,9 @@ logLikeFn<-function(residual){
   SS  =sum(residual^2,   na.rm=TRUE)
   n   =sum(!is.na(residual))
   se  =(SS/n)^.5
-  res =(log(1/(2*pi))-n*log(se)-SS/(2*se^2))/2
+  #res =(log(1/(2*pi))-n*log(se)-SS/(2*se^2))/2
+  
+  res=n/2*log(3.14159265359*2)+n*log(se)+SS/(2*se*se)
   
   return(res)}
 
@@ -61,3 +63,27 @@ calcObjFn=function(object,index="missing",when=0.5,calcq=TRUE,na=10e6){
   
   res}
 
+
+calcObjFn2=function(object,when=0.5,calcq=TRUE,na=10e6){
+  if (missingArg(index))
+    index=FLQuants(index(object,FALSE))
+  else if (is.FLQuant(index))
+    index=FLQuants(index)
+  
+  if (!calcq)
+    q=params(object)[grep("q",dimnames(params(object))$params)]
+  else
+    q=FLPar(q=laply(index,function(x) calcQFLQuant(stock(object),x)))
+  
+  res=FLPars(mlply(data.frame(component=seq(length(index))), function(component){
+    obs=index[[component]]%/%q[component]
+    hat=stock(object,when=when)
+    yrs=dimnames(obs)$year
+    yrs=yrs[yrs%in%dimnames(hat)$year]
+    residuals=log(obs[,yrs]/hat[,yrs])
+    residuals[is.na(residuals)]=na              
+    objLog(residuals)}))
+  
+  attributes(res)=NULL
+  
+  res}

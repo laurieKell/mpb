@@ -634,7 +634,7 @@ runExe<-function(bd,indices=bd@indices,wkdir=tempfile(),cmdOps=paste('-maxfn 500
 
 fitPella=function(object,
                   dir=tempdir(),
-                  cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE,maxF=2.5,silent=TRUE){
+                  cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE,maxF=2.5,silent=!TRUE){
   
   first=TRUE
   
@@ -645,7 +645,7 @@ fitPella=function(object,
     sink(tmp)
     on.exit(sink())
     on.exit(file.remove(tmp),add=TRUE)
-  }
+    }
   
   oldwd=getwd()
   
@@ -687,16 +687,17 @@ fitPella=function(object,
     object@hessian=FLCore::iter(object@hessian,1)
     object@mng    =FLPar(a=1)
     object@mngVcov=FLPar(a=1,a=1)
-    
+  
     if (dim(object@stock)[6]==1) object@stock=propagate(object@stock, iter=its, fill.iter=TRUE)      
     if (dim(object@catch)[6]==1) object@stock=propagate(object@catch, iter=its, fill.iter=TRUE)     
     
-    for(i in c("params","control","vcov","hessian","objFn")){
+    for(i in c("params","vcov","hessian","objFn")){
       slot(object, i)=FLCore::iter(slot(object, i),1)
       slot(object, i)<-propagate(slot(object, i), its)}
   }
   
   slot(object, "ll")<-propagate(slot(object, "ll"), its)
+  
   
   for (i in seq(its)){       
     
@@ -854,7 +855,7 @@ fitPella=function(object,
   # setwd(oldwd) 
   # 
   if (its<=1){
-     object@diags=mdply(seq(length(index)),function(i,index){
+     object@diags=mdply(seq(length(object@indices)),function(i,index){
        stockHat=(stock(object)[,-dims(stock(object))$year]+stock(object)[,-1])/2
        hat     =stockHat*params(object)[paste("q",i,sep="")]
        

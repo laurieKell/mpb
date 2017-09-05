@@ -4,7 +4,6 @@ utils::globalVariables('maply')
 setMethod('profile', signature(fitted='biodyn'),
       function(fitted, 
                which,
-               index="missing",
                range=seq(0.5,1.5,length.out=21),
                fn   =function(x) mdply(data.frame(index=dimnames(x@ll)$index),
                                    function(index)      
@@ -16,10 +15,8 @@ setMethod('profile', signature(fitted='biodyn'),
                    run  =TRUE,
                    comp =FALSE,...){
   
-  if (is.FLQuant(index)) index=FLQuants(index)
-  
-  for (i in seq(length(index)))
-    if (dims(index[[i]])$maxyear>=dims(stock(fitted))$maxyear) stop('index years greater in length than stock')
+  for (i in seq(length(fitted@indices)))
+    if (dims(fitted@indices[[i]])$maxyear>=dims(stock(fitted))$maxyear) stop('index years greater in length than stock')
         
   if (dims(catch(fitted))$iter>1) catch(fitted)=iter(catch(fitted),1) #stop('can only be done for a single iter')
         
@@ -30,7 +27,7 @@ setMethod('profile', signature(fitted='biodyn'),
      sq=do.call('expand.grid',sq[rep(1,length(which))])
        
      for (i in seq(length(which))){
-       fitted@control[which[i],'val']=     params(fitted)[which[i]]*sq[,i]
+       fitted@control[which[i],'val']=     params(fitted)[which[i]]%*%sq[,i]
        fitted@control[which[i],'min']=min(fitted@control[which[i],'val'])*range[1]
        fitted@control[which[i],'max']=max(fitted@control[which[i],'val'])*range[2]*2}
 
@@ -55,7 +52,7 @@ setMethod('profile', signature(fitted='biodyn'),
         
   f=fitted
   f@catch=propagate(f@catch,dim(f@control)[3])
-  res=fit(f,index)
+  res=fit(f)
   res@catch=FLCore::iter(res@catch,1)
   rtn=fn(res)
       

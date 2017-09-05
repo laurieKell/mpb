@@ -17,7 +17,7 @@ license: Creative Commons Attribution-ShareAlike 4.0 International
 library(knitr)
 ## Global options
 opts_chunk$set(echo    =!TRUE,
-               eval    =TRUE,
+               eval    =!TRUE,
                cache   =FALSE,
                cache.path="cache/oem",
                prompt  =FALSE,
@@ -78,7 +78,7 @@ So that users may have a better idea of what functions are available, which one 
 
 First, load the `kobe` package:
 
-```{r lib,echo=TRUE}
+```{r lib,echo=TRUE, eval=TRUE}
 library(ggplot2)
 library(FLCore)
 library(ggplotFL)
@@ -111,7 +111,7 @@ plot(FLQuants(ple4,"Stock"=stock,"Index"=function(x) apply(oem(x),2,sum)))
 
 
 Create an index aggregated over ages
-```{r example1,echo=TRUE,eval=TRUE}
+```{r example1,echo=TRUE}
 #source('~/Desktop/flr/mpb/R/generics.R')
 
 source('~/Desktop/flr/mse/R/generics.R')

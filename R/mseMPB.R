@@ -1,4 +1,3 @@
-
 mseMPB<-function(
           #OM
           om,eql,
@@ -73,6 +72,93 @@ mseMPB<-function(
     om =fwd(om,catch=tac,sr=eql,sr.residuals=srDev,maxF=mean(maxF))  
     
     om.<<-om
+    }
+  
+  return(om)}
+    
+  mp=fit
+
+## Added OEM needs checking
+## To do add TAC bounds  
+mseAlbn<-function(
+  #OM
+  
+  om,eql,
+
+  #OEM
+  saa,rng,
+  
+  #MP
+  mp,
+  ftar =0.7,btrig=0.8,fmin=0.1,blim=0.4,        
+  #years over which to run MSE
+  start=range(om)["maxyear"]-30,interval=3,end=range(om)["maxyear"]-interval,
+  
+  #Stochasticity
+  srDev=rlnorm(dim(om)[6],FLQuant(0,dimnames=list(year=start:end)),0.3), 
+  uDev =rlnorm(dim(om)[6],FLQuant(0,dimnames=dimnames(iter(stock(om),1))),0.3),
+  
+  #Capacity, i.e. F in OM can not be greater than this
+  maxF=1.5){ 
+  
+  ## Get number of iterations in OM
+  nits=c(om=dims(om)$iter, eql=dims(params(eql))$iter, rsdl=dims(srDev)$iter)
+  if (length(unique(nits))>=2 & !(1 %in% nits)) ("Stop, iters not '1 or n' in om")
+  if (nits['om']==1) stock(om)=propagate(stock(om),max(nits))
+  
+  #### Observation Error (OEM)
+  cpue=FLQuants(mlply(seq(length(saa)), function(i){
+    res=window(apply(oem(om,saa[[i]]),2,sum),
+              start=rng[i,"minyear"],end=min(yrRng[i,"maxyear"],start))
+    res%*%uDev[[i]][,dimnames(res)$year]
+    }))
+  
+  ## SA
+  params=params(mp)
+  mp=as(window(om,end=start-1),"biodyn")
+  mp@indices=cpue
+  mp=fwd(mp,catch=catch(mp))
+  
+  setParams(mp)=mp@indices
+  params(mp)[dimnames(params)$params]=params
+  setControl(mp)=params(mp)
+  control(mp)[substr(dimnames(control(mp))$params,1,1)=="q",1]=1
+  
+  ## Cut in capacity
+  maxF=FLQuant(1,dimnames=dimnames(srDev))%*%apply(fbar(window(om,end=start)),6,max)*maxF
+  maxF.<<-maxF
+  
+  ## Loop round years
+  for (iYr in seq(start,end-interval,interval)){
+    cat(iYr,", ",sep="")
+    
+    mp=window(mp,end=iYr-1)
+    
+    ##OEM
+    catch(mp)[,ac(iYr-interval:1)]=catch(om)[,ac(iYr-interval:1)]
+    
+    cpue=FLQuants(llply(cpue,window,end=iYr-1))
+    for (i in seq(length(cpue))){
+      res=window(apply(oem(om,saa[[i]]),2,sum),start=iYr-interval,end=iYr-1)
+      cpue[[i]][,ac(iYr-interval:1)]=res%*%uDev[[i]][,ac(iYr-interval:1)]}
+    
+    ##MP
+    params(mp)["r"]=0.3
+    mp=fwd(mp,catch=catch(mp))
+    mp@indices=cpue
+    setParams(mp)=cpue
+    setControl(mp)=params(mp)
+    mp=fit(mp)
+    
+    ## HCR
+    par=hcrParam(ftar =0.5*refpts(mp)["fmsy"],
+                 btrig=btrig*refpts(mp)["bmsy"],
+                 fmin =fmin*refpts(mp)["fmsy"],
+                 blim =blim*refpts(mp)["msy"])
+    tac=hcr(mp,params=par,hcrYrs=iYr+seq(interval),tac=TRUE)
+    
+    #### Operating Model Projectionfor TAC
+    om =fwd(om,catch=tac,sr=eql,sr.residuals=srDev,maxF=mean(maxF))  
     }
   
   return(om)}

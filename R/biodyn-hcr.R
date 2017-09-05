@@ -234,7 +234,7 @@ hcrFn=function(object,refs=NULL,params=NULL,
     return(hvt)
   else{
     ## TACs for target F
-    object=fwdWindow(object, end=max(as.numeric(hcrYrs)),rf)
+    object=fwdWindow(object, end=max(as.numeric(hcrYrs)))#,ifelse("biodyn"%in%is(object),NULL,rf))
     if ("biodyn"%in%is(object))
       object=fwd(object,harvest=fbar(object)[,ac(min(as.numeric(hcrYrs)-1))])
     else
