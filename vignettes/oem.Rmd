@@ -87,7 +87,7 @@ setMethod('cpue',   signature(object='FLStock'),
 setGeneric("survey", function(object, ...) standardGeneric("survey"))
 
 setMethod("survey",   signature(object="FLStock"),
-  function(object, sel=stock.n(object) %=% 1, timing = 0.5, mass = FALSE) {
+  function(object, sel=stock.n(object) %=% 1, wt=stock.wt(object), timing = 0.5, mass = FALSE) {
   
     timing <- pmax(pmin(timing, 1.0), 0.0)
 
@@ -97,9 +97,19 @@ setMethod("survey",   signature(object="FLStock"),
     cpue <- stock.n %*% sel
   
     if (mass)
-    cpue <- cpue * stock.wt(object)
+    cpue <- cpue %*% wt
 
   return(cpue)})
+```
+
+```{r, hyperstability, eval=TRUE}
+hyperstability<-function(object,omega=1,ref=apply(object,c(1,3:6),mean)) 
+  ref%*%((object%/%ref)^omega)
+```
+
+```{r, trend, eval=TRUE}
+trend<-function(object,bias=0.02) 
+  FLQuant(cumprod(1+rep(bias,dim(object)[2])),dimnames=dimnames(object))
 ```
 
 ```{r, pkgs, echo=FALSE, message=FALSE}
@@ -172,68 +182,57 @@ The `ggplot` functions expects a `data.frame` for its first argument, `data`; th
 
 The phase plot plots stock status against fishing mortality relative to target reference points as a two-dimensional phase plot. 
 
-```{r plot,echo=TRUE, eval=TRUE}
-
-plot(FLQuants(ple4,"Stock"=stock,
-                   "Survey"=function(x) apply(survey(x,timing=0,mass=TRUE),2,sum),
-                   "CPUE"  =function(x) apply(  cpue(x),2,sum)))
-```
-
 [Back to Top](#top)
 
 # Examples {#Examples}
 
 
 Create an index aggregated over ages
-```{r example1,echo=TRUE}
-#source('~/Desktop/flr/mpb/R/generics.R')
-
-source('~/Desktop/flr/mse/R/generics.R')
-source('~/Desktop/flr/mse/R/oem.R')
-source('~/Desktop/flr/mse/R/noise.R')
-
+```{r example1,echo=TRUE, eval=TRUE}
 apply(oem(ple4),2,sum)
 ```
 
-The age structure can be shaped by `sel`, and trends in q and hyperstability can be specified.`
-The type of the index e.g. the form of the index (`mass`), whether it is fishery dependent (`fish.dependendent`) and how the effort is derived in which case how the effort is derived (`effort`)
 
-```{r plot-2,echo=TRUE}
-ggplot(model.frame(mcf(FLQuants(ple4,"Stock"=stock,"Index"=function(x) apply(oem(x),2,sum)))))+
-  geom_point( aes(Stock,Index))+
-  geom_smooth(aes(Stock,Index),method="lm")+
-  facet_null()
+```{r plot,echo=TRUE, eval=TRUE}
+plot(FLQuants(ple4,"Stock"=stock,
+                   "Survey"=function(x) apply(survey(x,timing=0,mass=TRUE),2,sum),
+                   "CPUE"  =function(x) apply(  cpue(x),2,sum)))
 ```
 
-```{r example6,echo=TRUE}
-timing=0.5
-fish.dependent=FALSE
-effort    =c("f","h")
-mass      =TRUE
+The age structure can be shaped by `sel`, e.g. for a survey of mature individuals
+
+```{r plot-2,echo=TRUE}
+ggplot(apply(survey(ple4,sel=mat(ple4)),2,sum))
+```
+
+Trends in q and hyperstability can be specified
+
+```{r plot-3,echo=TRUE}
+ggplot(apply(survey(ple4,sel=mat(ple4)),2,sum))
 ```
 
 ## Uncertainty
-```{r example2,echo=TRUE}
+```{r example2,echo=TRUE, eval=TRUE}
 cv=rlnorm(100,log(stock(ple4)),0.3)
 ggplot(cv)+
   geom_boxplot(aes(factor(year),data))
 ```
 
 ## Age structure
-```{r example4,echo=TRUE}
+```{r example4,echo=TRUE,eval=TRUE}
 sel  =apply(harvest(ple4),1,mean)
 ggplot(sel)+
   geom_line(aes(age,data))
 ```
 
 ## Trends
-```{r example3,echo=TRUE}
+```{r example3,echo=TRUE,eval=TRUE}
 q    =FLQuant(cumprod(1+rep(.02,dim(fbar(ple4))[2])),dimnames=dimnames(fbar(ple4)))
 plot(q)
 ```
 
 ## Hyperstability
-```{r example5,echo=TRUE}
+```{r example5,echo=TRUE,eval=TRUE}
 cpue   =stock(ple4)/mean(stock(ple4))
 stable =cpue^0.1
 deplete=cpue^2
@@ -244,7 +243,7 @@ plot(FLQuants("CPUE"          =cpue,
 ```
 
 
-```{r example7,echo=TRUE}
+```{r example7,echo=TRUE,eval=TRUE}
 trend=FLQuant(seq(1,2,length.out=dim(stock(ple4))[2]),dimnames=dimnames(stock(ple4)))
 var  =trend*abs(cv)*sign(cv)
 
@@ -254,7 +253,7 @@ ggplot(FLQuants("Log Normal" =cv,
   facet_grid(qname~.)
 ```
 
-```{r example8,echo=TRUE}
+```{r example8,echo=TRUE,eval=TRUE}
 bias=FLPar(omega=1,ref=mean(stock(ple4)),q=0)
 
 hyperstability<-function(object,omega=1,ref=apply(object,c(1,3:6),mean)) 
@@ -265,7 +264,7 @@ bias<-function(object,bias=0.02)
 
 ```
 
-```{r example9,echo=TRUE}
+```{r example9,echo=TRUE,eval=TRUE}
 set.seed(1234)
 u     =FLQuants("Unbiased"      =rlnorm(100,log(apply(oem(ple4),2:6,sum)),.3),
                 "Hyperstability"=rlnorm(100,log(apply(oem(ple4),2:6,sum)%*%
