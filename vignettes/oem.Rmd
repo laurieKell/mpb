@@ -176,7 +176,7 @@ The phase plot plots stock status against fishing mortality relative to target r
 
 ```{r plot,echo=TRUE, eval=TRUE}
 plot(FLQuants(ple4,"Stock"=stock,
-                   "Survey"=function(x) apply(survey(x),2,sum),
+                   "Survey"=function(x) apply(survey(x,timing=0),2,sum),
                    "CPUE"  =function(x) apply(  cpue(x),2,sum)))
 ```
 
