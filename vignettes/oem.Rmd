@@ -97,11 +97,9 @@ setMethod("survey",   signature(object="FLStock"),
     cpue <- stock.n %*% sel
   
     if (mass)
-    cpue <- cpue * catch.wt(object)
+    cpue <- cpue * stock.wt(object)
 
-  return(cpue)
-  }
-)
+  return(cpue)})
 ```
 
 ```{r, pkgs, echo=FALSE, message=FALSE}
@@ -175,8 +173,9 @@ The `ggplot` functions expects a `data.frame` for its first argument, `data`; th
 The phase plot plots stock status against fishing mortality relative to target reference points as a two-dimensional phase plot. 
 
 ```{r plot,echo=TRUE, eval=TRUE}
+
 plot(FLQuants(ple4,"Stock"=stock,
-                   "Survey"=function(x) apply(survey(x,timing=0),2,sum),
+                   "Survey"=function(x) apply(survey(x,timing=0,mass=TRUE),2,sum),
                    "CPUE"  =function(x) apply(  cpue(x),2,sum)))
 ```
 
