@@ -30,7 +30,7 @@ opts_chunk$set(echo    =!TRUE,
                fig.path  ="tex/oem")
 ```
 
-```{r, cpue}
+```{r, cpue, echo=TRUE, eval=TRUE}
 #' cpue, a method to generate an observation of a CPUE index of abundance
 #'
 #' Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend
@@ -71,7 +71,7 @@ setMethod('cpue',   signature(object='FLStock'),
     else  
       E <- fbar(object)
     
-    cpue <- (catch.n(object) %*% sel) / E
+    cpue <- (catch.n(object) %*% sel) %/% E
 
   if (mass)
     cpue <- cpue * catch.wt(object)
@@ -81,7 +81,7 @@ setMethod('cpue',   signature(object='FLStock'),
 )
 ```
 
-```{r, survey}
+```{r, survey, echo=TRUE, eval=TRUE}
 # survey
 
 setGeneric("survey", function(object, ...) standardGeneric("survey"))
@@ -162,7 +162,7 @@ library(plyr)
 
 Example dataset for North Sea plaice.
 
-```{r data,echo=TRUE}
+```{r data,echo=TRUE, eval=TRUE}
 data(ple4)
 ```
 
@@ -174,8 +174,10 @@ The `ggplot` functions expects a `data.frame` for its first argument, `data`; th
 
 The phase plot plots stock status against fishing mortality relative to target reference points as a two-dimensional phase plot. 
 
-```{r plot,echo=TRUE}
-plot(FLQuants(ple4,"Stock"=stock,"Index"=function(x) apply(oem(x),2,sum)))
+```{r plot,echo=TRUE, eval=TRUE}
+plot(FLQuants(ple4,"Stock"=stock,
+                   "Survey"=function(x) apply(survey(x),2,sum),
+                   "CPUE"  =function(x) apply(  cpue(x),2,sum)))
 ```
 
 [Back to Top](#top)
