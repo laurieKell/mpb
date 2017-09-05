@@ -30,6 +30,79 @@ opts_chunk$set(echo    =!TRUE,
                fig.path  ="tex/oem")
 ```
 
+```{r, cpue}
+#' cpue, a method to generate an observation of a CPUE index of abundance
+#'
+#' Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend
+#' odio ac rutrum luctus. Aenean placerat porttitor commodo. Pellentesque eget porta
+#' libero. Pellentesque molestie mi sed orci feugiat, non mollis enim tristique. 
+#'
+#' Details: Aliquam sagittis feugiat felis eget consequat. Praesent eleifend dolor massa, 
+#' vitae faucibus justo lacinia a. Cras sed erat et magna pharetra bibendum quis in 
+#' mi. Sed sodales mollis arcu, sit amet venenatis lorem fringilla vel. Vivamus vitae 
+#' ipsum sem. Donec malesuada purus at libero bibendum accumsan. Donec ipsum sapien, 
+#' feugiat blandit arcu in, dapibus dictum felis. 
+#'
+#' @param object The object on which to draw the observation
+#'
+#' @return An FLQuant for the index of abundance
+#'
+#' @name cpue
+#' @rdname cpue
+#' @aliases cpue cpue-methods
+#'
+#' @genericMethods
+#' 
+#' @author The FLR Team
+#' @seealso \link{FLComp}
+#' @keywords classes
+#' @examples
+#'
+#' data(ple4)
+setGeneric("cpue", function(object, ...) standardGeneric("cpue"))
+
+#' @rdname cpue
+#' @aliases cpue,FLStock-method
+setMethod('cpue',   signature(object='FLStock'),
+  function(object, sel=catch.sel(object), effort = c("f","h"), mass = TRUE) {
+
+    if (effort[1] == "h")
+      E <- catch(object) %/% stock.n(object)
+    else  
+      E <- fbar(object)
+    
+    cpue <- (catch.n(object) %*% sel) / E
+
+  if (mass)
+    cpue <- cpue * catch.wt(object)
+
+  return(cpue)
+  }
+)
+```
+
+```{r, survey}
+# survey
+
+setGeneric("survey", function(object, ...) standardGeneric("survey"))
+
+setMethod("survey",   signature(object="FLStock"),
+  function(object, sel=stock.n(object) %=% 1, timing = 0.5, mass = FALSE) {
+  
+    timing <- pmax(pmin(timing, 1.0), 0.0)
+
+    #
+    stock.n <- stock.n(object) * exp(-(harvest(object) * timing - m(object) * timing))
+ 
+    cpue <- stock.n %*% sel
+  
+    if (mass)
+    cpue <- cpue * catch.wt(object)
+
+  return(cpue)
+  }
+)
+```
 
 ```{r, pkgs, echo=FALSE, message=FALSE}
 library(ggplot2)
