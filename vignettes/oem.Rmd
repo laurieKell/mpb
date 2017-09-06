@@ -330,7 +330,7 @@ library(reshape2)
 
 lem2<-function(n,l,sd){
 
-  se=sd/ns^0.5
+  se=sd/n^0.5
   se=(apply(se%*%se%*%n,c(2:6),sum)%/%apply(n,2:6,sum))^0.5
   
   ln=apply(l%*%u,2:6,sum)%/%apply(u,2:6,sum)
