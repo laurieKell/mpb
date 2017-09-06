@@ -289,6 +289,68 @@ ggplot()+
   theme_bw()+theme(legend.position="none")
 ```
 
+```{r oemlen,echo=TRUE,eval=TRUE}
+library(FLCore)
+library(tmvtnorm)
+library(reshape2)
+
+data(ple4)
+
+n =survey(ple4)
+n =round(1000*n%/%apply(n,2:6,sum))
+l =stock.wt(ple4)^0.3
+
+sigma=FLPar(0,dimnames=dimnames(n)[c(1,1:6)])
+sigma=apply(sigma,3:7,function(x) {diag(x)=0.2;x})
+sigma=aaply(FLPar(c(sigma),dimnames=dimnames(n)[c(1,1:6)]),3:7,fumction(x) x%*%l)
+
+upper=n%=%20
+
+x=rtmvnorm(n=max(n[,1]), mean=c(l[,1]), sigma=matrix(c(sigma@.Data[,,1,1,1,1,1]),10,10), upper=c(upper[,1]))
+x=melt(x)
+
+names(x)[1:2]=c("iter","age")
+n=as.data.frame(n,drop=TRUE)
+x =subset(merge(n,x),iter<=data)
+
+ggplot(x)+
+  geom_histogram(aes(value,fill=factor(age)))+
+  xlab("Year")+ylab("Count")
+```
+
+
+```{r oemlen2,echo=TRUE,eval=TRUE}
+library(FLCore)
+library(tmvtnorm)
+library(reshape2)
+
+lem2<-function(n,l,sd){
+
+  se=sd/ns^0.5
+  se=(apply(se%*%se%*%n,c(2:6),sum)%/%apply(n,2:6,sum))^0.5
+  
+  ln=apply(l%*%u,2:6,sum)%/%apply(u,2:6,sum)
+    
+  FLQuants(len=ln,se=se)}
+
+data(ple4)
+
+n =survey(ple4)
+n =round(1000*n%/%apply(n,2:6,sum))
+l =stock.wt(ple4)^0.3
+sd=l*0.2
+
+lengths=lem2(n,l,sd)
+
+ggplot()+
+  geom_line(aes(year,data),data=as.data.frame(lengths[[1]]))+
+  geom_errorbar(aes(year,ymin=min,ymax=max),
+                data=model.frame(FLQuants(
+                         min=lengths[[1]]-lengths[[2]],
+                         max=lengths[[1]]+lengths[[2]])))+
+  xlab("Year")+ylab("Mean Length")
+```
+
 [Back to Top](#top)
 
 [More information](#More information)
