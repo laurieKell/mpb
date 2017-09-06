@@ -83,7 +83,6 @@ setMethod('cpue',   signature(object='FLStock'),
 
 ```{r, survey, echo=TRUE, eval=TRUE}
 # survey
-
 setGeneric("survey", function(object, ...) standardGeneric("survey"))
 
 setMethod("survey",   signature(object="FLStock"),
@@ -291,7 +290,9 @@ ggplot()+
 
 ```{r oemlen,echo=TRUE,eval=TRUE}
 library(FLCore)
+library(ggplotFL)
 library(tmvtnorm)
+library(plyr)
 library(reshape2)
 
 data(ple4)
@@ -302,11 +303,14 @@ l =stock.wt(ple4)^0.3
 
 sigma=FLPar(0,dimnames=dimnames(n)[c(1,1:6)])
 sigma=apply(sigma,3:7,function(x) {diag(x)=0.2;x})
-sigma=aaply(FLPar(c(sigma),dimnames=dimnames(n)[c(1,1:6)]),3:7,fumction(x) x%*%l)
+sigma=FLPar(c(sigma),dimnames=dimnames(n)[c(1,1:6)])
+
+sigma=FLPar(aperm(maply(dimnames(l)$year, function(year) cor2cov(sigma@.Data[,,year,,,,,drop=T],l[,year])),3:1))
+names(dimnames(sigma)[3])="year"
 
 upper=n%=%20
 
-x=rtmvnorm(n=max(n[,1]), mean=c(l[,1]), sigma=matrix(c(sigma@.Data[,,1,1,1,1,1]),10,10), upper=c(upper[,1]))
+x=rtmvnorm(n=max(n[,1]), mean=c(l[,1]), sigma=matrix(c(sigma[,,1,drop=T]),10,10), upper=c(upper[,1]))
 x=melt(x)
 
 names(x)[1:2]=c("iter","age")
