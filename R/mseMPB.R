@@ -1,3 +1,16 @@
+mpTrace<-function(mp,par,tac){
+  
+  rtn1=cbind(model.frame(params(mp)),
+             model.frame(refpts(mp)),
+             model.frame(par),
+             model.frame(objFn(mp)))
+  
+  rtn2=model.frame(tac[["tac"]])
+  rtn3=model.frame(tac[["stk"]])
+  }
+         
+  
+
 mseMPB<-function(
           #OM
           om,eql,
@@ -66,18 +79,17 @@ mseMPB<-function(
                  btrig=btrig*refpts(mp)["bmsy"],
                  fmin =fmin*refpts(mp)["fmsy"],
                  blim =blim*refpts(mp)["msy"])
+    
     tac=hcr(mp,params=par,hcrYrs=iYr+seq(interval),tac=TRUE)
   
     #### Operating Model Projectionfor TAC
-    om =fwd(om,catch=tac,sr=eql,sr.residuals=srDev,maxF=mean(maxF))  
+    om =fwd(om,catch=tac[[1]],sr=eql,sr.residuals=srDev,maxF=mean(maxF))  
     
     om.<<-om
     }
   
   return(om)}
     
-  mp=fit
-
 ## Added OEM needs checking
 ## To do add TAC bounds  
 mseAlbn<-function(
@@ -151,7 +163,7 @@ mseAlbn<-function(
     mp=fit(mp)
     
     ## HCR
-    par=hcrParam(ftar =0.5*refpts(mp)["fmsy"],
+    par=hcrParam(ftar =ftar*refpts(mp)["fmsy"],
                  btrig=btrig*refpts(mp)["bmsy"],
                  fmin =fmin*refpts(mp)["fmsy"],
                  blim =blim*refpts(mp)["msy"])

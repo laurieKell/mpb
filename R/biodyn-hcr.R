@@ -258,7 +258,7 @@ hcrFn=function(object,refs=NULL,params=NULL,
     }
   }
 
-  return(rtn)}
+  return(list(tac=rtn,stock=stk)}
 
 # setMethod('hcr', signature(object='biodyn',refs='missing'),
 #   function(object,
