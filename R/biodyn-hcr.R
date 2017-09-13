@@ -234,16 +234,16 @@ hcrFn=function(object,refs=NULL,params=NULL,
     return(hvt)
   else{
     ## TACs for target F
-    object=fwdWindow(object, end=max(as.numeric(hcrYrs)))#,ifelse("biodyn"%in%is(object),NULL,rf))
+    object=FLBRP:::fwdWindow(object, end=max(as.numeric(hcrYrs)),refs)#,ifelse("biodyn"%in%is(object),NULL,rf))
     if ("biodyn"%in%is(object))
       object=fwd(object,harvest=fbar(object)[,ac(min(as.numeric(hcrYrs)-1))])
     else
-      object=fwd(object,f=fbar(object)[,ac(min(as.numeric(hcrYrs)-1))],sr=rf)
+      object=fwd(object,f=fbar(object)[,ac(min(as.numeric(hcrYrs)-1))],sr=refs)
 
     if ("biodyn"%in%is(object))
       rtn =catch(fwd(object, harvest=hvt))[,ac(hcrYrs)]
     else
-      rtn =catch(fwd(object, f=hvt,sr=rf))[,ac(hcrYrs)]
+      rtn =catch(fwd(object, f=hvt,sr=refs))[,ac(hcrYrs)]
 
     rtn[]=rep(c(apply(rtn,c(3:6),mean)),each=dim(rtn)[2])
 
@@ -258,7 +258,7 @@ hcrFn=function(object,refs=NULL,params=NULL,
     }
   }
 
-  return(list(tac=rtn,stock=stk)}
+  return(rtn)}
 
 # setMethod('hcr', signature(object='biodyn',refs='missing'),
 #   function(object,
