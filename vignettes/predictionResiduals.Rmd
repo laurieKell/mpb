@@ -417,4 +417,22 @@ ggplot(dat,aes(y=log(obs/hat),x=factor(Cut)))+
 ```
 **Figure `r iFig=iFig+1; iFig`.** Comparison of prediction residuals, by CPUE series and production function shape, for different lengths of tail cutting.
 
+## Software Versions
+
+* `r version$version.string`
+* FLCore: `r packageVersion('FLCore')`
+* FLPKG: `r # packageVersion('FLPKG')`
+* **Compiled**: `r date()`
+* **Git Hash**: `r system("git log --pretty=format:'%h' -n 1", intern=TRUE)`
+
+## Author information
+
+**Laurence KELL**. laurie.kell.es
+
+
+## Acknowledgements
+
+This vignette and many of the methods documented in it were developed under the MyDas project funded by the Irish exchequer and EMFF 2014-2020. The overall aim of MyDas is to develop and test a range of assessment models and methods to establish Maximum Sustainable Yield (MSY) reference points (or proxy MSY reference points) across the spectrum of data-limited stocks.
+
+# References {#References}
 

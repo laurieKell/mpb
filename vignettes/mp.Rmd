@@ -8,7 +8,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEncoding{UTF-8}
-bibliography: /home/laurie/bib/refs.bib
+bibliography: refs.bib
 tags: FLPKG FLR
 license: Creative Commons Attribution-ShareAlike 4.0 International
 ---
@@ -136,7 +136,12 @@ plot(bd)
 
 ## Author information
 
-**Laurence KELL**. laurie@kell.es
+**Laurence KELL**. laurie.kell.es
+
+
+## Acknowledgements
+
+This vignette and many of the methods documented in it were developed under the MyDas project funded by the Irish exchequer and EMFF 2014-2020. The overall aim of MyDas is to develop and test a range of assessment models and methods to establish Maximum Sustainable Yield (MSY) reference points (or proxy MSY reference points) across the spectrum of data-limited stocks.
 
 # References {#References}
 

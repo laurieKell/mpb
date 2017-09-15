@@ -380,14 +380,12 @@ plot(window(oms[["Emprirical"]],end=100))+
 
 ## Author information
 
-**Laurence KELL**. laurie@kell.es
+**Laurence KELL**. laurie.kell.es
+
 
 ## Acknowledgements
 
-Document and codes was developed under the MyDas project funded by the Irish exchequer and EMFF 2014-2020
-
-The overall aim of the project is to develop and test a range of assessment models and methods to establish Maximum Sustainable Yield (MSY) reference points (or proxy MSY reference points) across the spectrum of data-limited stocks.
-
+This vignette and many of the methods documented in it were developed under the MyDas project funded by the Irish exchequer and EMFF 2014-2020. The overall aim of MyDas is to develop and test a range of assessment models and methods to establish Maximum Sustainable Yield (MSY) reference points (or proxy MSY reference points) across the spectrum of data-limited stocks.
 
 # References {#References}
 

@@ -368,7 +368,6 @@ ggplot()+
 	install_github('flr/FLPKG')
 ```
 
-
 ## Software Versions
 
 * `r version$version.string`
@@ -379,15 +378,15 @@ ggplot()+
 
 ## Author information
 
-**Laurence KELL**. laurie@kell.es
+**Laurence KELL**. laurie.kell.es
+
 
 ## Acknowledgements
 
-This vignette and a lot of the methods in it were developed under the MyDas project funded by the Irish exchequer and EMFF 2014-2020. The overall aim of MyDas is to develop and test a range of assessment models and methods to establish Maximum Sustainable Yield (MSY) reference points (or proxy MSY reference points) across the spectrum of data-limited stocks.
-
-
+This vignette and many of the methods documented in it were developed under the MyDas project funded by the Irish exchequer and EMFF 2014-2020. The overall aim of MyDas is to develop and test a range of assessment models and methods to establish Maximum Sustainable Yield (MSY) reference points (or proxy MSY reference points) across the spectrum of data-limited stocks.
 
 # References {#References}
+
 
 
 [Back to Top](#top)
