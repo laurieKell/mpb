@@ -2,9 +2,9 @@
 title: "Biomass Dynamic Management Procedures"
 author: "Laurence Kell"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: pdf_document
+output: html_document
 vignette: >
-  %\VignetteIndexEntry{diags}
+  %\VignetteIndexEntry{mpb}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 bibliography: refs.bib

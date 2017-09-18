@@ -22,9 +22,9 @@ A dataset containing the average estimates of biological parameters and selectio
 derived from the ICCAT multifan-CL assessment
 }
 \author{
-Laurence Kell \email{laurie@kell.es}
+Laurence Kell \email{laurie@seaplusplus.co.uk}
 
-Laurence Kell \email{laurie@kell.es}
+Laurence Kell \email{laurie@seaplusplus.co.uk}
 }
 \references{
 \url{http://http://iccat.int/Documents/CVSP/CV070_2014/n_4/CV070041365.pdf/}

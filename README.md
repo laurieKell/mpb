@@ -2,8 +2,8 @@
 # mpb
 - Version: 
 - Date: 
-- Author: Laurence T. Kell <<laurie@kell.es>>
-- Maintainer: Laurence T. Kell <<laurie@kell.es>>
+- Author: Laurence T. Kell <<laurie@seaplusplus.co.uk>>
+- Maintainer: Laurence T. Kell <<laurie@seaplusplus.co.uk>>
 - Repository: <https://github.com/flr/mpb/>
 - Bug reports: <https://github.com/flr/mpb/issues>
 
@@ -36,4 +36,4 @@ You are welcome to:
 
 - Submit suggestions and bug-reports at: <https://github.com/flr/mpb/issues>
 - Send a pull request on: <https://github.com/flr/mpb/>
-- Compose a friendly e-mail to: Laurence T. Kell <<laurie@kell.es>>
+- Compose a friendly e-mail to: Laurence T. Kell <<laurie@seaplusplus.co.uk>>
