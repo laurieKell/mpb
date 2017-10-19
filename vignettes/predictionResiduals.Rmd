@@ -119,7 +119,7 @@ dirInp=file.path(dirMy,"mpb/inputs")
 dirTex=file.path(dirMy,"mpb/tex")
 ```
 
-```{r func}
+```{r func, eval=FALSE}
 source('~/Desktop/flr/mpb/R/biodyn-func.R')
 ```
 
@@ -127,7 +127,7 @@ source('~/Desktop/flr/mpb/R/biodyn-func.R')
 asp2013=fit(aspic(aspic))
 ```
 
-```{r biodyn,fig.width=8,fig.height=10, eval=false}
+```{r biodyn,fig.width=8,fig.height=10, eval=FALSE}
 source('~/Desktop/flr/mpb/R/biodyn-fit.R')
 library(stringr)
 
