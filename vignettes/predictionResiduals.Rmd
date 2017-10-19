@@ -127,7 +127,7 @@ source('~/Desktop/flr/mpb/R/biodyn-func.R')
 asp2013=fit(aspic(aspic))
 ```
 
-```{r biodyn,fig.width=8,fig.height=10}
+```{r biodyn,fig.width=8,fig.height=10, eval=false}
 source('~/Desktop/flr/mpb/R/biodyn-fit.R')
 library(stringr)
 

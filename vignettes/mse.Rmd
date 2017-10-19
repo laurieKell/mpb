@@ -72,7 +72,7 @@ library(plyr)
 
 theme_set(theme_bw())
 
-source('~/Desktop/flr/mse/R/msy.R')
+#source('~/Desktop/flr/mse/R/msy.R')
 ```
 
 ## FLife
