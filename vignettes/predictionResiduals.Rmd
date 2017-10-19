@@ -3,7 +3,14 @@ title: North Atlantic Swordfish
 subtitle: Prediction Residuals
 author: "Laurence Kell"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: word_document
+output: html_document
+vignette: >
+  %\VignetteIndexEntry{mpb}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+bibliography: refs.bib
+tags: FLPKG FLR
+license: Creative Commons Attribution-ShareAlike 4.0 International
 ---
 
 <script type="text/x-mathjax-config">
@@ -82,7 +89,7 @@ opts_chunk$set(comment=NA,
                message=FALSE, 
                error  =FALSE, 
                echo   =FALSE, 
-               eval   =TRUE,
+               eval   =!TRUE,
                cache  =TRUE,
                cache.path="cache/predRes")
 
@@ -116,7 +123,7 @@ dirTex=file.path(dirMy,"mpb/tex")
 source('~/Desktop/flr/mpb/R/biodyn-func.R')
 ```
 
-```{r aspic}
+```{r aspic, eval=FALSE}
 asp2013=fit(aspic(aspic))
 ```
 

@@ -19,7 +19,6 @@ Imports:
 Suggests: 
     rmarkdown,
     knitr
-VignetteBuilder: knitr
 LinkingTo: Rcpp
 License: GPL-2
 Collate:
@@ -97,4 +96,4 @@ Collate:
     nmc.R
 LazyLoad: Yes
 LazyData: Yes
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

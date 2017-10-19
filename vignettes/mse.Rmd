@@ -6,7 +6,6 @@ author: "Laurence Kell"
 output: rmarkdown:::pdf_document
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEncoding{UTF-8}
 bibliography: refs.bib
@@ -259,7 +258,7 @@ Before running the MSE, i.e. using XSA as part of a feedback control procedure, 
 
 Then the MSE can be run using the `mseXSA` function
 
-```{r xsa-mse}
+```{r xsa-mse, eval=FALSE}
 source('~/Desktop/flr/FLBRP/R/fwd-setup.R')
 
 oms[["Age"]]=mseXSA(oms[["Projection"]],eql, #OM
@@ -268,7 +267,7 @@ oms[["Age"]]=mseXSA(oms[["Projection"]],eql, #OM
                     start=75,end=103,maxF=1.0)        #year range
 ```
 
-```{r xsa-mse-plot, echo=FALSE}
+```{r xsa-mse-plot, echo=FALSE, eval=FALSE}
 plot(oms[["Age"]])+
   geom_line(aes(year,data,col=iter),
             data=as.data.frame(FLQuants(iter(oms[["Age"]],c(7,12,19)),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
@@ -284,7 +283,7 @@ In `mpb` there is a biomass dynamic stock assessment, designed to be used as an 
 
 First the control object has to be set, i.e. setting best guess, bounds and any priors for parameters.
 
-```{r biodyn}
+```{r biodyn, eval=FALSE}
 mp        =as(window(oms[["Projection"]],start=20,end=75),"biodyn")
 mp@indices=FLQuants("1"=(stock(oms[["Projection"]][,20:74])+
                          stock(oms[["Projection"]][,21:75]))/2.0)
@@ -300,14 +299,14 @@ control(   mp)["q1",]=c(-1,.1,1,10)
 
 Then the assessment is run without feedback
 
-```{r biodyn-2}
+```{r biodyn-2,eval=FALSE}
 mp=fit(mp)
 ```
 
 and compared to the OM
 
 
-```{r biodyn-test-2, echo=FALSE}
+```{r biodyn-test-2, echo=FALSE, eval=FALSE}
 setControl(mp)=params(mp)
 dat=plot(FLQuants(fit(mp),"Biomass"=stock,"F"=function(x) catch(x)/stock(x)[,dimnames(catch(x))$year]))$data
 
@@ -319,7 +318,7 @@ plot(FLQuants(window(oms[["Projection"]],start=20,end=75),"Biomass"=stock,"F"=fu
 **Figure `r iFig=iFig+1; iFig`** Comparision of estimates and simulated time series of harvest rate and stock biomass.
 
 
-```{r biodyn-mse, eval=!FALSE}
+```{r biodyn-mse, eval=FALSE}
 source('~/Desktop/flr/mpb/R/hcr.R')
 
 setControl(mp)=params(mp)
@@ -328,7 +327,7 @@ oms[["Biomass"]]=
   mseMPB(window(oms[["Projection"]],start=20,end=103),eql,mp,srDev=srDev,uDev=uDev,start=75,end=103)
 ```
 
-```{r biodyn-mse-plot, echo=FALSE}
+```{r biodyn-mse-plot, echo=FALSE, eval=FALSE}
 plot(window(oms[["Biomass"]],end=100))+
   geom_line(aes(year,data,col=iter),
             data=as.data.frame(FLQuants(window(iter(oms[["Biomass"]],c(7,12,19)),end=100),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
@@ -337,12 +336,13 @@ plot(window(oms[["Biomass"]],end=100))+
 **Figure `r iFig=iFig+1; iFig`** Time series from the MSE of F, SSB, recruitment and yield
 
 
-```{r biodyn-mse-2, eval=!FALSE}
+```{r biodyn-mse-2, eval=FALSE}
 oms[["Biomass2"]]=
   mseMPB(window(oms[["Projection"]],start=20,end=103),eql,mp,srDev=srDev,uDev=uDev,ftar=0.5,start=75,end=103)
 ```
 
-```{r biodyn-mse-plot-2, echo=FALSE}
+```{r biodyn-mse-plot-2, echo=FALSE, eval=FALSE
+norfolk }
 plot(window(oms[["Biomass2"]],end=100))+
   geom_line(aes(year,data,col=iter),
             data=as.data.frame(FLQuants(window(iter(oms[["Biomass"]],c(7,12,19)),end=100),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+

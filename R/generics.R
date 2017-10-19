@@ -168,8 +168,9 @@ setGeneric('writeAspic',function(object,...)        standardGeneric('writeAspic'
 #' @examples \dontrun{ msy('logistic',FLPar(msy=100,k=500))}
 #'   
 #setGeneric('msy',      function(object,...) standardGeneric('msy'))
-setGeneric('fmsy',     function(object,...) standardGeneric('fmsy'))
-setGeneric('bmsy',     function(object,...) standardGeneric('bmsy'))
+setGeneric('msy',      function(object,params,...)  standardGeneric('msy'))
+setGeneric('fmsy',     function(object,params,...) standardGeneric('fmsy'))
+setGeneric('bmsy',     function(object,params,...) standardGeneric('bmsy'))
 setGeneric('refpts',   function(object,params,...) standardGeneric('refpts'))
 setGeneric('refptSD',  function(object,params,...) standardGeneric('refptSD'))
 
@@ -280,8 +281,6 @@ setGeneric('kobe',       function(object,method,...) standardGeneric('kobe'))
 
 setGeneric('fit',        function(object,index,...)  standardGeneric('fit'))
 setGeneric('fitmb',      function(object,index,...)  standardGeneric('fitmb'))
-
-setGeneric('msy',        function(object,params,...)  standardGeneric('msy'))
 
 setGeneric('production',function(object,biomass,...) standardGeneric('production'))
 
