@@ -86,7 +86,6 @@ Collate:
     aspic-xval.R
     weighted.var.se.R
     biodyn-FLBRP2biodyn.R
-    jackknife-vpa2box.R
     plotIndex.R
     msy.R
     biodyn-hcr.R

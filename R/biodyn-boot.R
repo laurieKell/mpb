@@ -30,9 +30,14 @@ bootFn<-function(object=object, n=500, run=TRUE){
      smp=FLQuant(sample(c(rsd),n*dim(rsd)[2],replace=TRUE),
              dimnames=list(year=dimnames(rsd)$year,iter=seq(n)))
    
-     hat*exp(smp)}
+     res=hat*exp(smp)
+     
+     units(res)="missing"
+     res}
    
-   FLQuants(dlply(dgs,.(name),fn))}
+   res=FLQuants(dlply(dgs,.(name),fn))
+   
+   }
 
 
 bootPar<-function(object){

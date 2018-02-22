@@ -1,0 +1,200 @@
+## ----knitr_init, echo=FALSE, results="hide"------------------------------
+library(knitr)
+## Global options
+opts_chunk$set(cache     =TRUE,
+               cache.path='cache/mse/',
+               echo      =TRUE,
+               eval      =TRUE,
+               prompt    =FALSE,
+               comment   =NA,
+               message   =FALSE,
+               warning   =FALSE,
+               tidy      =FALSE,
+               fig.height=6,
+               fig.width =8,
+               fig.path  ='tex/mse/')
+
+iFig=0
+
+## ----init, echo=FALSE----------------------------------------------------
+library(FLife)
+
+## ----init-2, echo=FALSE--------------------------------------------------
+library(FLCore)
+library(FLash)
+library(FLBRP)
+library(ggplotFL)
+library(FLAssess)
+library(FLXSA)
+library(FLife)
+library(mpb)
+library(plyr)
+
+
+theme_set(theme_bw())
+
+source('~/Desktop/flr/mse/R/msy.R')
+
+## ----teleost-------------------------------------------------------------
+data(teleost)
+
+teleost
+
+## ----albacore------------------------------------------------------------
+alb=lhPar(teleost[,"Thunnus alalunga"])
+
+alb
+
+## ----dnormal-sl----------------------------------------------------------
+alb["sl"]=1
+
+## ----eql-----------------------------------------------------------------
+eql=lhEql(alb)
+
+## ----vectors, echo=FALSE, fig.height=6-----------------------------------
+sel<-function(x) 
+  catch.sel(x)%/%fapex(catch.sel(x))
+
+ggplot(FLQuants(eql,"m","catch.sel"=sel,"mat","catch.wt"))+
+  geom_line(aes(age,data))+
+  facet_wrap(~qname,scale="free")+
+  scale_x_continuous(limits=c(0,20))+ 
+  guides(colour=guide_legend(title="Species",title.position="top"))
+
+## ----eqlcurves, echo=FALSE-----------------------------------------------
+plot(eql)
+
+## ----fbar----------------------------------------------------------------
+fbar(eql)=FLBRP:::refpts(eql)["msy","harvest"]*FLQuant(c(rep(.1,19),
+                                                         seq(.1,2,length.out=40),
+                                                         seq(2,.7,length.out=11)[-1],
+                                                         rep(.7,61)))[,1:105]
+om=fwd(eql)
+
+## ----stock, echo=FALSE---------------------------------------------------
+plot(om)
+
+## ----stock-stochastic-rec------------------------------------------------
+nits=200
+
+set.seed(1234)
+srDev=FLife:::rlnoise(nits,fbar(eql)[,-1,,,,1]*0,.3,b=0.0)
+
+## ----stock-stochastic-plot, echo=FALSE-----------------------------------
+plot(srDev)+
+    geom_point(aes(year,data,col=iter),data=as.data.frame(iter(srDev,c(7,12,19))))
+
+## ----stock-stochastic-u--------------------------------------------------
+set.seed(3321)
+uDev =rlnorm(nits,setPlusGroup(stock.n(eql),20)*0,.2)
+
+## ----stock-stochastic-1--------------------------------------------------
+om =propagate(fwd(eql),nits)
+oms=FLStocks("Projection"=fwd(om,f=fbar(om)[,-1],sr.residuals=rlnorm(nits,fbar(om)[,-1,,,,1]*0,.3),sr=eql))
+
+## ----stock-stochastic-2, echo=FALSE--------------------------------------
+plot(oms[["Projection"]])+
+  geom_line(aes(year,data,col=iter),
+            data=as.data.frame(FLQuants(iter(oms[["Projection"]],c(7,12,19)),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
+  theme(legend.position="none")
+
+## ----hcr,echo=TRUE-------------------------------------------------------
+library(kobe)
+
+hcr= data.frame(stock  =c(0.0 ,0.1 , 0.6,2.0), 
+                harvest=c(0.01,0.01, 0.7,0.7))
+kobePhase()+
+  geom_line(aes(stock,harvest),data=hcr,col="orange",size=2)
+
+## ----xsa-xtest-----------------------------------------------------------
+mp=window(setPlusGroup(oms[["Projection"]],20),end=80)
+
+##Assessment
+control=FLXSA.control(tol    =1e-16, maxit   =150,
+                      min.nse=0.3,   fse     =0.5,
+                      rage   =2,     qage    =10,
+                      shk.n  =TRUE,  shk.f   =TRUE,
+                      shk.yrs=10,    shk.ages=10,
+                      window =10,    tsrange =10,
+                      tspower=0,
+                      vpa    =!TRUE)
+  
+idx=FLIndex(index=stock.n(mp)%*%uDev[,dimnames(stock.n(mp))$year])
+range(idx)[c("plusgroup","startf","endf")]=c(NA,0.1,.2)
+
+xsa=FLXSA(mp,idx,
+          control=control,diag.flag=FALSE)
+range(xsa)[c("min","max","plusgroup")]=range(mp)[c("min","max","plusgroup")]
+mp=mp+xsa
+
+sr=fmle(as.FLSR(mp,model="bevholt"),control=list(silent=TRUE))
+rf=FLBRP(mp,sr)
+
+## ----xsa-xtest-plot------------------------------------------------------
+plot(FLStocks("Stock\nAssessment"=mp,
+              "Operating\nModel" =window(oms[["Projection"]],end=80)))
+
+## ----xsa-mse, eval=FALSE-------------------------------------------------
+## source('~/Desktop/flr/FLBRP/R/fwd-setup.R')
+## 
+## oms[["Age"]]=mseXSA(oms[["Projection"]],eql, #OM
+##                     mp,control,rf=rf,        #MP
+##                     srDev=srDev,uDev=uDev,   #Random deviates for OM
+##                     start=75,end=103,maxF=1.0)        #year range
+
+## ----xsa-mse-plot, echo=FALSE, eval=FALSE--------------------------------
+## plot(oms[["Age"]])+
+##   geom_line(aes(year,data,col=iter),
+##             data=as.data.frame(FLQuants(iter(oms[["Age"]],c(7,12,19)),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
+##   theme(legend.position="none")
+
+## ----biodyn, eval=FALSE--------------------------------------------------
+## mp        =as(window(oms[["Projection"]],start=20,end=75),"biodyn")
+## mp@indices=FLQuants("1"=(stock(oms[["Projection"]][,20:74])+
+##                          stock(oms[["Projection"]][,21:75]))/2.0)
+## 
+## params(    mp)["r"]=.25
+## mp=fwd(    mp,catch=catch(mp))
+## setParams( mp)=mp@indices[[1]]
+## 
+## setControl(mp)=params(mp)
+## control(   mp)["r",2:4]=c(.05,0.25,1.0)
+## control(   mp)["q1",]=c(-1,.1,1,10)
+
+## ----biodyn-2,eval=FALSE-------------------------------------------------
+## mp=fit(mp)
+
+## ----biodyn-test-2, echo=FALSE, eval=FALSE-------------------------------
+## setControl(mp)=params(mp)
+## dat=plot(FLQuants(fit(mp),"Biomass"=stock,"F"=function(x) catch(x)/stock(x)[,dimnames(catch(x))$year]))$data
+## 
+## plot(FLQuants(window(oms[["Projection"]],start=20,end=75),"Biomass"=stock,"F"=function(x) catch(x)/stock(x)))+
+##   geom_line(  aes(year,`50%`),data=dat,fill="blue",col="blue")+
+##   geom_ribbon(aes(year,ymax=`75%`,ymin=`25%`),data=dat,alpha=.25,fill="blue",col="blue")
+
+## ----biodyn-mse, eval=FALSE----------------------------------------------
+## source('~/Desktop/flr/mpb/R/hcr.R')
+## 
+## setControl(mp)=params(mp)
+## 
+## oms[["Biomass"]]=
+##   mseMPB(window(oms[["Projection"]],start=20,end=103),eql,mp,srDev=srDev,uDev=uDev,start=75,end=103)
+
+## ----biodyn-mse-plot, echo=FALSE, eval=FALSE-----------------------------
+## plot(window(oms[["Biomass"]],end=100))+
+##   geom_line(aes(year,data,col=iter),
+##             data=as.data.frame(FLQuants(window(iter(oms[["Biomass"]],c(7,12,19)),end=100),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))+
+##   theme(legend.position="none")
+
+## ----biodyn-mse-2, eval=FALSE--------------------------------------------
+## oms[["Biomass2"]]=
+##   mseMPB(window(oms[["Projection"]],start=20,end=103),eql,mp,srDev=srDev,uDev=uDev,ftar=0.5,start=75,end=103)
+
+## ----emp-----------------------------------------------------------------
+oms[["Emprirical"]]=mseEMP(oms[["Projection"]],eql,srDev=srDev,uDev=uDev,start=75,end=103)
+
+## ----emp-mse-plot, echo=FALSE--------------------------------------------
+plot(window(oms[["Emprirical"]],end=100))+
+  geom_line(aes(year,data,col=iter),
+            data=as.data.frame(FLQuants(iter(window(oms[["Emprirical"]],end=100),c(7,12,19)),"Rec"=rec,"F"=fbar,"SSB"=ssb,"Catch"=catch),drop=TRUE))
+

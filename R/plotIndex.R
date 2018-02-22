@@ -21,7 +21,7 @@ scale<-function(x,y,...){
 
 plotIndexFn<-function(object,...){
   
-  dat=FLQuants(llply(object,stdz)) 
+  dat=FLQuants(llply(object,diags:::stdz)) 
   dat=subset(as.data.frame(dat),!is.na(data))
   rng=range(dat$year)
   dat=with(dat,scale(year,data,name=qname))
@@ -37,7 +37,7 @@ plotIndexFn<-function(object,...){
 
 plotIndexResidualFn<-function(object,...){
   
-  dat=FLQuants(llply(object,stdz)) 
+  dat=FLQuants(llply(object,diags:::stdz)) 
   dat=subset(as.data.frame(dat),!is.na(data))
   rng=range(dat$year)
   dat=with(dat,scale(year,data,name=qname))
@@ -111,7 +111,7 @@ setMethod('plotIndex', signature(data='aspics'),
 #' 
 #' } 
 setMethod('plotIndexResidual', signature(data='FLQuants'),
-          function(data,...) plotIndexFn(data,...))
+          function(data,...) plotIndexResidualFn(data,...))
 
 setMethod('plotIndexResidual', signature(data='aspic'),
           function(data,...){

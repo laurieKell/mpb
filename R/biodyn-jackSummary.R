@@ -9,8 +9,9 @@ setMethod("jackSummary", signature(object="FLQuant",sim="FLQuant"),
     u   <- sim
     mnU <- apply(u, 1:5, mean)   
             
-    SS  <- apply(sweep(u, 1:5, mnU,"-")^2, 1:5, sum)
-            
+    SS  <- apply((u%-%mnU)^2, 1:5, sum)
+    #SS  <- apply(sweep(u, 1:5, mnU,"-")^2, 1:5, sum)
+    
     bias<- (n-1)*(mn-mnU)
     se  <- sqrt(((n-1)/n)*SS)
             

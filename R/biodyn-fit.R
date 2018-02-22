@@ -33,13 +33,13 @@ setGeneric('fit',       function(object,index,...)  standardGeneric('fit'))
           function(object,index=index, 
                    dir=tempfile("tmpdir"),
                    cmdOps=paste('-maxfn 500 -iprint 0'),
-                   lav=FALSE){
+                   lav=FALSE,maxF=2.5,silent=TRUE){
 
             #sink(file = "/home/laurie/Desktop/temp/output.txt")          
 
             object@indices=FLQuants("1"=index)
             res=fitPella(object, 
-                         dir=dir,cmdOps=cmdOps,lav=lav)
+                         dir=dir,cmdOps=cmdOps,lav=lav,maxF=maxF,silent=silent)
             #sink()
             
             res})
@@ -47,28 +47,28 @@ setGeneric('fit',       function(object,index,...)  standardGeneric('fit'))
 setMethod('fit',signature(object='biodyn',index='FLQuants'),
           function(object,index=index, 
                    dir=tempfile("tmpdir"),
-                   cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE){
+                   cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE,maxF=2.5,silent=!TRUE){
           
             object@indices=index
             fitPella(object, 
                      dir=dir,
-                     cmdOps=cmdOps,lav=lav)})
+                     cmdOps=cmdOps,lav=lav,maxF=maxF,silent=silent)})
 
 
 setMethod('fit',signature(object='biodyn',index="missing"),
           function(object,index=index, 
                    dir=tempfile("tmpdir"),
-                   cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE){
-            
+                   cmdOps=paste('-maxfn 500 -iprint 0'),lav=FALSE,maxF=2.5,silent=!TRUE){
+          
             fitPella(object, 
                      dir=dir,
-                     cmdOps=cmdOps,lav=lav)})
+                     cmdOps=cmdOps,lav=lav,maxF=maxF,silent=silent)})
 
 setMethod('jackknife',signature(object='biodyn'),
          function(object,index="missing", 
                    dir=tempfile("tmpdir"),
                    cmdOps=paste('-maxfn 500 -iprint 0'),
-                   lav=FALSE){
+                   lav=FALSE,silent=!TRUE){
 
             orig=object
             if (index!="missing"){
@@ -87,7 +87,7 @@ setMethod('jackknife',signature(object='biodyn'),
               object@params=propagate(object@params,nits)
             if (dims(object@stock)["iter"]==1)
               object@stock   =propagate(stock(  object),nits)
-            object=fitPella(object,dir=dir,cmdOps=cmdOps,lav=lav)
+            object=fitPella(object,dir=dir,cmdOps=cmdOps,lav=lav,maxF=maxF,silent=silent)
             
             object@stock=as(stock(object),"FLQuantJK")
             object@stock@orig=stock(orig)
@@ -182,7 +182,7 @@ diagsFn=function(res){
 ## copies exe into temp dir ready to run
 setExe=function(dir=tempfile("tmpdir")){
   ##### set up temp dir with exe for data files
-   
+  
   # Linux
   if (R.version$os=='linux-gnu') {
     exe = paste(system.file('bin', 'linux', package="mpb", mustWork=TRUE),"pella", sep='/')
@@ -194,11 +194,12 @@ setExe=function(dir=tempfile("tmpdir")){
      
     # Windows
   } else if (.Platform$OS.type=='windows') {
-    exe = paste(system.file('bin', 'windows', package="mpb", mustWork=TRUE), paste("pella", '.exe', sep=''), sep='/')
-    file.copy(exe, dir)
-
-    dir = paste(dir, '\\', sep='')
+    exe = paste(system.file('bin', 'windows', package="mpb", mustWork=TRUE), "pella.exe", sep='/')
     
+    file.copy(exe, file.path(dir,"pella.exe"))
+
+
+    #dir = paste(dir, '\\', sep='')
     # Mac OSX
   }else 
     stop()
@@ -211,9 +212,17 @@ setExe=function(dir=tempfile("tmpdir")){
 
 setPella=function(x,dir=tempfile("tmpdir"),lav=FALSE) {
   
-  setExePath()
   if (file.exists(dir)) system(paste("rm", dir))
-  system(paste("mkdir",dir))
+  dir.create(dir)
+  
+  if ((.Platform$OS=='windows'))
+     setExe(dir)
+  else if (.Platform$OS.type=="unix")
+    setExePath()
+  else if (.Platform$OS.type=="Mac OSX")
+    stop("Mac not set up yet")
+  else stop("what OS?")
+  
   try(setwd(dir))
   
   # create input files ################################
@@ -434,7 +443,7 @@ calcElasticity=function(bd,mn=3,rg=5){
   return(jbn)}
 
 setExePath=function(){
-
+  
   sep =  function() if (R.version$os=='linux-gnu') ':' else if (.Platform$OS=='windows') ';' else ','
   
   # Linux
@@ -679,12 +688,12 @@ fitPella=function(object,
   if (its>1){
     
     ## these are all results, so doesnt loose anything
-    object@stock  =FLCore::iter(object@stock,  1)
-    object@params =FLCore::iter(object@params, 1)
-    object@objFn  =FLCore::iter(object@objFn,  1)
-    object@vcov   =FLCore::iter(object@vcov,   1)
-    object@ll     =FLCore::iter(object@ll,     1)
-    object@hessian=FLCore::iter(object@hessian,1)
+    object@stock  =FLCore::iter(object@stock,   1)
+    object@params =FLCore::iter(object@params,  1)
+    object@objFn  =FLCore::iter(object@objFn,   1)
+    object@vcov   =FLCore::iter(object@vcov,    1)
+    object@ll     =FLCore::iter(object@ll,      1)
+    object@hessian=FLCore::iter(object@hessian, 1)
     object@mng    =FLPar(a=1)
     object@mngVcov=FLPar(a=1,a=1)
   
@@ -715,7 +724,13 @@ fitPella=function(object,
     #        warning("Executable privilege not set for \n","pella",call.=FALSE),silent=FALSE)
     
     #run
-    system(paste('pella', ' ', cmdOps, sep='')) #,ignore.stdout=TRUE, ignore.stderr=TRUE)
+    if ((.Platform$OS=='windows'))
+      system(paste(file.path(dir,'pella.exe'), ' ', cmdOps, sep='')) #,ignore.stdout=TRUE, ignore.stderr=TRUE)
+    else if (.Platform$OS.type=="unix")
+      system(paste('pella', ' ', cmdOps, sep='')) #,ignore.stdout=TRUE, ignore.stderr=TRUE)
+    else if (.Platform$OS.type=="Mac OSX")
+      stop("Mac not set up yet")
+    else stop("what OS?")
     
     #gets results
     tmpObj=getPella(tmpObj)  
