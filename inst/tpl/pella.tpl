@@ -1,3 +1,4 @@
+
 //=========================================================================================================================
 // File:        pella.tpl
 // Model:       Pella-Tomlinson model, with Binit=k*a
@@ -225,15 +226,12 @@ FUNCTION fwd
   for(int t=1; t<=nc; t++){
     //instantaneous
     if (p_plui[1]<(-1)){
-
        F[t]=nr(-log(1-C[t]/B[t])*.5, C[t], B[t], r, k);
-
        dvariable alpha=sfabs(r-F[t]);
-
        B[t+1]=((r-F[t]))*B[t]*exp((alpha))/(alpha+(r/k)*B[t]*(exp(alpha)-1));
        B[t+1]=sfabs(B[t+1]);
     }else{
-       dvariable now=posfun(B[t]-C[t],B[t]*.001,pen);
+       dvariable now=posfun3(B[t]-C[t],B[t]*.001,pen);
   
        B[t+1]=now+r/p*B[t]*(1-pow(B[t]/k,p));
        
@@ -285,7 +283,6 @@ FUNCTION ll
 	  nll(i)=0;
 	  se(i) =0;
 	  ss(i) =0;}
-
 	    	   
     for (int i=1; i<=ni; i++){
       ss[uNm(i)]+=pow(log(I(uYr[i])*q(uNm(i)))-log(u(i)),2.0);
@@ -297,7 +294,6 @@ FUNCTION ll
   	nll[i]=n[i]/2*log(3.14159265359*2)
 		    +n[i]*log(se[i])
 		    +ss[i]/(2*se[i]*se[i]);
-
       neglogL+=nll[i];
       //neglogL+=ss[i];
       }               
@@ -341,10 +337,29 @@ FUNCTION setSummary
   summary.colfill(4,F);
   summary.colfill(5,I);
 
+FUNCTION dvariable posfun3(prevariable& x, prevariable& eps, named_dvariable& _pen)
+
+  prevariable& pen=(prevariable&)_pen;
+  if (x>=eps)
+    {
+    return x;
+    }
+  else
+    {
+    dvariable y=eps-x;
+    dvariable tmp=y/eps;
+    dvariable tmp2=tmp*tmp;
+    dvariable tmp3=tmp2*tmp;
+    pen+=.01*cube(tmp3);
+    return eps/(1.0+tmp+tmp2+tmp3);
+    }
+
+
 TOP_OF_MAIN_SECTION
   arrmblsize = 40000000L;
   gradient_structure::set_GRADSTACK_BUFFER_SIZE(3000000);
   gradient_structure::set_CMPDIF_BUFFER_SIZE(200000);
   gradient_structure::set_MAX_NVAR_OFFSET(10000);
   gradient_structure::set_MAX_DLINKS(100000);
+
 

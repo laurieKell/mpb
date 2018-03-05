@@ -1,5 +1,5 @@
-#if !defined(_PELLA_)
-#  define _PELLA_
+#if !defined(_pella_)
+#  define _pella_
 
 class model_data : public ad_comm{
   data_int nc;
@@ -108,6 +108,7 @@ public:
   void qs(void);
   void ll(void);
   void setSummary(void);
+ dvariable posfun3(prevariable& x, prevariable& eps, named_dvariable& _pen);
 
 };
 #endif

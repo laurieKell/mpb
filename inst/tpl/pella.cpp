@@ -1,3 +1,9 @@
+#ifdef DEBUG
+  #ifndef __SUNPRO_C
+    #include <cfenv>
+    #include <cstdlib>
+  #endif
+#endif
   #include "admodel.h"
   #include <string>
   #include <dnorm.cpp> //include functions from custom library
@@ -223,8 +229,9 @@ void model_parameters::fwd(void)
        B[t+1]=((r-F[t]))*B[t]*exp((alpha))/(alpha+(r/k)*B[t]*(exp(alpha)-1));
        B[t+1]=sfabs(B[t+1]);
     }else{
-       dvariable now=posfun(B[t]-C[t],.001,pen);
+       dvariable now=posfun3(B[t]-C[t],B[t]*.001,pen);
        B[t+1]=now+r/p*B[t]*(1-pow(B[t]/k,p));
+       //dvariable now=posfun(B[t]-C[t],.001,pen);
        }
     //index   
     I(t)=0.5*(B[t]+B[t+1]);   
@@ -268,13 +275,13 @@ void model_parameters::ll(void)
 	  nll(i)=0;
 	  se(i) =0;
 	  ss(i) =0;}
-	for (int i=1; i<=ni; i++){
+    for (int i=1; i<=ni; i++){
       ss[uNm(i)]+=pow(log(I(uYr[i])*q(uNm(i)))-log(u(i)),2.0);
       }
     neglogL=pen;    
     for (int i=1; i<=nU; i++){
 	  se[i] =exp(log(ss[i]/n[i])*0.5);
-  	  nll[i]=n[i]/2*log(3.14159265359*2)
+  	nll[i]=n[i]/2*log(3.14159265359*2)
 		    +n[i]*log(se[i])
 		    +ss[i]/(2*se[i]*se[i]);
       neglogL+=nll[i];
@@ -319,6 +326,24 @@ void model_parameters::setSummary(void)
   summary.colfill(5,I);
 }
 
+dvariable model_parameters::posfun3(prevariable& x, prevariable& eps, named_dvariable& _pen)
+{
+  prevariable& pen=(prevariable&)_pen;
+  if (x>=eps)
+    {
+    return x;
+    }
+  else
+    {
+    dvariable y=eps-x;
+    dvariable tmp=y/eps;
+    dvariable tmp2=tmp*tmp;
+    dvariable tmp3=tmp2*tmp;
+    pen+=.01*cube(tmp3);
+    return eps/(1.0+tmp+tmp2+tmp3);
+    }
+}
+
 model_data::~model_data()
 {}
 
@@ -350,12 +375,31 @@ int main(int argc,char * argv[])
   gradient_structure::set_MAX_NVAR_OFFSET(10000);
   gradient_structure::set_MAX_DLINKS(100000);
     gradient_structure::set_NO_DERIVATIVES();
+#ifdef DEBUG
+  #ifndef __SUNPRO_C
+std::feclearexcept(FE_ALL_EXCEPT);
+  #endif
+#endif
     gradient_structure::set_YES_SAVE_VARIABLES_VALUES();
     if (!arrmblsize) arrmblsize=15000000;
     model_parameters mp(arrmblsize,argc,argv);
     mp.iprint=10;
     mp.preliminary_calculations();
     mp.computations(argc,argv);
+#ifdef DEBUG
+  #ifndef __SUNPRO_C
+bool failedtest = false;
+if (std::fetestexcept(FE_DIVBYZERO))
+  { cerr << "Error: Detected division by zero." << endl; failedtest = true; }
+if (std::fetestexcept(FE_INVALID))
+  { cerr << "Error: Detected invalid argument." << endl; failedtest = true; }
+if (std::fetestexcept(FE_OVERFLOW))
+  { cerr << "Error: Detected overflow." << endl; failedtest = true; }
+if (std::fetestexcept(FE_UNDERFLOW))
+  { cerr << "Error: Detected underflow." << endl; }
+if (failedtest) { std::abort(); } 
+  #endif
+#endif
     return 0;
 }
 
