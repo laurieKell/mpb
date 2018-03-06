@@ -779,7 +779,7 @@ fitPella=function(object,
     }
     
     object@params@.Data[  ,i] = tmpObj@params
-    object@control@.Data[,,i] = tmpObj@control
+    #object@control@.Data[,,i] = tmpObj@control
     
     wrn=options()$warn
     options(warn=-1)
