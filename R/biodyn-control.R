@@ -47,6 +47,7 @@ setMethod( 'control',   signature(object='biodyn'),function(object, ...)   objec
 #' setControl(bd)=params(bd)
 #' }
 #'  
+
 setMethod( 'setControl<-', signature(object='biodyn',value='FLPar'), function(object,value,min=0.1,max=10.0) {
   
   if (dims(value)$iter>1 & dims(object@control)$iter==1)

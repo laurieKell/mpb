@@ -93,6 +93,7 @@ Collate:
     mseEMP.R
     mseXSA.R
     nmc.R
+    FLStock-hcr.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 6.0.1
