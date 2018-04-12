@@ -15,8 +15,6 @@ utils::globalVariables(c("d_ply","dlply","mdply","filter","weighted.mean",
 "str_trim","theme","theme_blank","theme_grey","theme_line","theme_rect","theme_segment","theme_text",
 "trim","type","unit","V2","viewport","window","write.table","year","yrw"))
 
-setGeneric('index',       function(object,...)    standardGeneric('index'))
-
 #' @title biodyn constructor
 #' 
 #' @name biodyn
@@ -167,11 +165,6 @@ setGeneric('writeAspic',function(object,...)        standardGeneric('writeAspic'
 #'
 #' @examples \dontrun{ msy('logistic',FLPar(msy=100,k=500))}
 #'   
-#setGeneric('msy',      function(object,...) standardGeneric('msy'))
-setGeneric('msy',      function(object,params,...)  standardGeneric('msy'))
-setGeneric('fmsy',     function(object,params,...) standardGeneric('fmsy'))
-setGeneric('bmsy',     function(object,params,...) standardGeneric('bmsy'))
-setGeneric('refpts',   function(object,params,...) standardGeneric('refpts'))
 setGeneric('refptSD',  function(object,params,...) standardGeneric('refptSD'))
 
 #' @title setParams<-
