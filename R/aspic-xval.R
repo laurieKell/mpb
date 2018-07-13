@@ -22,6 +22,8 @@ xvalFnAspic=function(object,minyear=range(object)["maxyear"]-4,maxyear=range(obj
 
   res}
 
+#' xval
+#' 
 #' @title xval
 #'
 #' @description Performs a cross-validation uisng a hindcast
@@ -30,9 +32,10 @@ xvalFnAspic=function(object,minyear=range(object)["maxyear"]-4,maxyear=range(obj
 #' @param   index an \code{FLQuant} or \code{FLQuants} with index of relative stock abundance
 #' @param   minyear last year to fit data to
 #' @param   maxyear last year to project to, by default is the last year in the catch
-#'
-#' @aliases xval-method xval,biodyn-method
-#'
+#' 
+#' @aliases xval-method 
+#'          xval,biodyn-method
+#'          xval,biodyn,missing-method
 #' @export
 #' @rdname aspic-xval
 #'
@@ -42,7 +45,8 @@ xvalFnAspic=function(object,minyear=range(object)["maxyear"]-4,maxyear=range(obj
 #'  data(bd)  
 #' }
 setMethod('xval', signature(object='biodyn',index="missing"),
-          function(object,minyear=range(object)["maxyear"]-4,maxyear=range(object)["maxyear"],mf=TRUE) 
+          function(object,
+                   minyear=range(object)["maxyear"]-4,maxyear=range(object)["maxyear"]) 
             xvalFnAspic(object,minyear,maxyear))
 
 

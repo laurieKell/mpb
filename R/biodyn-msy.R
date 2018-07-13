@@ -24,22 +24,22 @@ utils::globalVariables('data')
 #' \dontrun{
 #'  msy(bd)
 #'  }
-setMethod('msy', signature(object='biodyn',params="missing"), function(object,params=params(object),...){
-      params=params(object) 
+setMethod('msy', signature(x='biodyn'), function(x,...){
+      params=params(x) 
       res=params['r']*params['k']*(1/(1+params['p']))^(1/params['p']+1)
       dimnames(res)$params="msy"
       res})
 
-setMethod('fmsy', signature(object='biodyn'), function(object,...)                             
-  fmsyPellaT(params(object)))
-setMethod('bmsy', signature(object='biodyn'), function(object,...)                             
-  bmsyPellaT(params(object)))
+# setMethod('fmsy', signature(object='biodyn'), function(object,...)                             
+#   fmsyPellaT(params(object)))
+# setMethod('bmsy', signature(object='biodyn'), function(object,...)                             
+#   bmsyPellaT(params(object)))
 
-setMethod('refpts', signature(object='character', params='FLPar'),   
+setMethod('refpts', signature(object='character'),   
           function(object=factor(object), params=params)          refptsFn(object, params))
-setMethod('refpts', signature(object='factor',    params='FLPar'),   
-          function(object=       object,  params=params)          refptsFn(object, params))
-setMethod('refpts', signature(object='biodyn',    params='missing'), 
+setMethod('refpts', signature(object='factor'),   
+          function(object=       object)          refptsFn(object, params))
+setMethod('refpts', signature(object='biodyn'), 
           function(object)  {  
             model=model( object)
             par  =params(object)
@@ -52,9 +52,8 @@ setMethod('refpts', signature(object='biodyn',    params='missing'),
               org=refptsFn(model,par@orig)
               return(FLParJK(sim,orig=org))}
             })
-
-setMethod('refpts', signature(object='FLPar', params='missing'),    
-          function(object=params)  refptsFn(factor("pellaT"),params=object))
+setMethod('refpts', signature(object='FLPar'),    
+          function(object=object)  refptsFn(factor("pellaT"),params=object))
 
 setMethod('refptSD', signature(object='character', params='FLPar'),   
           function(object=factor(object), params=params)         refptsFn(object, params))

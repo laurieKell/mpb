@@ -9,7 +9,14 @@ mpTrace<-function(mp,par,tac){
   rtn3=model.frame(tac[["stk"]])
   }
          
-  
+icesBD=function(bd,fmsy=1.0,btrig=0.5,blim=0.3, fmin=0.05){
+  # http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/12.04.03.01_Reference_points_for_category_1_and_2.pdf
+ 
+  hcrParam(
+    fmsy =fmsy(bd),
+    btrig=bmsy(bd)*btrig,
+    blim =bmsy(bd)*blim,
+    fmin =fmsy(bd)*fmin}
 
 mseMPB<-function(
           #OM
@@ -17,16 +24,17 @@ mseMPB<-function(
                   
           #MP
           mp,
-          ftar =0.7,btrig=0.8,fmin=0.1,blim=0.4,        
+          ftar=0.7,btrig=0.8,fmin=0.1,blim=0.4,        
+          
           #years over which to run MSE
-          start=range(om)["maxyear"]-30,interval=3,end=range(om)["maxyear"]-interval,
+          interval=3,start=range(om)["maxyear"]-30,end=range(om)["maxyear"]-interval,
                   
           #Stochasticity
           srDev=rlnorm(dim(om)[6],FLQuant(0,dimnames=list(year=start:end)),0.3), 
           uDev =rlnorm(dim(om)[6],FLQuant(0,dimnames=dimnames(iter(stock(om),1))),0.3),
                   
           #Capacity, i.e. F in OM can not be greater than this
-          maxF=1.5){ 
+          maxF=1.0){ 
 
   ## Get number of iterations in OM
   nits=c(om=dims(om)$iter, eql=dims(params(eql))$iter, rsdl=dims(srDev)$iter)

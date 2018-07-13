@@ -17,6 +17,8 @@ utils::globalVariables('ssb.obs')
 #' @export
 #' 
 #' @aliases production,biodyn-method 
+#'          production,FLStock,missing
+#'          production,biodyn,FLQuant
 #'  
 
 productionFn=function(object,biomass="missing",

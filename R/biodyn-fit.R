@@ -459,10 +459,11 @@ setExePath=function(){
   
   #path='C:\\R\\R-2.15.1\\library\\aspic\\bin\\windows'
   
-  path <- paste(path, sep(), Sys.getenv('PATH'),sep='')
-   
-  Sys.setenv(PATH=path)
+  if (length(grep("/mpb/bin/",Sys.getenv('PATH')))==0){
 
+    Sys.setenv(PATH=paste(path, sep(), Sys.getenv('PATH'),sep=''))
+    } 
+  
   return(path)}
 
 #asp=aspic('http://gbyp-sam.googlecode.com//svn//trunk//tests//aspic//swon//2009//high//aspic.inp')
@@ -727,7 +728,7 @@ fitPella=function(object,
     if ((.Platform$OS=='windows'))
       system(paste(file.path(dir,'pella.exe'), ' ', cmdOps, sep='')) #,ignore.stdout=TRUE, ignore.stderr=TRUE)
     else if (.Platform$OS.type=="unix")
-      system(paste('pella', ' ', cmdOps, sep='')) #,ignore.stdout=TRUE, ignore.stderr=TRUE)
+      system2('pella', args=cmdOps, stdout=NULL, stderr=NULL) #,ignore.stdout=TRUE, ignore.stderr=TRUE)
     else if (.Platform$OS.type=="Mac OSX")
       stop("Mac not set up yet")
     else stop("what OS?")

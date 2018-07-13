@@ -32,11 +32,11 @@ gradY =function(F,C,B,r,k){
 gradMinY=function(F,C,B,r,k)
   2*minY(F,C,B,r,k)*gradY(F,C,B,r,k)
 
-fn<-function(F,C,B,r,k)
+func<-function(F,C,B,r,k)
   C*(r/k)/(log(r/k*B*(exp(r-F)-1)/(r-F)+1))
 
 fnF   =function(F,C,B,r,k)
-  F-fn(F,C,B,r,k)
+  F-func(F,C,B,r,k)
 
 minF   =function(F,C,B,r,k)
   fnF(F,C,B,r,k)^2

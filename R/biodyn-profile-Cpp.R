@@ -120,7 +120,7 @@ tmp<-function(fitted,
   f@catch=propagate(f@catch,dim(f@control)[3])
   res=fit(f,index)
   res@catch=FLCore::iter(res@catch,1)
-  rtn=fn(res)
+  rtn<-fn(res)
       
   if (comp){
     rsd=mdply(data.frame(iter=seq(dims(f)$iter)), function(iter){

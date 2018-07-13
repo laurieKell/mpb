@@ -1,20 +1,25 @@
-setGeneric('fmsy',     function(object,...) standardGeneric('fmsy'))
-setGeneric('bmsy',     function(object,...) standardGeneric('bmsy'))
+setMethod('msy', signature(x='FLBRP'), function(x,...) {
+  rtn=computeRefpts(object)["msy","yield"]
 
-setMethod('fmsy', signature(object='FLBRP'), function(object,...) {                            
+  if (any(is.na(rtn)))
+    rtn[is.na(rtn)]=computeRefpts(object)["f0.1","yield"][is.na(rtn)]
+
+  rtn})
+
+setMethod('fmsy', signature(x='FLBRP'), function(x,...) {
   rtn=computeRefpts(object)["msy","harvest"]
   
   if (any(is.na(rtn)))
     rtn[is.na(rtn)]=computeRefpts(object)["f0.1","harvest"][is.na(rtn)]
   
   rtn})
-  
-setMethod('bmsy', signature(object='FLBRP'), function(object,...) {                            
+
+setMethod('bmsy', signature(x='FLBRP'), function(x,...) {
   rtn=computeRefpts(object)["msy","ssb"]
-  
+
   if (any(is.na(rtn)))
     rtn[is.na(rtn)]=computeRefpts(object)["f0.1","ssb"][is.na(rtn)]
-  
+
   rtn})
 
 hcrParam=function(ftar,btrig,fmin,blim){

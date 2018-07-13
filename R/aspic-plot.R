@@ -32,6 +32,9 @@ setMethod('plot', signature(x='aspics',y='missing'),
             
             p})
 
+#' plot aspics,missing
+#' plotIndex aspic
+#' plotIndex aspics
 
 # @param  \code{fn}, a list of functions that estimate the quantities for plotting
 # @param  \code{probs}, a vector specifying the percentiles for plotting, these are c(0.95,0.50,0.05) by default.

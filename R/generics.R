@@ -168,12 +168,17 @@ setGeneric('writeAspic',function(object,...)        standardGeneric('writeAspic'
 #' @examples \dontrun{ msy('logistic',FLPar(msy=100,k=500))}
 #'   
 #setGeneric('msy',      function(object,...) standardGeneric('msy'))
-setGeneric('msy',      function(object,params,...)  standardGeneric('msy'))
-setGeneric('fmsy',     function(object,params,...) standardGeneric('fmsy'))
-setGeneric('bmsy',     function(object,params,...) standardGeneric('bmsy'))
-setGeneric('refpts',   function(object,params,...) standardGeneric('refpts'))
+#if (!isGeneric("msy")) 
+  #setGeneric('msy',      function(object,params,...)  standardGeneric('msy'))
+#if (!isGeneric("fmsy")) 
+  #setGeneric('fmsy',     function(object,params,...) standardGeneric('fmsy'))
+#if (!isGeneric("bmsy")) 
+   #setGeneric('bmsy',     function(object,params,...) standardGeneric('bmsy'))
+#setGeneric('refpts',   function(object,params,...) standardGeneric('refpts'))
 setGeneric('refptSD',  function(object,params,...) standardGeneric('refptSD'))
 
+#' setParams<-
+#' 
 #' @title setParams<-
 #'
 #' @description Sets catchability \code{q} and CV \code{sigma} in the params \code{FLPar} slot 
@@ -182,6 +187,11 @@ setGeneric('refptSD',  function(object,params,...) standardGeneric('refptSD'))
 #' @param object \code{biodyn}
 #' @param value  CPUE as \code{FLQuant} or \code{FLQuants} 
 #'
+#' @aliases   setParams<-, biodyn,FLPar-method
+#'            setParams<-, biodyn,biodyn,FLQuant-method
+#'            setParams<-, biodyn,biodyn,FLQuants-method
+#'            setParams<-, biodyn,biodyn,data.frame-method
+#'                        
 #' @export
 #' @rdname setParams
 #'

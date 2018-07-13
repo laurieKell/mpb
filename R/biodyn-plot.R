@@ -55,8 +55,10 @@ setGeneric('plotIndexResidual', function(data,...)       standardGeneric('plotIn
 #' @return an \code{ggplot2} object
 #' 
 #' @aliases plot,biodyn,missing-method plot,biodyns,missing-method plot,aspics,missing
-#' 
-#' @export
+#'          plotEql,biodyn,FLQuant
+#'          plotIndex,biodyn
+#'          
+#' @export plot
 #' @rdname plot
 #' 
 #' @examples
@@ -156,6 +158,8 @@ setMethod('plot', signature(x='biodyns', y='missing'),
 # @param  \code{lty}, line type for percentiles
 # @param \code{facet}, a layer that determines the facetting of the plot
 
+#' plotProduction
+#' 
 #' @title plotProduction
 #' 
 #' @description 
@@ -168,14 +172,13 @@ setMethod('plot', signature(x='biodyns', y='missing'),
 #'
 #' @return an \code{ggplot2} object
 #' 
-#' @export
+#' @export plotProduction
 #' @rdname plotProduction
 #'
-#' @aliases 
-#  plotProduction,biodyn,FLBRP-method 
-#' plotProduction,biodyn,FLQuant-method 
-#' plotProduction,biodyn,missing-method
-#' plotProduction,biodyns,missing-method 
+#' @aliases plotProduction,biodyn,FLBRP-method 
+#'          plotProduction,biodyn,FLQuant-method 
+#'          plotProduction,biodyn,missing-method
+#'          plotProduction,biodyns,missing-method 
 #' 
 #' @examples
 #' \dontrun{
@@ -354,6 +357,8 @@ plotMSEfn=function(mp,om,brp="missing"){
       xlab("Year")+ylab("")  
 }
 
+#' plotJack
+#' 
 #' @title plotJack
 #' 
 #' @description 
@@ -363,7 +368,6 @@ plotMSEfn=function(mp,om,brp="missing"){
 #'
 #' @param  x an object of class \code{biodyn} that has been jack knifed, i.e. by 
 #' providing a jack knifed CPUE series to fit
-#' @param y the original \code{biodyn} object
 #' @param ncol number of colums in plot panel
 #'
 #' @return an \code{ggplot2} object

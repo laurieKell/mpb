@@ -1,62 +1,62 @@
-setMethod('refpts', signature(object='aspic', params='missing'),  
-  function(object,params=NULL){
+setMethod('refpts', signature(object='aspic'),
+  function(object){
 
-    if (object@model=="LOGISTIC"){
+    if (x@model=="LOGISTIC"){
       msy =params(object)["msy"]
       fmsy=msy/params(object)["k"]*2
       dimnames(fmsy)[[1]]="fmsy"
       bmsy=msy/fmsy
       dimnames(bmsy)[[1]]="bmsy"
-      
+
       res=rbind(msy,bmsy,fmsy)}
     else  if (object@model=="FOX"){
       msy =params(object)["msy"]
       bmsy=params(object)["k"]*exp(-1)
       fmsy=msy/bmsy
-      
+
       dimnames( msy)$params="msy"
       dimnames(bmsy)$params="bmsy"
       dimnames(fmsy)$params="fmsy"
       res=rbind(msy,bmsy,fmsy)}
-     
+
   res})
 
-setMethod('msy', signature(object='aspic',params='missing'),  
-          function(object,params=NULL){
-            
-            if (object@model=="LOGISTIC"){
-              msy =params(object)["msy"]}
-            else  if (object@model=="FOX"){
-              msy =params(object)["msy"]}
-            
+setMethod('msy', signature(x='aspic'),
+          function(x){
+
+            if (x@model=="LOGISTIC"){
+              msy =params(x)["msy"]}
+            else  if (x@model=="FOX"){
+              msy =params(x)["msy"]}
+
             msy})
 
-setMethod('fmsy', signature(object='aspic'),  
-          function(object,params=NULL){
-            
-            if (object@model=="LOGISTIC"){
-              fmsy=params(object)["msy"]/params(object)["k"]*4
+setMethod('fmsy', signature(x='aspic'),
+          function(x){
+
+            if (x@model=="LOGISTIC"){
+              fmsy=params(x)["msy"]/params(x)["k"]*4
               }
-            else  if (object@model=="FOX"){
-              msy =params(object)["msy"]
-              bmsy=params(object)["k"]*exp(-1)
+            else  if (x@model=="FOX"){
+              msy =params(x)["msy"]
+              bmsy=params(x)["k"]*exp(-1)
               fmsy=msy/bmsy}
-            
+
             dimnames(fmsy)$params="fmsy"
-            
+
             fmsy})
 
-setMethod('bmsy', signature(object='aspic'),  
-          function(object,params=NULL){
-            
-            if (object@model=="LOGISTIC"){
-              msy =params(object)["msy"]
-              fmsy=msy/params(object)["k"]*4
+setMethod('bmsy', signature(x='aspic'),
+          function(x){
+
+            if (x@model=="LOGISTIC"){
+              msy =params(x)["msy"]
+              fmsy=msy/params(x)["k"]*4
               bmsy=msy/fmsy
-            }else  if (object@model=="FOX"){
-              bmsy=params(object)["k"]*exp(-1)
+            }else  if (x@model=="FOX"){
+              bmsy=params(x)["k"]*exp(-1)
             }
-            
+
             dimnames(bmsy)$params="bmsy"
-            
+
             bmsy})

@@ -139,6 +139,10 @@ iavFn=function(val,bnd,lag=1){
 #' fwd,biodyn,FLQuants-method  
 #' fwd,biodyn,missing-method 
 #' fwd,FLPar,missing-method
+#' fwd,FLPar,missing,missing
+#' fwd,biodyn,FLQuants,missing
+#' fwd,biodyn,missing,missing
+
 #' 
 #' @export
 #' @rdname fwd

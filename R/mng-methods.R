@@ -145,7 +145,16 @@ setMethod( 'timeSeries', signature(object='aspic',params="missing"),
 #' @description calculates time series of quantities useful for management
 #' 
 #' @param object either  \emph{FLStock} \emph{biodyn} or \emph{aspic} classes
-# @aliases  timeSeries timeSeries-method timeSeries,FLStock,FLBRP-method timeSeries,FLStocks,FLBRP-method timeSeries,FLStocks,FLBRPs-method timeSeries,aspic,missing-method timeSeries,biodyn,missing-method
+#' 
+#' @aliases  timeSeries timeSeries-method 
+#'           timeSeries,FLStock,FLBRP-method 
+#'           timeSeries,FLStocks,FLBRP-method 
+#'           timeSeries,FLStocks,FLBRPs-method 
+#'           timeSeries,aspic,missing-method 
+#'           timeSeries,biodyn,missing-method
+#'           timeSeries aspic,missing
+#'           timeSeries biodyn,missing
+#'              
 #' 
 #' @rdname timeSeries1
 #'

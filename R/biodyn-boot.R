@@ -1,3 +1,5 @@
+#' boot
+#' 
 #' @title boot, Bootstraps biodyn.
 #'
 #' @description 
