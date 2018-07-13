@@ -25,13 +25,12 @@ utils::globalVariables(c("d_ply","dlply","mdply","filter","weighted.mean",
 #' 
 #' @return biodyn object
 #' 
-#' @aliases biodyn-method biodyn,ANY-method  biodyn,ANY,ANY-method biodyn,FLBRP,FLStock-method
+# @aliases biodyn-method biodyn,ANY-method  biodyn,ANY,ANY-method biodyn,FLBRP,FLStock-method
 #' 
 #' @rdname biodynConstructors
 #' @export
 #' 
-#' @import ggplot2
-#' @import plyr
+#' @import ggplotFL
 #' 
 #' @examples 
 #' \dontrun{
