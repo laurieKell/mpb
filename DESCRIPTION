@@ -98,6 +98,7 @@ Collate:
     FLStock-hcr.R
     biodyn-statusErr.R
     doc.R
+    hcr.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1

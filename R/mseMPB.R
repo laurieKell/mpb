@@ -16,7 +16,7 @@ icesBD=function(bd,fmsy=1.0,btrig=0.5,blim=0.3, fmin=0.05){
     fmsy =fmsy(bd),
     btrig=bmsy(bd)*btrig,
     blim =bmsy(bd)*blim,
-    fmin =fmsy(bd)*fmin}
+    fmin =fmsy(bd)*fmin)}
 
 mseMPB<-function(
           #OM
