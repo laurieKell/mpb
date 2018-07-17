@@ -90,14 +90,13 @@ mseXSA<-function(
       cpue=window(cpue,end=iYr-1)
       cpue[,ac(iYr-(interval:1))]=stock.n(smp)[dimnames(cpue)$age,ac(iYr-(interval:1))]%*%
          uDev[dimnames(cpue)$age,ac(iYr-(interval:1))]
-print("fwd1") 
+
       ## Update and fill in biological parameters
       if (iYr==start) 
         mp=window(mp,end=iYr-1)
       else 
         if (dims(mp)$maxyear>iYr) 
           mp=fwdWindow(mp,rf,end=iYr-1)
-print("fwd1") 
 
       ## Add catches and create plus group 
       sink("/dev/null")
@@ -133,7 +132,6 @@ print("fwd1")
       }
     
     if (!("FLBRP"%in%is(rf))){
-      
       ## Stock recruiment relationship
       if (!FALSE){
         sr=as.FLSR(window(mp,end=iYr-3),model="segreg")
@@ -151,15 +149,12 @@ print("fwd1")
         sr=fmle(sr,control=list(trace=FALSE),method="L-BFGS-B")
         
         params(sr)["a"][is.na(params(sr)["a"])]=median(params(sr)["a"],na.rm=TRUE)
-        }
+      }
       ## Reference points
       rf=brp(FLBRP(mp,sr=sr))}
 
-print("fwd2") 
     ## in year update
     mp=fwdWindow(mp,rf,end=iYr)
-print("fwd2") 
-    
     mp[,ac(iYr)]=mp[,ac(iYr-1)]
     #try(save(om,mp,rf,file="/home/laurence/Desktop/tmp/mseXSA1.RData"))
     mp=fwd(mp,catch=catch(om)[,ac(iYr)],sr=list(model="bevholt",params=params(rf)),effort_max=maxF)
@@ -169,12 +164,14 @@ print("fwd2")
     ## HCR
     hcrPar=icesAR(rf,ftar=ftar,fmin=fmin,blim=blim,sigma=sigma)
 
+print("hcr1") 
     #save(mp,rf,hcrPar,iYr,file="/home/laurence/Desktop/tmp/mseXSA2.RData")
     tac=hcr(mp,refs=rf,hcrPar,
             hcrYrs=iYr+seq(interval),
             bndTac=bndTac,
             tac =TRUE)
     tac[is.na(tac)]=1  
+print("hcr1") 
     
     #### Operating Model update
     #try(save(om,mp,rf,file="/home/laurence/Desktop/tmp/mseXSA3.RData"))

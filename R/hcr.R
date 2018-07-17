@@ -1,39 +1,39 @@
-setGeneric('hcr', function(object,refs,...) standardGeneric('hcr'))
-
-setMethod('hcr', signature(object="FLStock",refs='FLBRP'), 
-          function(object,refs,
-          params=hcrParam(ftar =0.70*fmsy(refs),
-                          btrig=0.80*bmsy(refs),
-                          fmin =0.01*fmsy(refs),
-                          blim =0.40*bmsy(refs)),
-          stkYrs=max(as.numeric(dimnames(stock(object))$year)),
-          refYrs=max(as.numeric(dimnames(catch(object))$year)),
-          hcrYrs=max(as.numeric(dimnames(stock(object))$year)),                             
-          tac   =TRUE,
-          tacMn =TRUE,
-          bndF  =NULL, #c(1,Inf),
-          bndTac=NULL, 
-          maxF  =2,
-          ...)
-  hcrFn(object,refs,
-                params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
-
-setMethod('hcr', signature(object="biodyn",refs='FLPar'), 
-  function(object,refs=hcrParam(ftar =0.70*mpb:::fmsy(refs),
-                                btrig=0.80*mpb:::bmsy(refs),
-                                fmin =0.01*mpb:::fmsy(refs),
-                                blim =0.40*mpb:::bmsy(refs)),
-           params=refs,
-           stkYrs=max(as.numeric(dimnames(stock(object))$year)),
-           refYrs=max(as.numeric(dimnames(catch(object))$year)),
-           hcrYrs=max(as.numeric(dimnames(stock(object))$year)),                             
-           tac   =TRUE,
-           bndF  =NULL, #c(1,Inf),
-           bndTac=NULL, 
-           maxF  =2,
-           ...)
-  hcrFn(object,refs,
-        params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
+# setGeneric('hcr', function(object,refs,...) standardGeneric('hcr'))
+# 
+# setMethod('hcr', signature(object="FLStock",refs='FLBRP'), 
+#           function(object,refs,
+#           params=hcrParam(ftar =0.70*fmsy(refs),
+#                           btrig=0.80*bmsy(refs),
+#                           fmin =0.01*fmsy(refs),
+#                           blim =0.40*bmsy(refs)),
+#           stkYrs=max(as.numeric(dimnames(stock(object))$year)),
+#           refYrs=max(as.numeric(dimnames(catch(object))$year)),
+#           hcrYrs=max(as.numeric(dimnames(stock(object))$year)),                             
+#           tac   =TRUE,
+#           tacMn =TRUE,
+#           bndF  =NULL, #c(1,Inf),
+#           bndTac=NULL, 
+#           maxF  =2,
+#           ...)
+#   hcrFn(object,refs,
+#                 params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
+# 
+# setMethod('hcr', signature(object="biodyn",refs='FLPar'), 
+#   function(object,refs=hcrParam(ftar =0.70*mpb:::fmsy(refs),
+#                                 btrig=0.80*mpb:::bmsy(refs),
+#                                 fmin =0.01*mpb:::fmsy(refs),
+#                                 blim =0.40*mpb:::bmsy(refs)),
+#            params=refs,
+#            stkYrs=max(as.numeric(dimnames(stock(object))$year)),
+#            refYrs=max(as.numeric(dimnames(catch(object))$year)),
+#            hcrYrs=max(as.numeric(dimnames(stock(object))$year)),                             
+#            tac   =TRUE,
+#            bndF  =NULL, #c(1,Inf),
+#            bndTac=NULL, 
+#            maxF  =2,
+#            ...)
+#   hcrFn(object,refs,
+#         params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
 
 hcrFn=function(object,refs=NULL, 
                params=hcrParam(ftar =0.70*refpts(object)['fmsy'],
@@ -98,6 +98,8 @@ hcrFn=function(object,refs=NULL,
 
   hvt=rtn
 
+print("hcr")    
+print(is(refs))
   ## TAC
   if (!tac)
     return(hvt)
