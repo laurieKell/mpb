@@ -150,7 +150,10 @@ FLStock2biodynSimple=function(from){
   
   res      =biodyn()
   res@catch=catch(from)
-  res@stock=window(stock(from),end=dims(from)$maxyear+1)
+  stk      =window(stock.n(  from),end=dims(from)$maxyear+1)%*%
+            window(catch.sel(from),end=dims(from)$maxyear+1)%*%
+            window(stock.wt( from),end=dims(from)$maxyear+1)
+  res@stock=apply(stk,2:6,sum)
   
   dmns=dimnames(res@params)
   

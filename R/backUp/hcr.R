@@ -76,7 +76,7 @@ hcrFn=function(object,refs=NULL,
 
   rtn=window(rtn,end=max(hcrYrs))
   rtn[,ac(hcrYrs)]=rtn[,dimnames(rtn)$year[1]]
-
+  
   ### Bounds ##################################################################################
   ## F
   if (!is.null(bndF)){  

@@ -52,7 +52,7 @@ setMethod( 'setControl<-', signature(object='biodyn',value='FLPar'), function(ob
   
   if (dims(value)$iter>1 & dims(object@control)$iter==1)
     object@control=propagate(control(object),dims(value)$iter)
-
+  
   ctr=object@control
   nms=dimnames(object@params)$params
   
@@ -62,14 +62,21 @@ setMethod( 'setControl<-', signature(object='biodyn',value='FLPar'), function(ob
   nits=seq(dims(value)$iter)
   object@control[nms.,'phase',nits]=ctr[nms.,"phase",nits]
   nms.=nms[nms %in% dimnames(object@params)$params]
-
+  
   object@control[,"val",nits]=object@params[nms.,nits]
   object@control[,"min",nits]=object@params[nms.,nits]*min
   object@control[,"max",nits]=object@params[nms.,nits]*max
-  
-  if (!is.na(any(value[nms]<0)) & any(value[nms]<0))
-    object@control[nms[value[nms]<0],c('min','max')]=object@control[nms[value[nms]<0],c('max','min')]
  
+  #if (!is.na(any(value[nms]<0)) & any(value[nms]<0))
+  #  object@control[nms[value[nms]<0],c('min','max')]=object@control[nms[value[nms]<0],c('max','min')]
+  #object@control[nms[value[nms]<0],c('min','max')]=object@control[nms[value[nms]<0],c('max','min')]
+
+  max=object@control["p","min",object@control["p","val"]<0]
+  min=object@control["p","max",object@control["p","val"]<0]
+  
+  object@control["p","max",object@control["p","val"]<0]=max
+  object@control["p","min",object@control["p","val"]<0]=min
+  
   object@control[-(1:4),"phase"]=-2
   
   prr=object@priors
@@ -86,7 +93,7 @@ setMethod( 'setControl<-', signature(object='biodyn',value='FLPar'), function(ob
 .calcSigma <- function(obs,hat=rep(0,length(obs)),na.rm=T){
   n  =length(obs[!is.na(obs+hat)])
   SS =sum((obs-hat)^2,na.rm=na.rm)
-
+  
   return((SS/n)^.5)}
 
 calcB0<-function(index,q,k,nyrB0=3,error='log'){
@@ -101,25 +108,25 @@ calcB0<-function(index,q,k,nyrB0=3,error='log'){
 }
 
 calcQ<-function(stock,index,error='log',na.rm=T){
-
+  
   stock<-(stock[-length(stock)]+stock[-1])/2
   n    <-length(stock)
   index<-index[seq(n)]
   if (na.rm)
     n=length(seq(n)[!is.na(index+stock)])
-
+  
   res=switch(error,
              normal={q    =sum(stock*index, na.rm=T)/sum(stock*stock, na.rm=na.rm)
-                     sigma=.calcSigma(index/(q*stock))
-                     data.frame(q=q,sigma=sigma)
+             sigma=.calcSigma(index/(q*stock))
+             data.frame(q=q,sigma=sigma)
              },
              log   ={q    =exp(sum(log(index)-log(stock), na.rm=na.rm)/n)
-                     sigma=.calcSigma(log(index),log(q*stock))
-                     data.frame(q=q,sigma=sigma)},
+             sigma=.calcSigma(log(index),log(q*stock))
+             data.frame(q=q,sigma=sigma)},
              cv   ={res   <-sum(index/stock)
-                    sigma2<-.calcSigma(res,na.rm=na.rm)
-                    q     <-(-res+(res^2+4*length(index)*sigma2*sum((index/stock)^2)))/(2*length(index)*sigma2)
-                    data.frame(q=q,sigma=sigma)})
+             sigma2<-.calcSigma(res,na.rm=na.rm)
+             q     <-(-res+(res^2+4*length(index)*sigma2*sum((index/stock)^2)))/(2*length(index)*sigma2)
+             data.frame(q=q,sigma=sigma)})
   
   return(res)}
 
@@ -140,25 +147,25 @@ setQ=function(object,value,error='log'){
       value=propagate(value,dims(stock)$iter)
     
     model.frame(mcf(FLQuants(stock=stock,value=value)))}
-
+  
   res=switch(is(value)[1],
              FLQuant   ={res=fn(value,stock(object));data.frame(name=1,res)},
              #FLQuants  =ldply(value, fn, model.frame(mcf(FLQuants(stock=stock,value=x))),stock=stock(object)),
              FLQuants  =ldply(value, function(x,stock) fn(x,stock), stock=stock(object)),
              data.frame=merge(model.frame(FLQuants('stock'=stock(object))),value,by='year',all=T))
-
+  
   res=res[!is.na(res$iter),]
-
+  
   if (!('name' %in% names(res))) 
     names(res)[1]='name'
-
+  
   res=res[!is.na(res$name),]
   res=ddply(res, .(name,iter), function(x,log) data.frame(calcQ(x$stock,x$value)),log='log')
   its=max(as.numeric(ac(res$iter)))
-
+  
   res.=transform(melt(res,id=c('name','iter')),params=paste(variable,name,sep=''))[,c('params','value','iter')]
   names(res.)[2]='data'
-
+  
   #bug
   res=as(res.,'FLPar')
   #res=FLCore::iter(res,seq(its))
@@ -177,28 +184,28 @@ setQ=function(object,value,error='log'){
   names(dmns)=c('params','iter')
   t.=FLPar(array(t.,dim=unlist(lapply(dmns,length)),dimnames=dmns))
   units(t.)='NA'
-
+  
   object@params=t.
   #object@params=FLPar(rbind(FLPar(object@params),FLPar(res)))
   
   object@params}
 
 setMethod('setControl<-', signature(object='biodyn',value='FLQuant'), 
-  function(object,value,min=0.1,max=10.0) {
-  
-  setParams(object)<-value
-  setControl(object,min=min,max=max)<-params(object)
-  
-  return(object)})
+          function(object,value,min=0.1,max=10.0) {
+            
+            setParams(object)<-value
+            setControl(object,min=min,max=max)<-params(object)
+            
+            return(object)})
 
 
 setMethod('setControl<-', signature(object='biodyn',value='FLQuants'), 
           function(object,value,min=0.1,max=10.0) {
-
-  setParams(object)<-value
-  setControl(object,min=min,max=max)<-params(object)
-    
-  return(object)})
+            
+            setParams(object)<-value
+            setControl(object,min=min,max=max)<-params(object)
+            
+            return(object)})
 # 
 # setMethod('control<-', signature(object='biodyn',value='FLPar'), function(object,value) {
 #   object@control=value
@@ -271,5 +278,3 @@ setMethod('control<-', signature(object='biodyn', value='FLPar'),
             updateFLComp(object, 'control', value)
             return(object)})   
 
-
-  

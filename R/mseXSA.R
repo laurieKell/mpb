@@ -158,13 +158,14 @@ mseXSA<-function(
     mp=fwdWindow(mp,end=iYr,rf)
     mp[,ac(iYr)]=mp[,ac(iYr-1)]
     #try(save(om,mp,rf,file="/home/laurence/Desktop/tmp/mseXSA1.RData"))
-    mp=fwd(mp,catch=catch(om)[,ac(iYr)],sr=rf,effort_max=maxF)
+    mp=fwd(mp,catch=catch(om)[,ac(iYr)],sr=list(model="bevholt",params=params(rf)),effort_max=maxF)
 
     print(plot(FLStocks(MP=mp,OM=window(om,start=dims(mp)$minyear,end=dims(mp)$maxyear))))
 
     ## HCR
     hcrPar=icesAR(rf,ftar=ftar,fmin=fmin,blim=blim,sigma=sigma)
 
+    #save(mp,rf,hcrPar,iYr,file="/home/laurence/Desktop/tmp/mseXSA2.RData")
     tac=hcr(mp,refs=rf,hcrPar,
             hcrYrs=iYr+seq(interval),
             bndTac=bndTac,
@@ -172,8 +173,8 @@ mseXSA<-function(
     tac[is.na(tac)]=1  
     
     #### Operating Model update
-    #try(save(om,mp,rf,file="/home/laurence/Desktop/tmp/mseXSA2.RData"))
-    om =fwd(om,catch=tac,sr=eq,residuals=srDev,effort_max=mean(maxF)) 
+    #try(save(om,mp,rf,file="/home/laurence/Desktop/tmp/mseXSA3.RData"))
+    om =fwd(om,catch=tac,sr=list(model="bevholt",params=params(eq)),residuals=srDev,effort_max=mean(maxF)) 
     }
   
   cat("==\n")

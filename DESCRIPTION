@@ -99,6 +99,7 @@ Collate:
     biodyn-statusErr.R
     doc.R
     hcr.R
+    pellam.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1
