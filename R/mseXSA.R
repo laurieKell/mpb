@@ -90,13 +90,14 @@ mseXSA<-function(
       cpue=window(cpue,end=iYr-1)
       cpue[,ac(iYr-(interval:1))]=stock.n(smp)[dimnames(cpue)$age,ac(iYr-(interval:1))]%*%
          uDev[dimnames(cpue)$age,ac(iYr-(interval:1))]
- 
+print("fwd1") 
       ## Update and fill in biological parameters
       if (iYr==start) 
         mp=window(mp,end=iYr-1)
       else 
         if (dims(mp)$maxyear>iYr) 
           mp=fwdWindow(mp,rf,end=iYr-1)
+print("fwd1") 
 
       ## Add catches and create plus group 
       sink("/dev/null")
@@ -154,9 +155,11 @@ mseXSA<-function(
       ## Reference points
       rf=brp(FLBRP(mp,sr=sr))}
 
+print("fwd2") 
     ## in year update
     mp=fwdWindow(mp,rf,end=iYr)
-
+print("fwd2") 
+    
     mp[,ac(iYr)]=mp[,ac(iYr-1)]
     #try(save(om,mp,rf,file="/home/laurence/Desktop/tmp/mseXSA1.RData"))
     mp=fwd(mp,catch=catch(om)[,ac(iYr)],sr=list(model="bevholt",params=params(rf)),effort_max=maxF)
