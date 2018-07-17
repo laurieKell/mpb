@@ -156,6 +156,7 @@ mseXSA<-function(
 
     ## in year update
     mp=fwdWindow(mp,rf,end=iYr)
+
     mp[,ac(iYr)]=mp[,ac(iYr-1)]
     #try(save(om,mp,rf,file="/home/laurence/Desktop/tmp/mseXSA1.RData"))
     mp=fwd(mp,catch=catch(om)[,ac(iYr)],sr=list(model="bevholt",params=params(rf)),effort_max=maxF)

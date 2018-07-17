@@ -103,9 +103,10 @@ hcrFn=function(object,refs=NULL,
     return(hvt)
   else{
     ## TACs for target F
+
     object=fwdWindow(object, refs, end=max(as.numeric(hcrYrs)))
     object[,ac(max(as.numeric(hcrYrs)))]=object[,ac(max(as.numeric(hcrYrs))-1)]
-    
+
     #object[,ac(max(as.numeric(hcrYrs)))]=object[,ac(max(as.numeric(hcrYrs))-1)]
     
     if ("FLStock"%in%is(object))      
