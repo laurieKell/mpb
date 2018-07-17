@@ -1,39 +1,75 @@
-# setGeneric('hcr', function(object,refs,...) standardGeneric('hcr'))
-# 
-# setMethod('hcr', signature(object="FLStock",refs='FLBRP'), 
-#           function(object,refs,
-#           params=hcrParam(ftar =0.70*fmsy(refs),
-#                           btrig=0.80*bmsy(refs),
-#                           fmin =0.01*fmsy(refs),
-#                           blim =0.40*bmsy(refs)),
-#           stkYrs=max(as.numeric(dimnames(stock(object))$year)),
-#           refYrs=max(as.numeric(dimnames(catch(object))$year)),
-#           hcrYrs=max(as.numeric(dimnames(stock(object))$year)),                             
-#           tac   =TRUE,
-#           tacMn =TRUE,
-#           bndF  =NULL, #c(1,Inf),
-#           bndTac=NULL, 
-#           maxF  =2,
-#           ...)
-#   hcrFn(object,refs,
-#                 params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
-# 
-# setMethod('hcr', signature(object="biodyn",refs='FLPar'), 
-#   function(object,refs=hcrParam(ftar =0.70*mpb:::fmsy(refs),
-#                                 btrig=0.80*mpb:::bmsy(refs),
-#                                 fmin =0.01*mpb:::fmsy(refs),
-#                                 blim =0.40*mpb:::bmsy(refs)),
-#            params=refs,
-#            stkYrs=max(as.numeric(dimnames(stock(object))$year)),
-#            refYrs=max(as.numeric(dimnames(catch(object))$year)),
-#            hcrYrs=max(as.numeric(dimnames(stock(object))$year)),                             
-#            tac   =TRUE,
-#            bndF  =NULL, #c(1,Inf),
-#            bndTac=NULL, 
-#            maxF  =2,
-#            ...)
-#   hcrFn(object,refs,
-#         params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
+#' @title hcr
+#'
+#' @description
+#' Harvest Control Rule, calculates F, or Total Allowable Catch (TAC) based on a hockey stock harvest control rule.
+#'
+#' @param object an object of class \code{biodyn} or
+#' @param ... other parameters, i.e.
+#' refs \code{FLPar or FLBRP} object with reference points, can be missing if refpts are part of \code{object}
+#' params \code{FLPar} object with hockey stick HCR parameters, see hcrParam
+#' yr numeric vector with years used to values in HCR
+#' byr numeric vector with years used for bounds
+#' hyr numeric vector with years to use in projection
+#' tac \code{logical} should return value be TAC rather than F?
+#' bndF \code{vector} with bounds (i.e.min and max values) on iter-annual variability on  F
+#' bndTac \code{vector} with bounds (i.e. min and max values) on iter-annual variability on TAC
+#' stkYrs numeric vector with years for calculating stock status, max(as.numeric(dimnames(stock(object))$year)),
+#' refYrs numeric vector with years for calculating reference points, max(as.numeric(dimnames(catch(object))$year)),
+#' hcrYrs numeric vector with years for setting management, max(as.numeric(dimnames(stock(object))$year)),
+#' tacMn \code{logical} should the TACs be the average of the values returned?
+#' maxF  =2 numeric vector specifying maximum relative F
+#' @aliases hcr,biodyn-method
+#'
+#' @return \code{FLPar} object with value(s) for F or TAC if tac==TRUE
+#'
+#' @export
+#' @rdname hcr
+#'
+#' @examples
+#' \dontrun{
+#' bd   =sim()
+#'
+#' bd=window(bd,end=29)
+#' for (i in seq(29,49,1))
+#' bd=fwd(bd,harvest=hcr(bd,yr=i,yr=i+1)$hvt)
+#' }
+
+setGeneric('hcr', function(object,refs,...) standardGeneric('hcr'))
+
+setMethod('hcr', signature(object="FLStock",refs='FLBRP'),
+          function(object,refs,
+          params=hcrParam(ftar =0.70*fmsy(refs),
+                          btrig=0.80*bmsy(refs),
+                          fmin =0.01*fmsy(refs),
+                          blim =0.40*bmsy(refs)),
+          stkYrs=max(as.numeric(dimnames(stock(object))$year)),
+          refYrs=max(as.numeric(dimnames(catch(object))$year)),
+          hcrYrs=max(as.numeric(dimnames(stock(object))$year)),
+          tac   =TRUE,
+          tacMn =TRUE,
+          bndF  =NULL, #c(1,Inf),
+          bndTac=NULL,
+          maxF  =2,
+          ...)
+  hcrFn(object,refs,
+                params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
+
+setMethod('hcr', signature(object="biodyn",refs='FLPar'),
+  function(object,refs=hcrParam(ftar =0.70*mpb:::fmsy(refs),
+                                btrig=0.80*mpb:::bmsy(refs),
+                                fmin =0.01*mpb:::fmsy(refs),
+                                blim =0.40*mpb:::bmsy(refs)),
+           params=refs,
+           stkYrs=max(as.numeric(dimnames(stock(object))$year)),
+           refYrs=max(as.numeric(dimnames(catch(object))$year)),
+           hcrYrs=max(as.numeric(dimnames(stock(object))$year)),
+           tac   =TRUE,
+           bndF  =NULL, #c(1,Inf),
+           bndTac=NULL,
+           maxF  =2,
+           ...)
+  hcrFn(object,refs,
+        params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
 
 hcrFn=function(object,refs=NULL, 
                params=hcrParam(ftar =0.70*refpts(object)['fmsy'],

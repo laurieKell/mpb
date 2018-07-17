@@ -164,15 +164,13 @@ mseXSA<-function(
     ## HCR
     hcrPar=icesAR(rf,ftar=ftar,fmin=fmin,blim=blim,sigma=sigma)
 
-print("hcr1") 
     #save(mp,rf,hcrPar,iYr,file="/home/laurence/Desktop/tmp/mseXSA2.RData")
     tac=hcr(mp,refs=rf,hcrPar,
             hcrYrs=iYr+seq(interval),
             bndTac=bndTac,
             tac =TRUE)
     tac[is.na(tac)]=1  
-print("hcr1") 
-    
+
     #### Operating Model update
     #try(save(om,mp,rf,file="/home/laurence/Desktop/tmp/mseXSA3.RData"))
     om =fwd(om,catch=tac,sr=list(model="bevholt",params=params(eq)),residuals=srDev,effort_max=mean(maxF)) 
