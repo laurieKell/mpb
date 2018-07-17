@@ -115,6 +115,7 @@ mseXSA<-function(
       catch.wt(   mp[,ac(iYr-(interval:1))])=catch.wt(   mp.)
       stock.wt(   mp[,ac(iYr-(interval:1))])=stock.wt(   mp.)
 
+      
       #### Management Procedure
       ## fit
       idx=FLIndex(index=cpue)
