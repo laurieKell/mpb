@@ -23,7 +23,6 @@ icesAR=function(x,ftar=1.0,fmin=0.05,blim=0.5,sigma=0.3){
     fmin =refpts(x)["f0.1","harvest"]*fmin,
     blim =refpts(x)["f0.1","ssb"]*blim)}
  
-
 mseXSA<-function(  
   #OM as FLStock and FLBRP
   om,eq,

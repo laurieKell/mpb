@@ -158,7 +158,7 @@ mseBiodyn<-function(om,eql,
   return(list(om=om,mou=mou,bd=bd,mp=mp,oem=mcf(FLQuants(cpue=cpue,catch=catch(om)))))}
 
 
-hcrFn=function(om,btrig,blim,ftar,fmin,start,end,interval,lag=seq(interval)){    
+hcrFn2=function(om,btrig,blim,ftar,fmin,start,end,interval,lag=seq(interval)){    
   
   a=(ftar-fmin)/(btrig-blim)
   b=ftar-a*btrig

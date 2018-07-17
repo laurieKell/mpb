@@ -134,8 +134,6 @@ hcrFn=function(object,refs,
 
   hvt=rtn
 
-print("hcr")    
-print(is(refs))
   ## TAC
   if (!tac)
     return(hvt)
