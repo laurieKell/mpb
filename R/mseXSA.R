@@ -96,7 +96,7 @@ mseXSA<-function(
         mp=window(mp,end=iYr-1)
       else 
         if (dims(mp)$maxyear>iYr) 
-          mp=fwdWindow(mp,end=iYr-1,rf)
+          mp=fwdWindow(mp,rf,end=iYr-1)
 
       ## Add catches and create plus group 
       sink("/dev/null")
@@ -155,7 +155,7 @@ mseXSA<-function(
       rf=brp(FLBRP(mp,sr=sr))}
 
     ## in year update
-    mp=fwdWindow(mp,end=iYr,rf)
+    mp=fwdWindow(mp,rf,end=iYr)
     mp[,ac(iYr)]=mp[,ac(iYr-1)]
     #try(save(om,mp,rf,file="/home/laurence/Desktop/tmp/mseXSA1.RData"))
     mp=fwd(mp,catch=catch(om)[,ac(iYr)],sr=list(model="bevholt",params=params(rf)),effort_max=maxF)
