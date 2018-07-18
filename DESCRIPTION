@@ -91,14 +91,14 @@ Collate:
     plotIndex.R
     msy.R
     biodyn-hcr.R
-    mseMPB.R
-    mseEMP.R
-    mseXSA.R
     nmc.R
     FLStock-hcr.R
     biodyn-statusErr.R
     doc.R
     hcr.R
+    mseMPB.R
+    mseEMP.R
+    mseXSA.R
     pellam.R
     setMP.R
 LazyLoad: Yes

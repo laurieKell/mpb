@@ -165,7 +165,7 @@ mseXSA<-function(
     hcrPar=icesAR(rf,ftar=ftar,fmin=fmin,blim=blim,sigma=sigma)
 
     #save(mp,rf,hcrPar,iYr,file="/home/laurence/Desktop/tmp/mseXSA2.RData")
-    tac=hcr(mp,refs=rf,hcrPar,
+    tac=mpb:::hcr(mp,refs=rf,hcrPar,
             hcrYrs=iYr+seq(interval),
             bndTac=bndTac,
             tac =TRUE)
