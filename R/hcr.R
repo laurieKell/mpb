@@ -140,7 +140,7 @@ hcrFn=function(object,refs,
   else{
     ## TACs for target F
 
-    object=fwdWindow(object, refs, end=max(as.numeric(hcrYrs)))
+    object=FLCore:::fwdWindow(object, refs, end=max(as.numeric(hcrYrs)))
     object[,ac(max(as.numeric(hcrYrs)))]=object[,ac(max(as.numeric(hcrYrs))-1)]
 
     #object[,ac(max(as.numeric(hcrYrs)))]=object[,ac(max(as.numeric(hcrYrs))-1)]
