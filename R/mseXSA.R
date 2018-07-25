@@ -124,7 +124,8 @@ mseXSA<-function(
       xsa=FLXSA(mp,idx,control=control,diag.flag=FALSE)
       range(xsa)[c("min","max","plusgroup")]=range(mp)[c("min","max","plusgroup")]
       mp=mp+xsa
-      
+      stock.n(mp)[is.na(stock.n(mp))]=1
+
     }else{
       #sink("/dev/null")
       mp=window(setPlusGroup(om,pGrp),end=iYr-1)
@@ -164,7 +165,7 @@ mseXSA<-function(
     ## HCR
     hcrPar=icesAR(rf,ftar=ftar,fmin=fmin,blim=blim,sigma=sigma)
 
-    #save(mp,rf,hcrPar,iYr,file="/home/laurence/Desktop/tmp/mseXSA2.RData")
+    #try(save(mp,rf,hcrPar,iYr,file="/home/laurence/Desktop/tmp/mseXSA2.RData"))
     tac=hcr(mp,refs=rf,hcrPar,
             hcrYrs=iYr+seq(interval),
             bndTac=bndTac,
@@ -172,7 +173,7 @@ mseXSA<-function(
     tac[is.na(tac)]=1  
 
     #### Operating Model update
-    #try(save(om,mp,rf,file="/home/laurence/Desktop/tmp/mseXSA3.RData"))
+    #try(try(save(om,eq,tac,srDev,maxF,file="/home/laurence/Desktop/tmp/mseXSA3.RData")))
     om =fwd(om,catch=tac,sr=list(model="bevholt",params=params(eq)),residuals=srDev,effort_max=mean(maxF)) 
     }
   

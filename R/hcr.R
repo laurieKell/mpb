@@ -88,6 +88,8 @@ hcrFn=function(object,refs,
   ## HCR
   dimnames(params)$params=tolower(dimnames(params)$params)
   params=as(params,'FLQuant')  
+  params["blim"]=c(qmax(params["blim"],1))
+  
   #if (blim>=btrig) stop('btrig must be greater than blim')
   a=(params['ftar']-params['fmin'])/(params['btrig']-params['blim'])
   b=params['ftar']-a*params['btrig']
@@ -97,10 +99,10 @@ hcrFn=function(object,refs,
   #val=(SSB%*%a) %+% b
   # bug stock for biomass
   stk=FLCore::apply(stock(object)[,ac(stkYrs)],6,mean)
-  
+
   rtn=(stk%*%a)  
   rtn=FLCore::sweep(rtn,2:6,b,'+')
-  
+
   fmin=as(params['fmin'],'FLQuant')
   ftar=as(params['ftar'],'FLQuant')
   for (i in seq(dims(object)$iter)){
@@ -149,12 +151,13 @@ hcrFn=function(object,refs,
        object=fwd(object,fbar=fbar(object)[,ac(min(as.numeric(hcrYrs)-1))],sr=refs)
      else
        object=fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hcrYrs)-1))])
-    
+
+    hvt[is.na(hvt)]=6.6666
+    #try(save(object,hvt,refs,hcrYrs,file="/home/laurence/Desktop/tmp/mseXSA4.RData"))
     if ("FLStock"%in%is(object))      
        rtn=catch(fwd(object, fbar=hvt,sr=refs))[,ac(hcrYrs)]
     else
        rtn=catch(fwd(object, harvest=hvt))[,ac(hcrYrs)]
-
     rtn[]=rep(c(apply(rtn,c(3:6),mean)),each=dim(rtn)[2])
 
     ## Bounds
