@@ -71,12 +71,12 @@ mseMPB<-function(
     mp@control["sigma1","val"]=cv(uDev)
     mp=fit(mp)
     mp=window(mp,end=iYr)
-mp.<<-mp    
+ 
     #bug in window
     catch(mp)[,ac(rev(iYr-seq(interval+1)))]=catch(om)[,ac(rev(iYr-seq(interval+1)))]
     catch(mp)[,ac(iYr)]=catch(om)[,ac(iYr)]
     
-    save(mp,om,file="/home/laurence/Desktop/test1.RData")
+    #try(save(mp,om,file="/home/laurence/Desktop/test1.RData"))
     mp=fwd(mp,catch=catch(mp)[,ac(iYr)])
     
     ## HCR
@@ -85,12 +85,12 @@ mp.<<-mp
                  fmin =fmin*refpts( mp)["fmsy"],
                  blim =blim*refpts( mp)[ "msy"])
     
-    save(mp,par,file="/home/laurence/Desktop/test2.RData")
+    #try(save(mp,par,file="/home/laurence/Desktop/test2.RData"))
     tac=hcr(mp,refs=par,hcrYrs=iYr+seq(interval),tac=TRUE)
     tac[is.na(tac)]=1
     
     #### Operating Model Projectionfor TAC
-    save(om,tac,sr,eq,srDev,maxF,file="/home/laurence/Desktop/test3.RData")
+    #try(save(om,tac,sr,eq,srDev,maxF,file="/home/laurence/Desktop/test3.RData"))
     om =fwd(om,catch=tac,sr=eq,residuals=srDev,effort_max=maxF)  
     print(plot(as(list("MP"=                     window(mp,end=iYr),
                        "OM"=as(window(om,end=iYr+interval),"biodyn")),"biodyns")))

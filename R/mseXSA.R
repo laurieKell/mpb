@@ -64,6 +64,7 @@ mseXSA<-function(
   sink("/dev/null")
   pGrp=range(mp)["plusgroup"]
   smp =setPlusGroup(om,pGrp)
+  smp=trim(smp,age=range(mp)["min"]:range(mp)["max"])
   sink(NULL)
 
   cpue=window(stock.n(smp),end=start-1)[seq(dim(smp)[1]-1)]
@@ -82,7 +83,7 @@ mseXSA<-function(
     if (!(whitebox)){
       ## Observation Error, using data from last year back to the last assessment
       sink("/dev/null")
-      smp =setPlusGroup(om[,ac(rev(iYr-seq(interval)))],pGrp)
+      smp =trim(setPlusGroup(om[,ac(rev(iYr-seq(interval)))],pGrp),age=range(mp)["min"]:range(mp)["max"])
       sink(NULL)
       
       ## CPUE
@@ -99,7 +100,7 @@ mseXSA<-function(
 
       ## Add catches and create plus group 
       sink("/dev/null")
-      mp.=setPlusGroup(om[,ac(iYr-rev(seq(interval)))],pGrp)
+      mp.=trim(setPlusGroup(om[,ac(iYr-rev(seq(interval)))],pGrp),age=range(mp)["min"]:range(mp)["max"])
       sink(NULL)
 
       ## Should really do landings and discards
@@ -128,7 +129,7 @@ mseXSA<-function(
 
     }else{
       #sink("/dev/null")
-      mp=window(setPlusGroup(om,pGrp),end=iYr-1)
+      mp=trim(window(setPlusGroup(om,pGrp),end=iYr-1),age=range(mp)["min"]:range(mp)["max"])
       #sink(NULL)
       }
     
@@ -137,9 +138,9 @@ mseXSA<-function(
       if (!FALSE){
         sr=as.FLSR(window(mp,end=iYr-3),model="segreg")
         lower(sr)[1:2]=c(c(min(rec(sr),na.rm=TRUE)/max(ssb(sr),na.rm=TRUE)),
-                         c(min(ssb(sr),na.rm=TRUE)))
+                         c(min(ssb(sr),na.rm=TRUE)))*0.1
         upper(sr)[1:2]=c(c(max(rec(sr),na.rm=TRUE)/min(ssb(sr),na.rm=TRUE)),
-                         c(max(ssb(sr),na.rm=TRUE)))
+                         c(max(ssb(sr),na.rm=TRUE)))*10
         sr=fmle(sr,control=list(trace=FALSE),method="L-BFGS-B")
 
         params(sr)["a"][is.na(params(sr)["a"])]=median(params(sr)["a"],na.rm=TRUE)
