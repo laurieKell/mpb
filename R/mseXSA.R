@@ -138,10 +138,10 @@ mseXSA<-function(
       if (!FALSE){
         sr=as.FLSR(window(mp,end=iYr-3),model="segreg")
         lower(sr)[1:2]=c(c(min(rec(sr),na.rm=TRUE)/max(ssb(sr),na.rm=TRUE)),
-                         c(min(ssb(sr),na.rm=TRUE)))*0.1
+                         c(min(ssb(sr),na.rm=TRUE)))
         upper(sr)[1:2]=c(c(max(rec(sr),na.rm=TRUE)/min(ssb(sr),na.rm=TRUE)),
-                         c(max(ssb(sr),na.rm=TRUE)))*10
-        sr=fmle(sr,control=list(trace=FALSE),method="L-BFGS-B")
+                         c(max(ssb(sr),na.rm=TRUE)))
+        sr=fmle(sr,control=list(trace=FALSE))#,method="L-BFGS-B")
 
         params(sr)["a"][is.na(params(sr)["a"])]=median(params(sr)["a"],na.rm=TRUE)
         params(sr)["b"][is.na(params(sr)["b"])]=median(params(sr)["b"],na.rm=TRUE)
@@ -153,7 +153,8 @@ mseXSA<-function(
         params(sr)["a"][is.na(params(sr)["a"])]=median(params(sr)["a"],na.rm=TRUE)
       }
       ## Reference points
-      rf=brp(FLBRP(mp,sr=sr))}
+      rf=brp(FLBRP(mp,sr=sr))
+      rf<<-rf}
 
     ## in year update
     mp=fwdWindow(mp,rf,end=iYr)
