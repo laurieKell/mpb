@@ -142,7 +142,10 @@ hcrFn=function(object,refs,
   else{
     ## TACs for target F
 
-    object=FLCore:::fwdWindow(object, refs, end=max(as.numeric(hcrYrs)))
+    if ("FLBRP"%in%is(object))
+      object=fwdWindow(object, refs, end=max(as.numeric(hcrYrs)))
+    else
+      object=fwdWindow(object, end=max(as.numeric(hcrYrs)))
     object[,ac(max(as.numeric(hcrYrs)))]=object[,ac(max(as.numeric(hcrYrs))-1)]
 
     #object[,ac(max(as.numeric(hcrYrs)))]=object[,ac(max(as.numeric(hcrYrs))-1)]
