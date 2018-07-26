@@ -145,7 +145,7 @@ hcrFn=function(object,refs,
     if ("FLBRP"%in%is(object))
       object=fwdWindow(object, refs, end=max(as.numeric(hcrYrs)))
     else
-      object=fwdWindow(object, end=max(as.numeric(hcrYrs)))
+      object=window(object, end=max(as.numeric(hcrYrs)))
     object[,ac(max(as.numeric(hcrYrs)))]=object[,ac(max(as.numeric(hcrYrs))-1)]
 
     #object[,ac(max(as.numeric(hcrYrs)))]=object[,ac(max(as.numeric(hcrYrs))-1)]
