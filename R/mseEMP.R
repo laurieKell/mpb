@@ -63,7 +63,7 @@ mseEMP<-function(
     #### Management Procedure
     ##Constant catch
     #tac=hcrConstantCatch(iYr+1,catch=catch(om)[,ac(iYr-(2:1))]) 
-    tac=hcrSBT1(iYr+1,control=c(k1=1.5,k2=3.0,gamma=1,lag=1,ntac=1),
+    tac=hcrSBT1(iYr+1,control=control,
                 catch(om)[,ac(iYr-(2:1))],
                 cpue[,ac(ac(iYr-(3:1)))])
       
