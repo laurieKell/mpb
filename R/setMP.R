@@ -18,8 +18,6 @@ setMP<-function(om,r,k,p,b0){
   
   print(plot(as(list("MP"=hat,"OM"=mp),"biodyns"),probs=c(0.25,0.75)))
   
-  mp=as(window(om,end=60),"biodyn")
-  
   params(mp)=iter(params(hat),1)
   params(mp)=apply(params(mp),1,median)
   setControl(mp)=params(mp)

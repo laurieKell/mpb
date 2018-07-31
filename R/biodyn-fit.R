@@ -232,7 +232,7 @@ setPella=function(x,dir=tempfile("tmpdir"),lav=FALSE) {
 
   # cpue
   idx=as.data.frame(x@indices, drop=TRUE)
-  names(idx)[2:3]=c('index','name')
+  names(idx)[-1:0+dim(idx)[2]]=c('index','name')
   idx=transform(idx,name=as.numeric(name))
   idx=idx[!is.na(idx$index),]
 
@@ -257,7 +257,7 @@ setPella=function(x,dir=tempfile("tmpdir"),lav=FALSE) {
   names(ctl)    = c('phase','lower','upper','guess')
 
   mpb:::writeADMB(ctl, paste(dir, '/', 'pella', '.ctl', sep=''),append=TRUE)
-  
+
   cat('# sigma ################\n', file=paste(dir, '/', 'pella', '.ctl', sep=''),append=TRUE)
   ctl           = x@control[nmIdx[grep('s',nmIdx)],,1]
   ctl[,2:4,1]   = ctl[,c(2,4,3),1]

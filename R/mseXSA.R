@@ -154,7 +154,7 @@ mseXSA<-function(
       }
       ## Reference points
       rf=brp(FLBRP(mp,sr=sr))
-      rf<<-rf}
+    }
 
     ## in year update
     mp=fwdWindow(mp,rf,end=iYr)
