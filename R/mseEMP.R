@@ -21,7 +21,30 @@ hcrSBT1<-function(yrs,control=c(k1=2.0,k2=3.0,gamma=1),catch,cpue,...){
   
   return(res)}
 
-hcrSBT2=function(adult,juve,
+hcrSBT2=function(yrs,index,ref,
+                 ei=0.25,ed=0.25,
+                 tac,target){
+  
+  flag    =index<ref
+  cBit    =target*(index/ref)*(1+ifelse(flag,-ed,ei))
+  res     =tac+bit
+  
+  #   cat('TAC:',        as.integer(mean(tac)),
+  #       '\t ratio:',   as.integer((mean(index/ref))),
+  #       '\t delta:',   as.integer((mean(bit))),
+  #       '\t New TAC:', as.integer(mean(res)),
+  #       '\t bit:',    mean(bit),'\n')
+  
+  dmns=dimnames(tac)
+  dmns$year=yrs
+  dmns$iter=dimnames(index)$iter
+  
+  res=FLQuant(rep(c(res),each=interval),dimnames=dmns)
+  
+  return(res)}
+
+
+hcrSBT2Orig=function(adult,juve,
                  yrAdult,yrJuve,
                  refJuve=-(1:5),
                  tac,tarCatch,eb=0.25,er=0.75,lag=1,interval=3){
@@ -65,6 +88,9 @@ mseEMP<-function(
   mp,
   control="missing",
   
+  srDev,
+  uDev,
+  
   #years over which to run MSE, doesnt work if interval==1, this is a bug
   interval=1,start=range(om)["maxyear"]-30,end=range(om)["maxyear"]-interval,
   
@@ -107,7 +133,7 @@ mseEMP<-function(
     #### Operating Model update
     om =fwd(om,catch=tac,sr=eq,residual=srDev,effort_max=mean(maxF))
     
-    print(plot(om))
+    print(plot(window(om,end=iYr+interval)))
     }
   cat('==\n')
   

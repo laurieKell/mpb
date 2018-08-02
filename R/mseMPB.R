@@ -136,7 +136,7 @@ mseMPB2<-function(
   nU=max(length(uDev),length(selDev))
   cpue=FLQuants()
   for (iU in seq(nU)){
-    yrs=dimnames(window(selDev[[iU]],end=start))$year
+    yrs=dimnames(window(selDev[[iU]],end=min(start,dims(selDev[[iU]])$maxyear)))$year
     yrs=yrs[yrs%in%dimnames(uDev[[iU]])$year]
     yrs=yrs[yrs%in%dimnames(m(om))$year]
     u         =catch.wt(om)[,yrs]%*%catch.n(om)[,yrs]%/%fbar(om)[,yrs]%*%selDev[[iU]][,yrs]
@@ -155,10 +155,11 @@ mseMPB2<-function(
       yrs=ac(iYr-(interval:1))
       yrs=yrs[yrs%in%dimnames(uDev[[iU]])$year]
       yrs=yrs[yrs%in%dimnames(selDev[[iU]])$year]
-      cpue[[iU]]=window(cpue[[iU]],end=iYr-1)
-      u         =(catch.wt(om)[,yrs]%*%catch.n(om)[,yrs]%/%fbar(om)[,yrs])%*%selDev[[iU]][,yrs]
-      cpue[[iU]][,yrs]=apply(u,2:6,sum)%*%uDev[[iU]][,yrs]}
-    
+      if (length(yrs)>0){
+        cpue[[iU]]=window(cpue[[iU]],end=iYr-1)
+        u         =(catch.wt(om)[,yrs]%*%catch.n(om)[,yrs]%/%fbar(om)[,yrs])%*%selDev[[iU]][,yrs]
+        cpue[[iU]][,yrs]=apply(u,2:6,sum)%*%uDev[[iU]][,yrs]}}
+      
     #### Management Procedure
     params(    mp)=params( mp)[c("r","k","p","b0")]
     control(   mp)=control(mp)[c("r","k","p","b0")]
@@ -168,8 +169,7 @@ mseMPB2<-function(
     ##MP
     mp=fit(mp,cpue)
     mp=window(mp,end=iYr)
-  mp2<<-mp
-    
+   
     #bug in window
     catch(mp)[,ac(rev(iYr-seq(interval+1)))]=catch(om)[,ac(rev(iYr-seq(interval+1)))]
     catch(mp)[,ac(iYr)]=catch(om)[,ac(iYr)]
