@@ -71,8 +71,7 @@ mseMPB<-function(
     mp@control["sigma1","val"]=cv(uDev)
     mp=fit(mp)
     mp=window(mp,end=iYr)
- mp1<<-mp
- 
+    
     #bug in window
     catch(mp)[,ac(rev(iYr-seq(interval+1)))]=catch(om)[,ac(rev(iYr-seq(interval+1)))]
     catch(mp)[,ac(iYr)]=catch(om)[,ac(iYr)]
@@ -131,7 +130,7 @@ mseMPB2<-function(
   
   ## Cut in capacity
   maxF=median(apply(fbar(window(om,end=start)),6,max)*maxF)
-  
+
   #### Observation Error (OEM) setup
   nU=max(length(uDev),length(selDev))
   cpue=FLQuants()
@@ -145,7 +144,7 @@ mseMPB2<-function(
   ## Loop round years
   for (iYr in seq(start,end-interval,interval)){
     cat(iYr,", ",sep="")
-    
+
     ##OEM
     mp=window(mp,end=iYr-1)
     #bug in window
@@ -159,7 +158,7 @@ mseMPB2<-function(
         cpue[[iU]]=window(cpue[[iU]],end=iYr-1)
         u         =(catch.wt(om)[,yrs]%*%catch.n(om)[,yrs]%/%fbar(om)[,yrs])%*%selDev[[iU]][,yrs]
         cpue[[iU]][,yrs]=apply(u,2:6,sum)%*%uDev[[iU]][,yrs]}}
-      
+
     #### Management Procedure
     params(    mp)=params( mp)[c("r","k","p","b0")]
     control(   mp)=control(mp)[c("r","k","p","b0")]

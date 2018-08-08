@@ -9,6 +9,16 @@ statusErrFn<-function(x,y,rfs){
   om =(fbar(x)%/%rfs["msy","harvest"])[,lastYear]
   fmsy=model.frame(FLQuants(om=om,mp=mp),drop=TRUE)
   
-  res=rbind(cbind(quantity="harvest",fmsy),cbind(quantity="stock",bmsy))
+  res=cbind("relative"=TRUE,rbind(cbind(quantity="harvest",fmsy),cbind(quantity="stock",bmsy)))
   
-  res}
+  mp   =stock(y)[,lastYear]
+  om   =ssb(x)[,lastYear]
+  stock=model.frame(FLQuants(om=om,mp=mp),drop=TRUE)
+  
+  mp     =harvest(y)[,lastYear]
+  om     =fbar(x)[,lastYear]
+  harvest=model.frame(FLQuants(om=om,mp=mp),drop=TRUE)
+  
+  res2=cbind("relative"=FALSE,rbind(cbind(quantity="harvest",harvest),cbind(quantity="stock",stock)))
+  
+  rbind(res,res2)}
