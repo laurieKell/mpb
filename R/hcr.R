@@ -71,7 +71,7 @@ setMethod('hcr', signature(object="biodyn",refs='FLPar'),
   hcrFn(object,refs,
         params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
 
-hcrFn=function(object,refs, 
+hcrFn<-function(object,refs, 
                params=hcrParam(ftar =0.70*refpts(object)['fmsy'],
                                btrig=0.80*refpts(object)['bmsy'],
                                fmin =0.01*refpts(object)['fmsy'],

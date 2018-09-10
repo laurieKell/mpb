@@ -96,11 +96,9 @@ Collate:
     biodyn-statusErr.R
     doc.R
     hcr.R
-    mseMPB.R
-    mseEMP.R
-    mseXSA.R
     pellam.R
     setMP.R
+    biodyn-sra.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 5.0.1

@@ -1,12 +1,12 @@
 #file:///home/laurence/Downloads/IOTC-2016-WPM07-08.pdf
 #file:///home/laurence/Downloads/IOTC-2015-WPM06-09_-_SKJ_OM.pdf
-
+#
 #  Biomass threshold
 #  Biomass limit
 #  Fishing mortality target
 #  Spawning biomass at MSY estimate
 #  Lags in data collection, between years of application and last year of CPUE data, and management implementation,
-# between proposed TAC and actual implementation to the shery.
+# between proposed TAC and actual implementation to the shery.
 #  Implementation error
 
  # bthreshold = 1
