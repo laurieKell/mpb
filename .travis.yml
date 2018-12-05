@@ -1,0 +1,36 @@
+# .travis.yml for R projects.
+
+warnings_are_errors: false
+
+language: r
+
+matrix:
+  include:
+    - os: linux
+      r: release
+    - os: linux
+      r: devel
+
+sudo: false
+
+cache: packages
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+
+branches:
+  only:
+    - master
+
+repos:
+  CRAN: https://cloud.r-project.org
+  flr: http://flr-project.org/R
+
+after_failure:
+  - cat /home/travis/build/flr/mpb/mpb.Rcheck/00install.out 
+  - cat /home/travis/build/flr/mpb/mpb.Rcheck/00check.log
+  - ./travis-tool.sh dump_logs
+
+

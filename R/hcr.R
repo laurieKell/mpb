@@ -34,7 +34,7 @@
 #' bd=fwd(bd,harvest=hcr(bd,yr=i,yr=i+1)$hvt)
 #' }
 
-setGeneric('hcr', function(object,refs,...) standardGeneric('hcr'))
+#setGeneric('hcr', function(object,refs,...) standardGeneric('hcr'))
 
 setMethod('hcr', signature(object="FLStock",refs='FLBRP'),
           function(object,refs,

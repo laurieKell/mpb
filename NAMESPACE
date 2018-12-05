@@ -70,6 +70,7 @@ importFrom(reshape,cast)
 importFrom(reshape,melt)
 importFrom(stringr,str_trim)
 useDynLib(mpb)
-export(mseXSA)
 exportMethods(hcr)
+export(guessK)
+export(randJack)
 

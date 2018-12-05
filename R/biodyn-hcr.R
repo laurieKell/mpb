@@ -137,231 +137,230 @@ hcrParam=function(ftar,btrig,fmin,blim){
 #           hcrFn(object,refs,
 #                 params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
 # 
-# setMethod('hcr', signature(object="biodyn",refs='FLPar'),
-#           function(object,refs=hcrParam(ftar =0.70*mpb:::fmsy(refs),
-#                                         btrig=0.80*mpb:::bmsy(refs),
-#                                         fmin =0.01*mpb:::fmsy(refs),
-#                                         blim =0.40*mpb:::bmsy(refs)),
-#                    params=refs,
-#                    stkYrs=max(as.numeric(dimnames(stock(object))$year)),
-#                    refYrs=max(as.numeric(dimnames(catch(object))$year)),
-#                    hcrYrs=max(as.numeric(dimnames(stock(object))$year)),
-#                    tac   =TRUE,
-#                    bndF  =NULL, #c(1,Inf),
-#                    bndTac=NULL,
-#                    maxF  =2,
-#                    ...)
-#           hcrFn(object,refs,
-#                 params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
-# 
-# setMethod('hcr', signature(object="biodyn",refs='missing'),
-#           function(object,refs,
-#                    params=hcrParam(ftar =0.70*mpb:::refpts(object)["fmsy"],
-#                                    btrig=0.80*mpb:::refpts(object)["bmsy"],
-#                                    fmin =0.01*mpb:::refpts(object)["fmsy"],
-#                                    blim =0.40*mpb:::refpts(object)["bmsy"]),
-#                    stkYrs=max(as.numeric(dimnames(stock(object))$year)),
-#                    refYrs=max(as.numeric(dimnames(catch(object))$year)),
-#                    hcrYrs=max(as.numeric(dimnames(stock(object))$year)),
-#                    tac   =TRUE,
-#                    bndF  =NULL, #c(1,Inf),
-#                    bndTac=NULL,
-#                    maxF  =2,
-#                    ...)
-#           hcrFn(object,refs,
-#                 params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
+setMethod('hcr', signature(object="biodyn",refs='FLPar'),
+           function(object,refs=hcrParam(ftar =0.70*mpb:::fmsy(refs),
+                                         btrig=0.80*mpb:::bmsy(refs),
+                                         fmin =0.01*mpb:::fmsy(refs),
+                                         blim =0.40*mpb:::bmsy(refs)),
+                    params=refs,
+                    stkYrs=max(as.numeric(dimnames(stock(object))$year)),
+                    refYrs=max(as.numeric(dimnames(catch(object))$year)),
+                    hcrYrs=max(as.numeric(dimnames(stock(object))$year)),
+                    tac   =TRUE,
+                    bndF  =NULL, #c(1,Inf),
+                    bndTac=NULL,
+                    maxF  =2,
+                    ...)
+           hcrFn(object,refs,
+                 params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
+ 
+setMethod('hcr', signature(object="biodyn",refs='missing'),
+           function(object,refs,
+                    params=hcrParam(ftar =0.70*mpb:::refpts(object)["fmsy"],
+                                    btrig=0.80*mpb:::refpts(object)["bmsy"],
+                                    fmin =0.01*mpb:::refpts(object)["fmsy"],
+                                    blim =0.40*mpb:::refpts(object)["bmsy"]),
+                    stkYrs=max(as.numeric(dimnames(stock(object))$year)),
+                    refYrs=max(as.numeric(dimnames(catch(object))$year)),
+                    hcrYrs=max(as.numeric(dimnames(stock(object))$year)),
+                    tac   =TRUE,
+                    bndF  =NULL, #c(1,Inf),
+                    bndTac=NULL,
+                    maxF  =2,
+                    ...)
+           hcrFn(object,refs,
+                 params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
+ hcrFn=function(object,refs=NULL,params=NULL,
+                stkYrs=max(as.numeric(dimnames(stock(object))$year)),
+                refYrs=max(as.numeric(dimnames(catch(object))$year)),
+                hcrYrs=max(as.numeric(dimnames(stock(object))$year)),
+                tac   =TRUE,
+                bndF  =NULL, #c(1,Inf),
+                bndTac=NULL,
+                maxF  =2,
+                ...) {
+ 
+   ## HCR
+   dimnames(params)$params=tolower(dimnames(params)$params)
+   params=as(params,'FLQuant')
+   #if (blim>=btrig) stop('btrig must be greater than blim')
+   a=(params['ftar']-params['fmin'])/(params['btrig']-params['blim'])
+   b=params['ftar']-a*params['btrig']
+ 
+   ## Calc F
+   # bug
+   #val=(SSB%*%a) %+% b
+   # bug stock for biomass
+   stk=FLCore::apply(stock(object)[,ac(stkYrs)],6,mean)
+ 
+   rtn=(stk%*%a)
+   rtn=FLCore::sweep(rtn,2:6,b,'+')
+ 
+   fmin=as(params['fmin'],'FLQuant')
+   ftar=as(params['ftar'],'FLQuant')
+   for (i in seq(dims(object)$iter)){
+     FLCore::iter(rtn,i)[]=max(FLCore::iter(rtn,i),FLCore::iter(fmin,i))
+     FLCore::iter(rtn,i)[]=min(FLCore::iter(rtn,i),FLCore::iter(ftar,i))}
+ 
+   rtn=window(rtn,end=max(hcrYrs))
+   #dimnames(rtn)$year=min(hcrYrs)
+   if (length(hcrYrs)>1){
+     rtn=window(rtn,end=max(hcrYrs))
+     rtn[,ac(hcrYrs)]=rtn[,dimnames(rtn)$year[1]]}
+ 
+   ### Bounds ##################################################################################
+   ## F
+   if (!is.null(bndF)){
+ 
+     ref=FLCore::apply(harvest(object)[,ac(refYrs-1)],6,mean)
+ 
+     rtn[,ac(min(hcrYrs))]=qmax(rtn[,ac(min(hcrYrs))],ref*bndF[1])
+     rtn[,ac(min(hcrYrs))]=qmin(rtn[,ac(min(hcrYrs))],ref*bndF[2])
+ 
+     if (length(hcrYrs)>1)
+       for (i in hcrYrs[-1]){
+         if (iaF){
+           rtn[,ac(i)]=qmax(rtn[,ac(i)],rtn[,ac(i-1)]*bndF[1])
+           rtn[,ac(i)]=qmin(rtn[,ac(i)],rtn[,ac(i-1)]*bndF[2])
+         }else{
+           rtn[,ac(i)]=rtn[,ac(i-1)]}
+ 
+         if (!is.null(maxF)) rtn=qmin(rtn,maxF)}}
+   hvt=rtn
+ 
+   ## TAC
+   if (!tac)
+     return(hvt)
+   else{
+     ## TACs for target F
+     object=FLBRP:::fwdWindow(object, end=max(as.numeric(hcrYrs)),refs)#,ifelse("biodyn"%in%is(object),NULL,rf))
+     if ("biodyn"%in%is(object))
+       object=fwd(object,harvest=fbar(object)[,ac(min(as.numeric(hcrYrs)-1))])
+     else
+       object=fwd(object,f=fbar(object)[,ac(min(as.numeric(hcrYrs)-1))],sr=refs)
+ 
+     if ("biodyn"%in%is(object))
+       rtn =catch(fwd(object, harvest=hvt))[,ac(hcrYrs)]
+     else
+       rtn =catch(fwd(object, f=hvt,sr=refs))[,ac(hcrYrs)]
+ 
+     rtn[]=rep(c(apply(rtn,c(3:6),mean)),each=dim(rtn)[2])
+ 
+     ## Bounds
+     if (!is.null(bndTac)){
+       ## Reference TAC for bounds
+       ref=c(apply(catch(object)[,ac(refYrs)],6,mean))
+       ref=FLQuant(rep(ref,each=dim(rtn)[2]),dimnames=dimnames(rtn))
+ 
+       rtn=qmax(rtn,ref*bndTac[1])
+       rtn=qmin(rtn,ref*bndTac[2])
+     }
+   }
+ 
+   return(rtn)}
 
-# hcrFn=function(object,refs=NULL,params=NULL,
-#                stkYrs=max(as.numeric(dimnames(stock(object))$year)),
-#                refYrs=max(as.numeric(dimnames(catch(object))$year)),
-#                hcrYrs=max(as.numeric(dimnames(stock(object))$year)),
-#                tac   =TRUE,
-#                bndF  =NULL, #c(1,Inf),
-#                bndTac=NULL,
-#                maxF  =2,
-#                ...) {
-# 
-#   ## HCR
-#   dimnames(params)$params=tolower(dimnames(params)$params)
-#   params=as(params,'FLQuant')
-#   #if (blim>=btrig) stop('btrig must be greater than blim')
-#   a=(params['ftar']-params['fmin'])/(params['btrig']-params['blim'])
-#   b=params['ftar']-a*params['btrig']
-# 
-#   ## Calc F
-#   # bug
-#   #val=(SSB%*%a) %+% b
-#   # bug stock for biomass
-#   stk=FLCore::apply(stock(object)[,ac(stkYrs)],6,mean)
-# 
-#   rtn=(stk%*%a)
-#   rtn=FLCore::sweep(rtn,2:6,b,'+')
-# 
-#   fmin=as(params['fmin'],'FLQuant')
-#   ftar=as(params['ftar'],'FLQuant')
-#   for (i in seq(dims(object)$iter)){
-#     FLCore::iter(rtn,i)[]=max(FLCore::iter(rtn,i),FLCore::iter(fmin,i))
-#     FLCore::iter(rtn,i)[]=min(FLCore::iter(rtn,i),FLCore::iter(ftar,i))}
-# 
-#   rtn=window(rtn,end=max(hcrYrs))
-#   #dimnames(rtn)$year=min(hcrYrs)
-#   if (length(hcrYrs)>1){
-#     rtn=window(rtn,end=max(hcrYrs))
-#     rtn[,ac(hcrYrs)]=rtn[,dimnames(rtn)$year[1]]}
-# 
-#   ### Bounds ##################################################################################
-#   ## F
-#   if (!is.null(bndF)){
-# 
-#     ref=FLCore::apply(harvest(object)[,ac(refYrs-1)],6,mean)
-# 
-#     rtn[,ac(min(hcrYrs))]=qmax(rtn[,ac(min(hcrYrs))],ref*bndF[1])
-#     rtn[,ac(min(hcrYrs))]=qmin(rtn[,ac(min(hcrYrs))],ref*bndF[2])
-# 
-#     if (length(hcrYrs)>1)
-#       for (i in hcrYrs[-1]){
-#         if (iaF){
-#           rtn[,ac(i)]=qmax(rtn[,ac(i)],rtn[,ac(i-1)]*bndF[1])
-#           rtn[,ac(i)]=qmin(rtn[,ac(i)],rtn[,ac(i-1)]*bndF[2])
-#         }else{
-#           rtn[,ac(i)]=rtn[,ac(i-1)]}
-# 
-#         if (!is.null(maxF)) rtn=qmin(rtn,maxF)}}
-#   hvt=rtn
-# 
-#   ## TAC
-#   if (!tac)
-#     return(hvt)
-#   else{
-#     ## TACs for target F
-#     object=FLBRP:::fwdWindow(object, end=max(as.numeric(hcrYrs)),refs)#,ifelse("biodyn"%in%is(object),NULL,rf))
-#     if ("biodyn"%in%is(object))
-#       object=fwd(object,harvest=fbar(object)[,ac(min(as.numeric(hcrYrs)-1))])
-#     else
-#       object=fwd(object,f=fbar(object)[,ac(min(as.numeric(hcrYrs)-1))],sr=refs)
-# 
-#     if ("biodyn"%in%is(object))
-#       rtn =catch(fwd(object, harvest=hvt))[,ac(hcrYrs)]
-#     else
-#       rtn =catch(fwd(object, f=hvt,sr=refs))[,ac(hcrYrs)]
-# 
-#     rtn[]=rep(c(apply(rtn,c(3:6),mean)),each=dim(rtn)[2])
-# 
-#     ## Bounds
-#     if (!is.null(bndTac)){
-#       ## Reference TAC for bounds
-#       ref=c(apply(catch(object)[,ac(refYrs)],6,mean))
-#       ref=FLQuant(rep(ref,each=dim(rtn)[2]),dimnames=dimnames(rtn))
-# 
-#       rtn=qmax(rtn,ref*bndTac[1])
-#       rtn=qmin(rtn,ref*bndTac[2])
-#     }
-#   }
-# 
-#   return(rtn)}
+setMethod('hcr', signature(object='biodyn',refs='missing'),
+   function(object,
+            ftar =0.70, btrig=0.80, fmin =0.01, blim =0.40,
+            yr =max(as.numeric(dimnames(catch(object))$year)),
+            byr=yr-1,
+            hyr=yr+1:3,
 
-# setMethod('hcr', signature(object='biodyn',refs='missing'),
-#   function(object,
-#            ftar =0.70, btrig=0.80, fmin =0.01, blim =0.40,
-#            yr =max(as.numeric(dimnames(catch(object))$year)),
-#            byr=yr-1,
-#            hyr=yr+1:3,
-#
-#            tac   =FALSE,
-#            tacMn =TRUE,
-#
-#            bndF  =NULL, #c(1,Inf),
-#            bndTac=NULL, #c(1,Inf),
-#            iaF   =TRUE,
-#            iaTac =TRUE,
-#            maxF  =1,
-#            ...) {
-#
-#   params=hcrParam(ftar =ftar *refpts(object)['fmsy'],
-#                   btrig=btrig*refpts(object)['bmsy'],
-#                   fmin =fmin *refpts(object)['fmsy'],
-#                   blim =blim *refpts(object)['bmsy'])
-#
-#   ## HCR
-#   dimnames(params)$params=tolower(dimnames(params)$params)
-#   params=as(params,'FLQuant')
-#   #if (blim>=btrig) stop('btrig must be greater than blim')
-#   a=(params['ftar']-params['fmin'])/(params['btrig']-params['blim'])
-#   b=params['ftar']-a*params['btrig']
-#
-#   ## Calc F
-#   # bug
-#   #val=(SSB%*%a) %+% b
-#   stk=FLCore::apply(stock(object)[,ac(yr)],6,mean)
-#
-#   rtn=(stk%*%a)
-#   rtn=FLCore::sweep(rtn,2:6,b,'+')
-#
-#   fmin=as(params['fmin'],'FLQuant')
-#   ftar=as(params['ftar'],'FLQuant')
-#   for (i in seq(dims(object)$iter)){
-#     FLCore::iter(rtn,i)[]=max(FLCore::iter(rtn,i),FLCore::iter(fmin,i))
-#     FLCore::iter(rtn,i)[]=min(FLCore::iter(rtn,i),FLCore::iter(ftar,i))}
-#
-#   rtn=window(rtn,end=max(hyr))
-#   #dimnames(rtn)$year=min(hyr)
-#   #if (length(hyr)>1){
-#   rtn=window(rtn,end=max(hyr))
-#   rtn[,ac(hyr)]=rtn[,dimnames(rtn)$year[1]]
-#   #}
-#
-#   ### Bounds ##################################################################################
-#   ## F
-#   if (!is.null(bndF)){
-#       ref=FLCore::apply(harvest(object)[,ac(byr)],6,mean)
-#
-#       rtn[,ac(min(hyr))]=qmax(rtn[,ac(min(hyr))],ref*bndF[1])
-#       rtn[,ac(min(hyr))]=qmin(rtn[,ac(min(hyr))],ref*bndF[2])
-#
-#       if (length(hyr)>1)
-#         for (i in hyr[-1]){
-#           if (iaF){
-#             rtn[,ac(i)]=qmax(rtn[,ac(i)],rtn[,ac(i-1)]*bndF[1])
-#             rtn[,ac(i)]=qmin(rtn[,ac(i)],rtn[,ac(i-1)]*bndF[2])
-#           }else{
-#             rtn[,ac(i)]=rtn[,ac(i-1)]}
-#
-#       if (!is.null(maxF)) rtn=qmin(rtn,maxF)}}
-#
-#    hvt=rtn
-#
-#    ## TAC
-#    if (tac){
-#       ref=FLCore::apply(catch(object)[,ac(byr)],6,mean)
-#
-#       object=window(object, end=max(as.numeric(hyr)))
-#       object=fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hyr)-1))])
-#
-#       rtn   =catch(mpb::fwd(object, harvest=rtn))[,ac(hyr)]
-#
-#       if (!is.null(bndTac)){
-#         rtn[,ac(min(hyr))]=qmax(rtn[,ac(min(hyr))],ref*bndTac[1])
-#         rtn[,ac(min(hyr))]=qmin(rtn[,ac(min(hyr))],ref*bndTac[2])
-#
-#         if (length(hyr)>1)
-#           for (i in hyr[-1]){
-#             if (iaTac){
-#               rtn[,ac(i)]=qmax(rtn[,ac(i)],rtn[,ac(i-1)]*bndTac[1])
-#               rtn[,ac(i)]=qmin(rtn[,ac(i)],rtn[,ac(i-1)]*bndTac[2])
-#             }else{
-#               rtn[,ac(i)]=rtn[,ac(i-1)]}}
-#       }
-#       if (tacMn) rtn[]=c(apply(rtn,3:6,mean))}
-#
-#   #if (tac) rtn=list(hvt=hvt,tac=rtn,stock=stk) else rtn=list(hvt=hvt,stock=stk)
-#   if (tac) {
-#     rtn=window(rtn,start=hyr[1]-1)
-#     rtn[,ac(hyr[1]-1)]=catch(object)[,ac(hyr[1]-1)]
-#     return(rtn[,-1])
-#   }else{
-#     hvt=hvt[,ac(c(hyr[1]-1,hyr))]
-#     hvt[,ac(hyr[1]-1)]=harvest(object)[,ac(hyr[1]-1)]
-#
-#     return(hvt)}
-#
-#   return(hvt)})
+            tac   =FALSE,
+            tacMn =TRUE,
+
+            bndF  =NULL, #c(1,Inf),
+            bndTac=NULL, #c(1,Inf),
+            iaF   =TRUE,
+            iaTac =TRUE,
+            maxF  =1,
+            ...) {
+
+   params=hcrParam(ftar =ftar *refpts(object)['fmsy'],
+                   btrig=btrig*refpts(object)['bmsy'],
+                   fmin =fmin *refpts(object)['fmsy'],
+                   blim =blim *refpts(object)['bmsy'])
+
+   ## HCR
+   dimnames(params)$params=tolower(dimnames(params)$params)
+   params=as(params,'FLQuant')
+   #if (blim>=btrig) stop('btrig must be greater than blim')
+   a=(params['ftar']-params['fmin'])/(params['btrig']-params['blim'])
+   b=params['ftar']-a*params['btrig']
+
+   ## Calc F
+   # bug
+   #val=(SSB%*%a) %+% b
+   stk=FLCore::apply(stock(object)[,ac(yr)],6,mean)
+
+   rtn=(stk%*%a)
+   rtn=FLCore::sweep(rtn,2:6,b,'+')
+
+   fmin=as(params['fmin'],'FLQuant')
+   ftar=as(params['ftar'],'FLQuant')
+   for (i in seq(dims(object)$iter)){
+     FLCore::iter(rtn,i)[]=max(FLCore::iter(rtn,i),FLCore::iter(fmin,i))
+     FLCore::iter(rtn,i)[]=min(FLCore::iter(rtn,i),FLCore::iter(ftar,i))}
+
+   rtn=window(rtn,end=max(hyr))
+   #dimnames(rtn)$year=min(hyr)
+   #if (length(hyr)>1){
+   rtn=window(rtn,end=max(hyr))
+   rtn[,ac(hyr)]=rtn[,dimnames(rtn)$year[1]]
+   #}
+
+   ### Bounds ##################################################################################
+   ## F
+   if (!is.null(bndF)){
+       ref=FLCore::apply(harvest(object)[,ac(byr)],6,mean)
+
+       rtn[,ac(min(hyr))]=qmax(rtn[,ac(min(hyr))],ref*bndF[1])
+       rtn[,ac(min(hyr))]=qmin(rtn[,ac(min(hyr))],ref*bndF[2])
+
+       if (length(hyr)>1)
+         for (i in hyr[-1]){
+           if (iaF){
+             rtn[,ac(i)]=qmax(rtn[,ac(i)],rtn[,ac(i-1)]*bndF[1])
+             rtn[,ac(i)]=qmin(rtn[,ac(i)],rtn[,ac(i-1)]*bndF[2])
+           }else{
+             rtn[,ac(i)]=rtn[,ac(i-1)]}
+
+       if (!is.null(maxF)) rtn=qmin(rtn,maxF)}}
+
+    hvt=rtn
+
+    ## TAC
+    if (tac){
+       ref=FLCore::apply(catch(object)[,ac(byr)],6,mean)
+
+       object=window(object, end=max(as.numeric(hyr)))
+       object=fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hyr)-1))])
+
+       rtn   =catch(mpb::fwd(object, harvest=rtn))[,ac(hyr)]
+
+       if (!is.null(bndTac)){
+         rtn[,ac(min(hyr))]=qmax(rtn[,ac(min(hyr))],ref*bndTac[1])
+         rtn[,ac(min(hyr))]=qmin(rtn[,ac(min(hyr))],ref*bndTac[2])
+
+         if (length(hyr)>1)
+           for (i in hyr[-1]){
+             if (iaTac){
+               rtn[,ac(i)]=qmax(rtn[,ac(i)],rtn[,ac(i-1)]*bndTac[1])
+               rtn[,ac(i)]=qmin(rtn[,ac(i)],rtn[,ac(i-1)]*bndTac[2])
+             }else{
+               rtn[,ac(i)]=rtn[,ac(i-1)]}}
+       }
+       if (tacMn) rtn[]=c(apply(rtn,3:6,mean))}
+
+   #if (tac) rtn=list(hvt=hvt,tac=rtn,stock=stk) else rtn=list(hvt=hvt,stock=stk)
+   if (tac) {
+     rtn=window(rtn,start=hyr[1]-1)
+     rtn[,ac(hyr[1]-1)]=catch(object)[,ac(hyr[1]-1)]
+     return(rtn[,-1])
+   }else{
+     hvt=hvt[,ac(c(hyr[1]-1,hyr))]
+     hvt[,ac(hyr[1]-1)]=harvest(object)[,ac(hyr[1]-1)]
+
+     return(hvt)}
+
+   return(hvt)})

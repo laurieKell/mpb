@@ -3,3 +3,5 @@
 ^\src/pellaTmb.cpp$
 ^\biodyn.Rmd$
 ^R\biodyn-hcr.R$
+.travis.yml
+^\.travis\.yml$

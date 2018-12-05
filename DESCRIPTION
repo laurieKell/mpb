@@ -17,7 +17,7 @@ Imports:
     plyr,
     reshape,
     Rcpp,
-    FLRP
+    FLBRP
 Suggests:
     rmarkdown,
     knitr

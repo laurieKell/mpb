@@ -1,5 +1,5 @@
 cd /home/laurence/Desktop/flr/mpb/inst/tpl
-export ADMB_HOME=/home/laurie/admb
+export ADMB_HOME=/home/laurence/admb
 export PATH=$ADMB_HOME/bin:$PATH
 
 

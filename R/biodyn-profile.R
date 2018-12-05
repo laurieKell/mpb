@@ -14,7 +14,7 @@ setMethod('profile', signature(fitted='biodyn'),
                                            harvest=c(harvest(x)[,ac(range(x)['maxyear'])]%/%refpts(x)["fmsy"]))),
                    run  =TRUE,
                    comp =FALSE,...){
-  
+        
   for (i in seq(length(fitted@indices)))
     if (dims(fitted@indices[[i]])$maxyear>=dims(stock(fitted))$maxyear) stop('index years greater in length than stock')
         
@@ -54,6 +54,8 @@ setMethod('profile', signature(fitted='biodyn'),
   f@catch=propagate(f@catch,dim(f@control)[3])
   res=fit(f)
   res@catch=FLCore::iter(res@catch,1)
+  
+  print(1)
   rtn=fn(res)
       
   if (comp){
