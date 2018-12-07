@@ -205,7 +205,6 @@ demoBiodyn<-function(om,mp,
   ## Cut in capacity
   maxF=mean(apply(fbar(window(om,end=start)),6,max)*maxF)
   
-  
   #### Observation Error (OEM) setup #######################
   ## Random variation for CPUE  
   cpue=oem(window(om,end=start),uDev,fishDepend=TRUE)
@@ -273,10 +272,8 @@ demoBiodyn<-function(om,mp,
   ## save OM, projection without feedback, last assessment and MP summary
   return(list(om=om,mou=mou,bd=bd,mp=mp,oem=mcf(FLQuants(cpue=cpue,catch=catch(om)))))}
 
-
-
 #with biodyn OM
-demo<-function(om,mp,pe,
+demoBiodyn2<-function(om,mp,pe,
                uDev  =0.3,
                oem   =function(x,uDev){
                             dmns=list(year=dimnames(stock(x))$year[-dim(stock(x))[2]])

@@ -1,6 +1,6 @@
 Package: mpb
 Title: Management Procedures
-Version: 3.0.0
+Version: 3.0.3
 Date: 2017-10-20
 Authors@R: c(
   person("Laurence T.", "Kell", email = "laurie@seaplusplus.co.uk", role = c("cre", "aut")))
@@ -8,8 +8,8 @@ Description: mpb is an R package for running and simulation testing biomass
     based stock assessment models.
 VignetteBuilder: knitr
 Depends:
-    R(>= 3.3.1),
-    FLCore(>= 2.5.2)
+  R(>= 3.5.1),
+  FLCore (>= 2.6.10)
 Imports:
     methods,
     stringr,
