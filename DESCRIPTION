@@ -8,8 +8,8 @@ Description: mpb is an R package for running and simulation testing biomass
     based stock assessment models.
 VignetteBuilder: knitr
 Depends:
-  R(>= 3.5.1),
-  FLCore (>= 2.6.10)
+   R(>= 3.5.1),
+   FLCore (>= 2.6.10)
 Imports:
     methods,
     stringr,
