@@ -1,3 +1,9 @@
+#' @export setMP
+#' @export p
+#' @export fmsy
+#' @export bmsy
+#' @export msy
+
 #grep -r "setGeneric">>../generic.txt
 
 utils::globalVariables(c("d_ply","dlply","mdply","filter","weighted.mean",

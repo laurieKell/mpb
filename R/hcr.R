@@ -109,12 +109,13 @@ hcrFn<-function(object,refs,
     FLCore::iter(rtn,i)[]=max(FLCore::iter(rtn,i),FLCore::iter(fmin,i))
     FLCore::iter(rtn,i)[]=min(FLCore::iter(rtn,i),FLCore::iter(ftar,i))} 
   
-  rtn=window(rtn,end=max(hcrYrs))
   #dimnames(rtn)$year=min(hcrYrs)  
 
   rtn=window(rtn,end=max(hcrYrs))
+  if (hcrYrs>(stkYrs+1))
+    rtn[,ac((stkYrs+1):(hcrYrs-1))]=fbar(object)[,ac((stkYrs+1):(hcrYrs-1))] #####bug
   rtn[,ac(hcrYrs)]=rtn[,dimnames(rtn)$year[1]]
-
+ 
   ### Bounds ##################################################################################
   ## F
   if (!is.null(bndF)){  
@@ -156,9 +157,10 @@ hcrFn<-function(object,refs,
        object=fwd(object,harvest=harvest(object)[,ac(min(as.numeric(hcrYrs)-1))])
 
     hvt[is.na(hvt)]=6.6666
+    
     #try(save(object,hvt,refs,hcrYrs,file="/home/laurence/Desktop/tmp/mseXSA4.RData"))
     if ("FLStock"%in%is(object))      
-       rtn=catch(fwd(object, fbar=hvt,sr=refs))[,ac(hcrYrs)]
+       rtn=catch(fwd(object,fbar=hvt,sr=refs))[,ac(hcrYrs)]
     else
        rtn=catch(fwd(object, harvest=hvt))[,ac(hcrYrs)]
     rtn[]=rep(c(apply(rtn,c(3:6),mean)),each=dim(rtn)[2])

@@ -170,6 +170,7 @@ setMethod('hcr', signature(object="biodyn",refs='missing'),
                     ...)
            hcrFn(object,refs,
                  params,stkYrs,refYrs,hcrYrs,tac,bndF,bndTac,maxF,...))
+
  hcrFn=function(object,refs=NULL,params=NULL,
                 stkYrs=max(as.numeric(dimnames(stock(object))$year)),
                 refYrs=max(as.numeric(dimnames(catch(object))$year)),

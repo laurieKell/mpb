@@ -268,7 +268,7 @@ setMethod('biodyn', signature(object='FLStock',params='missing'),
 # setMethod('as.biodyn',signature(x='FLStock'),
 #           as.biodyn<-function(x){FLStock2biodyn(x)})
 
-p<-function(from){
+pFn<-function(from){
   
   ## age based regference points
   msy =c(from@refpts["msy",   "yield"])
