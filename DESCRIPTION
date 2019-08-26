@@ -98,6 +98,7 @@ Collate:
     pellam.R
     setMP.R
     biodyn-sra.R
+    scale.R
 LazyLoad: Yes
 LazyData: Yes
 RoxygenNote: 6.1.1
