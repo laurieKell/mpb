@@ -1,3 +1,5 @@
+#' @export setMP
+#' 
 setMP<-function(om,r,k,p,b0){
   
   mp=as(om,"biodyn")
@@ -16,7 +18,7 @@ setMP<-function(om,r,k,p,b0){
 
   hat             =fit(mp,u)
   
-  print(plot(as(list("MP"=hat,"OM"=mp),"biodyns"),probs=c(0.25,0.75)))
+  #print(plot(as(list("MP"=hat,"OM"=mp),"biodyns"),probs=c(0.25,0.75)))
   
   params(mp)=iter(params(hat),1)
   params(mp)=apply(params(mp),1,median)

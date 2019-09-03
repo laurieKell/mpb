@@ -14,7 +14,7 @@ utils::globalVariables('ssb.obs')
 #' @param ... any other parameter
 #' 
 #' @rdname production
-#' @export
+#' @export production
 #' 
 #' @aliases production,biodyn-method 
 #'          production,FLStock,missing
