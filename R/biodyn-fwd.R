@@ -1,5 +1,5 @@
 utils::globalVariables('end')
-utils::globalVariables('fwdCpp')
+#utils::globalVariables('fwdCpp')
 utils::globalVariables('optim')
 utils::globalVariables('par')
 
@@ -357,29 +357,29 @@ setMethod('fwd', signature(object='biodyn',fishery='FLQuants',control='missing')
 #   return(biodyns(res))})
 
 
-setMethod('fwd', signature(object='FLPar',fishery='missing',control='missing'),
-#setMethod( 'fwd', signature(object='FLPar',control='missing'),
-  function(object,fishery,control,...){
-  
-   args=list(...)
-   if ("catch"%in%names(args)){
-     catch=args[["catch"]]
-     
-     if (any(dim(catch)[c(1,3:5)]!=1)) stop("Only for year and iter >1 in catch")
-     if (!all(c("r","k","p","b0")%in%dimnames(object)$params)) stop(cat(c("r","k","p","b0"), "not all in params"))
-     if (length(dim(object))!=2) stop("only params and iter allowed in params")
-
-     nits=c(dims(catch)$iter,dims(object)$iter)
-     if (length(unique(nits))==2&min(nits)!=1) stop("iter have to be 1 or n")
-
-     par=matrix(object[c("r","k","p","b0"),],nrow=4,            ncol=max(nits))
-     ctc=matrix(c(catch),                    nrow=dim(catch)[2],ncol=max(nits))
-     
-     res=fwdCpp(ctc,par)
-     res=FLQuant(unlist(c(res)),dimnames=list(year=dimnames(catch)$year,iter=seq(max(nits))))
-     }
-          
-   res})
+# setMethod('fwd', signature(object='FLPar',fishery='missing',control='missing'),
+# #setMethod( 'fwd', signature(object='FLPar',control='missing'),
+#   function(object,fishery,control,...){
+#   
+#    args=list(...)
+#    if ("catch"%in%names(args)){
+#      catch=args[["catch"]]
+#      
+#      if (any(dim(catch)[c(1,3:5)]!=1)) stop("Only for year and iter >1 in catch")
+#      if (!all(c("r","k","p","b0")%in%dimnames(object)$params)) stop(cat(c("r","k","p","b0"), "not all in params"))
+#      if (length(dim(object))!=2) stop("only params and iter allowed in params")
+# 
+#      nits=c(dims(catch)$iter,dims(object)$iter)
+#      if (length(unique(nits))==2&min(nits)!=1) stop("iter have to be 1 or n")
+# 
+#      par=matrix(object[c("r","k","p","b0"),],nrow=4,            ncol=max(nits))
+#      ctc=matrix(c(catch),                    nrow=dim(catch)[2],ncol=max(nits))
+#      
+#      res=fwdCpp(ctc,par)
+#      res=FLQuant(unlist(c(res)),dimnames=list(year=dimnames(catch)$year,iter=seq(max(nits))))
+#      }
+#           
+#    res})
            
 
 # names(parSim1)[15:16]=c("ref85","current")

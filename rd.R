@@ -4,6 +4,8 @@
 #' 
 #' @description 
 #' 
+#' @author Laurence Kell, Sea++
+#' 
 #' @name 
 #' @param 
 #' 
@@ -11,6 +13,7 @@
 #' 
 #' @docType method
 #' 
+#' @export 
 #' @rdname 
 #' @seealso 
 #' 
