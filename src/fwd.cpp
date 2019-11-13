@@ -2,6 +2,7 @@
 
 using namespace Rcpp;
 
+
 // [[Rcpp::export]]
 RObject fwdCpp(const Rcpp::NumericMatrix& ctc, 
                const Rcpp::NumericMatrix& par,
