@@ -412,9 +412,9 @@ calcElasticity=function(bd,mn=3,rg=5){
      
     smy=c(  stock(bd)[,maxYr],
           harvest(bd)[,maxYr],
-              msy(bd),
-             fmsy(bd),
-             bmsy(bd),
+            msy(bd),
+            fmsy(bd),
+            bmsy(bd),
             catch(bd)[,maxYr]/msy( bd),
             stock(bd)[,maxYr]/bmsy(bd),
             harvest(bd)[,maxYr]/fmsy(bd),
