@@ -21,3 +21,11 @@ nmcFn(x, s, E = 5, z = 1.96)
 \description{
 Calculates the number of iterations needed in Monte Carlo Simulation to achieve a given precision.
 }
+\examples{
+ \dontrun{
+ data(ple4) 
+ ssb=rlnorm(2000,log(ssb(ple4)),0.5)
+ nmc(ssb) 
+ }
+ 
+}

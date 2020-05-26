@@ -5,6 +5,8 @@
 \alias{randJack-method}
 \alias{randJack,numeric,FLPar,FLPar-method}
 \alias{randJack,numeric,FLQuant,FLQuant-method}
+\alias{randJack,numeric,biodyn-method}
+\alias{randJack,numeric,biodyn,biodyn-method}
 \title{randJack}
 \usage{
 randJackFn(n, object, sim)

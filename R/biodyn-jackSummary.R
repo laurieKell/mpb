@@ -100,9 +100,6 @@ jackSmryFn<-
                 call=call))
   }
 
-setGeneric("jackSummary", function(object,sim,...) standardGeneric("jackSummary"))
-
-
 if (FALSE){
   # jackknife values for the sample mean 
   # (this is for illustration;  # since "mean" is  a 

@@ -3,30 +3,14 @@
 \docType{methods}
 \name{boot}
 \alias{boot}
-\alias{chkIters}
 \alias{fit,aspic,missing-method}
 \title{fit}
-\usage{
-chkIters(object)
-}
 \arguments{
-\item{object;}{an \code{aspic} object}
-
-\item{dir;}{an optional \code{dir} where aspic text files used for fitting can be found}
-
 \item{object;}{an \code{aspic} object or a character string giving an aspic "inp" file}
-
-\item{dir;}{an optional \code{dir} where aspic text files used for fitting can be found}
-
-\item{object;}{an \code{aspic} object or}
-
-\item{object;}{a character string giving an aspic "inp" file}
 
 \item{dir;}{an optional \code{dir} where aspic text files used for fitting can be found}
 }
 \value{
-An aspic object with fitted values and parameter estimates
-
 An aspic object with fitted values and parameter estimates
 
 An aspic object with fitted values and parameter estimates
@@ -37,21 +21,14 @@ Fits the aspic model to catch and catch per unit effort data
 Bootstraps the ASPIC biomass dynamic model.
 
 Bootstraps the aspic model
-
-Fits the aspic model to catch and catch per unit effort data removing 1 cpue observation at a time
 }
 \examples{
 \dontrun{
     data(asp)
     asp=boot(asp)}
-\dontrun{
-    data(asp)
-    asp=jk(asp)}
 }
 \seealso{
 \code{\link{aspic},\link{biodyn},\link{boot},\link{jk}}
 
 \code{\link{biodyn},\link{boot},\link{jk}}
-
-\code{\link{biodyn},\link{boot},\link{fit}}
 }

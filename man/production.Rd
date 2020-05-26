@@ -7,9 +7,12 @@
 \alias{production,biodyn,FLQuant}
 \title{production}
 \usage{
-productionFn(object, biomass = "missing", slots = c("landings.sel",
-  "discards.sel", "stock.wt", "landings.wt", "discards.wt", "m", "mat",
-  "harvest.spwn", "m.spwn"))
+productionFn(
+  object,
+  biomass = "missing",
+  slots = c("landings.sel", "discards.sel", "stock.wt", "landings.wt", "discards.wt",
+    "m", "mat", "harvest.spwn", "m.spwn")
+)
 }
 \arguments{
 \item{object}{either \emph{biodyn} or \emph{FLBRP} class}

@@ -4,8 +4,13 @@
 \alias{mvn}
 \title{mvn}
 \usage{
-mvn(object, n, nms = dimnames(object@control[object@control[, "phase", ]
-  > 0, ])$params, fwd = FALSE, params = TRUE)
+mvn(
+  object,
+  n,
+  nms = dimnames(object@control[object@control[, "phase", ] > 0, ])$params,
+  fwd = FALSE,
+  params = TRUE
+)
 }
 \arguments{
 \item{object}{a \code{biodyn} object}

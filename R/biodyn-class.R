@@ -1,4 +1,3 @@
-#' @useDynLib mpb
 #' @importFrom Rcpp sourceCpp
 NULL
 

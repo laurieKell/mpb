@@ -1,7 +1,7 @@
 
 # mpb
-- Version: 2.1.1
-- Date: 2017-10-20
+- Version: 3.3.1
+- Date: 2020-05-26
 - Author: Laurence T. Kell <<laurie@seaplusplus.co.uk>>
 - Maintainer: Laurence T. Kell <<laurie@seaplusplus.co.uk>>
 - Repository: <https://github.com/flr/mpb/>

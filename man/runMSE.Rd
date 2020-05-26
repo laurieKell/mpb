@@ -5,12 +5,26 @@
 \alias{mse}
 \title{mseBiodyn}
 \usage{
-mseBiodyn(om, eql, srDev, uDev, mp, start = range(om)["maxyear"],
-  end = start + 30, interval = 3, oem = oem, hcrPar = function(mp,
-  ftar = 0.7, btrig = 0.6, fmin = 0 - 1, blim = 0.001) {     hcrParam(ftar
-  = ftar * fmsy(mp), btrig = btrig * bmsy(mp), fmin = fmin * fmsy(mp), blim
-  = blim * bmsy(mp)) }, bndF = NULL, bndTac = NULL, maxF = 1,
-  omega = 1, refB = 1, qTrend = 0)
+mseBiodyn(
+  om,
+  eql,
+  srDev,
+  uDev,
+  mp,
+  start = range(om)["maxyear"],
+  end = start + 30,
+  interval = 3,
+  oem = oem,
+  hcrPar = function(mp, ftar = 0.7, btrig = 0.6, fmin = 0 - 1, blim = 0.001) {    
+    hcrParam(ftar = ftar * fmsy(mp), btrig = btrig * bmsy(mp), fmin = fmin * fmsy(mp),
+    blim = blim * bmsy(mp)) },
+  bndF = NULL,
+  bndTac = NULL,
+  maxF = 1,
+  omega = 1,
+  refB = 1,
+  qTrend = 0
+)
 }
 \arguments{
 \item{om}{an \code{FLStock} object}
