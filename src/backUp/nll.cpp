@@ -27,7 +27,7 @@ RObject nllCpp(const Rcpp::NumericVector& ctc, const Rcpp::NumericVector& idx,
   NumericMatrix b(ctc.size()+1,par.nrow());
   NumericVector I(ctc.size());
   
-  Rcout << par <<"\n";
+  //Rcout << par <<"\n";
   
   double ss=0.0, q=0.0, se=0.0, n=0.0;
   
