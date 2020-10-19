@@ -1,8 +1,3 @@
-setGeneric("fwdWindow", function(x,y,...){
-  standardGeneric("fwdWindow")})
-setGeneric("fbar", function(object, ...)
-  standardGeneric("fbar"))
-
 #' @aliases fwdWindow,biodyn
 
 setMethod('fwdWindow', signature(x='biodyn',y="ANY"),

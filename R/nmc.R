@@ -15,7 +15,7 @@ setGeneric('nmc',    function(object,...) standardGeneric('nmc'))
 #' @return \code{FLQuant} with number of iters required by number of iters 
 #' 
 #' @examples
-# \dontrun{
+#'  \dontrun{
 #'  data(ple4) 
 #'  ssb=rlnorm(2000,log(ssb(ple4)),0.5)
 #'  nmc(ssb) 

@@ -4,12 +4,20 @@
 \name{om}
 \alias{om}
 \title{om}
-\format{An \code{FLStock} object
+\format{
+An \code{FLStock} object
 \describe{
   \item{stock.n}{numbers-at.age, \code{FLQuant}}
   \item{stock.wt}{mass-at-age, \code{FLQuant}}
   ...
-}}
+}
+
+An \code{FLBRP} object
+\describe{
+  \item{stock.wt}{mass-at-age, \code{FLQuant}}
+  ...
+}
+}
 \description{
 An example Operating Model, based on North Atlantic Albacore
 

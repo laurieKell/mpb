@@ -33,9 +33,6 @@ xvalFnAspic=function(object,minyear=range(object)["maxyear"]-4,maxyear=range(obj
 #' @param   minyear last year to fit data to
 #' @param   maxyear last year to project to, by default is the last year in the catch
 #' 
-#' @aliases xval-method 
-#'          xval,biodyn-method
-#'          xval,biodyn,missing-method
 #' @export
 #' @rdname aspic-xval
 #'

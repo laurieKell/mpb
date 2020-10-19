@@ -1,11 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^\src/pellaTmb.cpp$
-^\src/feasible.cpp$ 
-^\src/fwd11.cpp$ 
-^\src/fwd.cpp$ 
-^\src/nll.cpp$ 
-^\src/symbold.rds$ 
+^\src$
 ^\biodyn.Rmd$
 ^R\biodyn-hcr.R$
 .travis.yml

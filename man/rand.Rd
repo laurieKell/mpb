@@ -6,6 +6,11 @@
 \alias{rand,numeric,FLPar,FLPar-method}
 \alias{rand,numeric,FLQuant,FLQuant-method}
 \alias{rand,numeric,biodyn,biodyn-method}
+\alias{rand,numeric,biodyn-method}
+\alias{rand,}
+\alias{numeric,FLPar,FLPar-method}
+\alias{numeric,FLQuant,FLQuant-method}
+\alias{numeric,biodyn,biodyn-method}
 \title{rand}
 \usage{
 randFn(n, object, sim)

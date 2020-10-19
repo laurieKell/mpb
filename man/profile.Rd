@@ -5,8 +5,7 @@
 \alias{profileFn}
 \title{profile}
 \usage{
-profileFn(r = 0.5, k = 1000, p = 0.001, b0 = 0.75, min = 0.1,
-  max = 10)
+profileFn(r = 0.5, k = 1000, p = 0.001, b0 = 0.75, min = 0.1, max = 10)
 }
 \arguments{
 \item{fitted:}{an \code{aspic} object}

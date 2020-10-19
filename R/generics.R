@@ -169,7 +169,8 @@ setGeneric('writeAspic',function(object,...)        standardGeneric('writeAspic'
 #' @export msy fmsy bmsy refpts refptSD
 #' @rdname msy
 #'
-#' @examples \dontrun{ msy('logistic',FLPar(msy=100,k=500))}
+#' @examples
+#' \dontrun{ msy('logistic',FLPar(msy=100,k=500))}
 #'   
 setGeneric('refptSD',  function(object,params,...) standardGeneric('refptSD'))
 
@@ -198,20 +199,7 @@ setGeneric('refptSD',  function(object,params,...) standardGeneric('refptSD'))
 #'  
 #'  
 setGeneric('setParams<-', function(object,value)  standardGeneric('setParams<-'))
-#' @title control
-#'
-#' @description 
-#' Slot for fitting options, i.e. for starting guesses, to fix parameters or set bounds
-#' 
-#' @param object either \emph{biodyn} or \emph{aspic} class
-#' @param value 
-#' @param ... any other parameter
-#' 
-#' @rdname control
-#' @export
-#' 
-#' @aliases control-method control,biodyn,missing-method 
-#' 
+ 
 
 #' @title params
 #'

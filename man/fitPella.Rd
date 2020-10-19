@@ -4,9 +4,14 @@
 \alias{fitPella}
 \title{-mcmc 100000 -mcsave 100'}
 \usage{
-fitPella(object, dir = tempdir(),
-  cmdOps = paste("-maxfn 500 -iprint 0"), lav = FALSE, maxF = 2.5,
-  silent = !TRUE)
+fitPella(
+  object,
+  dir = tempdir(),
+  cmdOps = paste("-maxfn 500 -iprint 0"),
+  lav = FALSE,
+  maxF = 2.5,
+  silent = !TRUE
+)
 }
 \description{
 -mcmc 100000 -mcsave 100'

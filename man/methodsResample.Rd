@@ -20,16 +20,6 @@
 \item{...}{any other parameters}
 
 \item{object}{an \code{FLQuant}}
-
-\item{object}{an \code{FLQuant}}
-
-\item{dim}{dimensions of \code{FLQuant} to sample within, i.e. if equal to \code{2} then sampling is within \code{year}}
-
-\item{size}{sum of frequency disribution}
-
-\item{replace}{sample with replacement?, defaults to \code{FALSE} only useful if values in \code{object} are integers}
-
-\item{...}{any other parameters}
 }
 \value{
 a \code{FLQuant} with simulated frequency distribution

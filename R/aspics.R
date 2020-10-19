@@ -32,7 +32,7 @@ setMethod("aspics", signature(object="missing"),
 #' or decrease the object length.
 #' 
 #' @name aspics
-#' @aliases aspics-class aspics aspics-methods aspics,ANY-method aspics,character-method
+#' @aliases aspics aspics-methods aspics,ANY-method aspics,character-method
 #' aspics,missing-method aspics,list-method
 #' @docType class
 #' @section Slots: \describe{

@@ -40,6 +40,7 @@ utils::globalVariables(c("%dopar%","foreach","i"))
 #' \dontrun{
 #'     data(asp)
 #'     asp=boot(asp)}
+NULL
 
 
 #' @title jk
@@ -238,7 +239,7 @@ runBoot=function(object, package="mpb", exeNm="aspic", dir=tempdir(),boot=500){
   dmns$year=c(dmns$year,as.numeric(max(dmns$year))+1)
   object@stock=propagate(FLQuant(NA,dimnames=dmns),boot)
   
-  oldwd=setExe(exeNm,package,dir)
+  oldwd=setExe(exeNm)
   m_ply(c("prn","rdat","bio","inp","fit","sum","rdatb","det","sum","bot"), function(x)
     if (file.exists(paste(exeNm,".",x,sep=""))) system(paste("rm ",exeNm,".",x,sep="")))
   

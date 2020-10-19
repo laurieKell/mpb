@@ -7,7 +7,6 @@
 \alias{aspics,missing-method}
 \alias{aspics,aspic-method}
 \alias{aspics,list-method}
-\alias{aspics-class}
 \alias{aspics-methods}
 \alias{aspics,ANY-method}
 \alias{aspics,character-method}
