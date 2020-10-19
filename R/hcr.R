@@ -144,7 +144,7 @@ hcrFn<-function(object,refs,
     ## TACs for target F
 
     if ("FLBRP"%in%is(object))
-      object=fwdWindow(object, refs, end=max(as.numeric(hcrYrs)))
+      object=mpb:::fwdWindow(object, refs, end=max(as.numeric(hcrYrs)))
     else
       object=window(object, end=max(as.numeric(hcrYrs)))
     object[,ac(max(as.numeric(hcrYrs)))]=object[,ac(max(as.numeric(hcrYrs))-1)]
