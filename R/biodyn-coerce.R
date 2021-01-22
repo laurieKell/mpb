@@ -16,14 +16,15 @@ utils::globalVariables('qnorm')
 #'
 #' @rdname as
 
-setMethod('instantaneous',signature(object='FLQuant'),
-      function(object) {
-  #h=(n1-n1*exp(-f))/n1
-  #h=(1-exp(-f))
-  
-  1-exp(-object)})
-
 setMethod('rate',signature(object='FLQuant'),
+      function(object) {
+  
+        #h=(n1-n1*exp(-f))/n1
+        #h=(1-exp(-f))
+  
+        1-exp(-object)})
+
+setMethod('instantaneous',signature(object='FLQuant'),
           function(object) {
     -log(1-object)})
 

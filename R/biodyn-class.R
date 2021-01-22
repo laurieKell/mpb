@@ -101,6 +101,7 @@ validity<-function(object) {
     params        ='FLPar',
     control       ='FLPar',
     priors        ='array',
+    posteriors    ='data.frame',
     hcr           ='data.frame',
     vcov          ='FLPar',
     hessian       ='FLPar',
@@ -109,6 +110,7 @@ validity<-function(object) {
     ref           ='numeric',
     mng           ='FLPar',
     mngVcov       ='FLPar',
+    kobe          ='data.frame',
     profile       ='data.frame',
     hst           ='data.frame'
     ),

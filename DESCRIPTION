@@ -102,6 +102,7 @@ Collate:
     scale.R
    jabba-coerce.R
    spict.R
+   jabbaBuild.R
 LazyLoad: Yes
 LazyData: Yes
 Encoding: UTF-8

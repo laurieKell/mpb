@@ -142,7 +142,6 @@ diagsFn=function(res){
   
   res$residualLag <- c(res$residual[-1],NA)
   
-  
   qqLine <- function(x,y){ 
     qtlx <- quantile(x, prob=c(0.25,0.75), na.rm=T)
     qtly <- quantile(y, prob=c(0.25,0.75), na.rm=T)

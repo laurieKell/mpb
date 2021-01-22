@@ -6,11 +6,16 @@ jabba2biodyn<-function(object, phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=
                                min=0.1,max=10){
     
   res=biodyn()
+  res@name     =paste(object$assessment,object$scenario)
+  res@desc     ="coerced from JABBA"
+  
+  if (!("timeseries"%in%names(object))&"catch"%in%names(object)){
+    catch(res)   =as.FLQuant(transmute(object$catch,year=Yr,data=Total))
+    return(res)}
+  
   params(res)[]=object$pars[c("r","K","m","psi"),"Median"]-c(0,0,1,0)
   catch(res)   =as.FLQuant(transmute(object$inputseries$catch,year=Yr,data=Total))
   res@stock    =as.FLQuant(data.frame(year=names(object$timeseries[,"mu","B"]),data=object$timeseries[,"mu","B"]))
-  res@name     =paste(object$assessment,object$scenario)
-  res@desc     ="coerced from JABBA"
   
   indices=list()
   for (i in dimnames(object$inputseries$cpue)[[2]][-1])
@@ -30,6 +35,15 @@ jabba2biodyn<-function(object, phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=
   
   if ("sigma"%in%names(phase))
     control(res)[grep("s",dimnames(control(res))[[1]]),"phase"]=phase["sigma"]
+
+  res@kobe=object$kobe
+  res@posteriors=object$pars_posterior
+  
+  if ("refpts_posterior"%in%names(object))
+    res@posteriors=cbind(res@posteriors,object$refpts_posterior)
+  
+  if ("trj_posterior"%in%names(object))
+    res@kobe=subset(object$trj_posterior,year==min(year)|year==max(year))
   
   return(res)}
 
