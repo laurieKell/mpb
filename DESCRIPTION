@@ -100,9 +100,10 @@ Collate:
     setMP.R
     biodyn-sra.R
     scale.R
-   jabba-coerce.R
-   spict.R
-   jabbaBuild.R
+    jabba-coerce.R
+    spict.R
+    jabbaBuild.R
+    getBiodyn.R
 LazyLoad: Yes
 LazyData: Yes
 Encoding: UTF-8
