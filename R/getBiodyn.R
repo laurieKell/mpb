@@ -147,8 +147,8 @@ if (FALSE){
     facet_grid(variable~.,scale="free")
   }
 
-smryBiodyns<-function(jb,om,eq){
-  mp=jabba2biodyn(jb)
+smryBiodyn<-function(jb,om,eq){
+  mp=mpb:::jabba2biodyn(jb)
   rf=c(refpts(mp),params(mp)[c("k","r")])
   names(rf)=c("msy","fmsy","bmsy","virgin","r")
   rf=t(as.data.frame(rf))
