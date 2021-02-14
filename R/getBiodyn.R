@@ -37,6 +37,17 @@ bdTimeSeries<-function(om,eq){
               "Harvest"=function(x) apply(catch(x)/stock(x),2,mean)/(refpts(eq)["msy","yield"]/refpts(eq)["msy","biomass"]),
               "Catch"  =function(x) 0.5*apply(catch(x),2,sum)/refpts(eq)["msy","yield"])}
 
+refTimeSeries<-function(om,eq,mp){
+  om=as.data.frame(bdTimeSeries(om,eq),drop=TRUE)
+
+  mp=as.data.frame(FLQuants(mp,"Stock"  =function(x) stock(  x)/refpts(x)["bmsy"],
+                               "Harvest"=function(x) harvest(x)/refpts(x)["fmsy"],
+                               "Catch"  =function(x) catch(  x)/refpts(x)["msy"]),drop=TRUE)
+
+  rtn=rbind.fill(cbind(what="OM",om),
+                 cbind(what="MP",mp))
+  
+  rtn}
 
 if (FALSE){
   dirMy="/home/laurence-kell/Desktop/papers/albio/inputs/ss"
@@ -147,8 +158,8 @@ if (FALSE){
     facet_grid(variable~.,scale="free")
   }
 
-smryBiodyn<-function(jb,om,eq){
-  mp=mpb:::jabba2biodyn(jb)
+smryBiodyns<-function(jb,om,eq){
+  mp=jabba2biodyn(jb)
   rf=c(refpts(mp),params(mp)[c("k","r")])
   names(rf)=c("msy","fmsy","bmsy","virgin","r")
   rf=t(as.data.frame(rf))
