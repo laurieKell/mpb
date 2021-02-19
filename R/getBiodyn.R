@@ -38,7 +38,7 @@ bdTimeSeries<-function(om,eq){
               "Harvest"=function(x) apply(catch(x)/stock(x),2,mean)/(refpts(eq)["msy","yield"]/refpts(eq)["msy","biomass"]),
               "Catch"  =function(x) 0.5*apply(catch(x),2,sum)/refpts(eq)["msy","yield"])}
 
-refTimeSeries<-function(om,eq,mp){
+refTimeSeries<-function(om,eq,mp,historical=NULL){
   om=model.frame(bdTimeSeries(om,eq),drop=TRUE)
 
   mp=model.frame(mcf(FLQuants(mp,"Stock"  =function(x) stock(  x)/refpts(x)["bmsy"],
@@ -49,6 +49,10 @@ refTimeSeries<-function(om,eq,mp){
   rtn=rbind.fill(cbind(what="OM",om),
                  cbind(what="MP",mp))
   
+  if (!(is.null(historical)))
+    rtn=rbind.fill(rtn,
+                   cbind(what="Historical",model.frame(bdTimeSeries(historical,eq),drop=TRUE)))
+
   rtn}
 
 smryBiodyns<-function(jb,om,eq){
