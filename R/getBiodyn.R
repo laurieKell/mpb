@@ -1,3 +1,5 @@
+#om.=fwd(om,f=fbar(om)[,-1,1]%=%refpts(eq)["msy","harvest"],sr=eq)
+
 getPath <- function(file) {
   if (!grepl(.Platform$file.sep,file))
     res <- getwd()
@@ -33,12 +35,14 @@ getOM<-function(x,what="FLStock"){
   get(rtn[1])}
 
 bdTimeSeries<-function(om,eq){
-  FLQuants(om,"Stock"  =function(x) ssb(x)[,,"F"]/refpts(eq)["msy","ssb"],
+  FLQuants(om,"Stock." =function(x) apply(stock(x),2,mean)/refpts(eq)["msy","biomass"],
+              "Blim."  =function(x) apply(stock(x),2,mean)/refpts(eq)["virgin","biomass"],
+              "Stock"  =function(x) ssb(x)[,,"F"]/refpts(eq)["msy","ssb"],
               "Blim"   =function(x) ssb(x)[,,"F"]/refpts(eq)["virgin","ssb"],
               "Harvest"=function(x) apply(catch(x)/stock(x),2,mean)/(refpts(eq)["msy","yield"]/refpts(eq)["msy","biomass"]),
               "Catch"  =function(x) 0.5*apply(catch(x),2,sum)/refpts(eq)["msy","yield"])}
 
-refTimeSeries<-function(om,eq,mp,historical=NULL){
+refTimeSeries<-function(om,eq,mp,historical=NULL,fmsy=NULL){
   om=model.frame(bdTimeSeries(om,eq),drop=TRUE)
 
   mp=model.frame(mcf(FLQuants(mp,"Stock"  =function(x) stock(  x)/refpts(x)["bmsy"],
@@ -51,7 +55,10 @@ refTimeSeries<-function(om,eq,mp,historical=NULL){
   
   if (!(is.null(historical)))
     rtn=rbind.fill(rtn,
-                   cbind(what="Historical",model.frame(bdTimeSeries(historical,eq),drop=TRUE)))
+                   cbind(what="Historical",model.frame(bdTimeSeries(historical,eq),drop=TRUE))) 
+  if (!(is.null(fmsy)))
+     rtn=rbind.fill(rtn,
+                   cbind(what="Fmsy",model.frame(bdTimeSeries(fmsy,eq),drop=TRUE)))
 
   rtn}
 
