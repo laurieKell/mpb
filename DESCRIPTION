@@ -104,6 +104,7 @@ Collate:
     spict.R
     jabbaBuild.R
     getBiodyn.R
+    jabba-com.R
 LazyLoad: Yes
 LazyData: Yes
 Encoding: UTF-8
