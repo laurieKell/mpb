@@ -53,7 +53,7 @@ refTimeSeries<-function(om,eq,mp,historical=NULL){
   rtn=rbind.fill(cbind(what="OM",om),
                  cbind(what="MP",mp))
 
-  if ("FLStocks"%in%is(historical)) historical=FLStocks(list(Historical=historical))  
+  if ("FLStock"%in%is(historical)) historical=FLStocks(list(Historical=historical))  
   if (!(is.null(historical))){
     rtn2=ldply(historical,function(x) model.frame(bdTimeSeries(x,eq),drop=TRUE))
     rtn=rbind.fill(rtn,transform(rtn2,what=.id)[,-1])}
