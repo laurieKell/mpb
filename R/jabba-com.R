@@ -105,7 +105,6 @@ sacc=list(model.type = "Schaefer",
      add.catch.CV = T,catch.cv = 0.15,
      fixed.obsE = 0.2,r.dist = "range",
      psi.dist = "beta",
-     psi.prior = bkpr,
      P_bound = c(0.02, 1.2), # close to cmsy
      sigma.est = F)
 
