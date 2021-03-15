@@ -87,52 +87,6 @@ jabbaComSetup<-function(ts,model="fox",dFinal="heuristic",dInitial="heuristic",r
   
   return(sa)}
 
-jabbaComOld<-function(ts,model="fox",dFinal="heuristic",dInitial="heuristic",r=0.4,save.trj=FALSE){
-  #sink(file=tempfile())
-  
-  sa=jabbaComSetup(ts,model,dFinal,dInitial,r)
-  
-  if ("try-error"%in%is(sa)) {warning("sa fail"); return(NULL)}
-  
-  jb=do.call("build_jabba",sa)
-  jb=try(fit_jabba(jb,
-                   save.trj=save.trj,
-                   ni =5500,
-                   nt =1,
-                   nb =500,
-                   nc =2))
-  #sink()
-  
-  if ("try-error"%in%is(jb)) return(NULL)
-  
-  bd=try(jabba2biodyn(jb)) 
-  
-  if ("try-error"%in%is(bd)) return(NULL)
-  
-  if (TRUE) return(bd)
-  
-  model.frame(mcf(FLQuants(bd,
-                           stock  =function(x) stock(  x)/refpts(x)["bmsy"],
-                           harvest=function(x) harvest(x)/refpts(x)["fmsy"],
-                           catch  =function(x) catch(  x)/refpts(x)["msy"])),drop=TRUE)}
-
-jabbaComXvl<-function(ts,model="fox",dFinal="heuristic",dInitial="heuristic",r=0.4,nyr=10){
-  
-  #sink(file=tempfile())
-  
-  res=mlply(data.frame(tail=max(ts$year)-0:nyr), function(tail)
-    jabbaCom(subset(ts,year<=tail),model,dFinal,dInitial,r))
-  
-  rs=res 
-  rs[seq(nyr)+1]=mlply(data.frame(i=seq(nyr)),function(i){
-    f  =harvest(res[[1]])[,ac(dims(res[[1]])$maxyear-(i:0))]
-    f[]=c(f[,1])
-    fwd(res[[i+1]],harvest=f)})
-  
-  #sink()
-  
-  rs}      
-
 smryFn<-function(bd)
   model.frame(mcf(FLQuants(bd,
                            stock  =function(x) stock(  x)/refpts(x)["bmsy"],
@@ -147,6 +101,14 @@ smryFn<-function(bd)
 
 
 ## JABBA-COM
+sacc=list(model.type = "Schaefer",
+     add.catch.CV = T,catch.cv = 0.15,
+     fixed.obsE = 0.2,r.dist = "range",
+     psi.dist = "beta",
+     psi.prior = bkpr,
+     P_bound = c(0.02, 1.2), # close to cmsy
+     sigma.est = F)
+
 jabbaCOM<-function(catch,r,
                    bmsyk=0.37,b0="heuristic",bfinal="heuristic",
                    sa=list(assessment="com",
@@ -169,12 +131,11 @@ jabbaCOM<-function(catch,r,
   
   ##### Depletions, either heuristic or a guess
   ## Final
-  if (!is.null(bfinal)){
-    sa$b.prior  =c(dFinalPrior(sa$catch$Total)*bmsyk,0.2,max(sa$catch$Yr),"bbmsy") 
-    if (is.numeric(bfinal)) sa$b.prior[1]=bfinal}
+  sa$b.prior  =c(dFinalPrior(sa$catch$Total)*bmsyk,0.3,max(sa$catch$Yr),"bbmsy") 
+  if (is.numeric(bfinal)) sa$b.prior[1]=bfinal
   ## Initial        
   sa$psi.prior=c(dInitialPrior(min(sa$catch$Yr)),0.3)       
-  if (is.numeric(b0)) sa$b.prior[1]=b0/sa$BmsyK
+  if (is.numeric(b0)) sa$b.prior[1]=b0*sa$BmsyK
   ## dont allow value>1
   sa$psi.prior[1] = min(sa$psi.prior[1],1)
   
@@ -226,3 +187,48 @@ jabbaCOM<-function(catch,r,
   
   model.frame(mcf(rtn),drop=TRUE)}
 
+jabbaComOld<-function(ts,model="fox",dFinal="heuristic",dInitial="heuristic",r=0.4,save.trj=FALSE){
+  #sink(file=tempfile())
+  
+  sa=jabbaComSetup(ts,model,dFinal,dInitial,r)
+  
+  if ("try-error"%in%is(sa)) {warning("sa fail"); return(NULL)}
+  
+  jb=do.call("build_jabba",sa)
+  jb=try(fit_jabba(jb,
+                   save.trj=save.trj,
+                   ni =5500,
+                   nt =1,
+                   nb =500,
+                   nc =2))
+  #sink()
+  
+  if ("try-error"%in%is(jb)) return(NULL)
+  
+  bd=try(jabba2biodyn(jb)) 
+  
+  if ("try-error"%in%is(bd)) return(NULL)
+  
+  if (TRUE) return(bd)
+  
+  model.frame(mcf(FLQuants(bd,
+                           stock  =function(x) stock(  x)/refpts(x)["bmsy"],
+                           harvest=function(x) harvest(x)/refpts(x)["fmsy"],
+                           catch  =function(x) catch(  x)/refpts(x)["msy"])),drop=TRUE)}
+
+jabbaComXvl<-function(ts,model="fox",dFinal="heuristic",dInitial="heuristic",r=0.4,nyr=10){
+  
+  #sink(file=tempfile())
+  
+  res=mlply(data.frame(tail=max(ts$year)-0:nyr), function(tail)
+    jabbaCom(subset(ts,year<=tail),model,dFinal,dInitial,r))
+  
+  rs=res 
+  rs[seq(nyr)+1]=mlply(data.frame(i=seq(nyr)),function(i){
+    f  =harvest(res[[1]])[,ac(dims(res[[1]])$maxyear-(i:0))]
+    f[]=c(f[,1])
+    fwd(res[[i+1]],harvest=f)})
+  
+  #sink()
+  
+  rs}      

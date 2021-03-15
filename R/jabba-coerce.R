@@ -15,7 +15,7 @@ jabba2biodyn<-function(object, phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=
   
   params(res)[]=object$pars[c("r","K","m","psi"),"Median"]-c(0,0,1,0)
   catch(res)   =as.FLQuant(transmute(object$inputseries$catch,year=Yr,data=Total))
-  res@stock    =as.FLQuant(data.frame(year=names(object$timeseries[,"mu","B"]),data=object$timeseries[,"mu","B"]))
+  res@stock    =as.FLQuant(data.frame(year=as.numeric(names(object$timeseries[,"mu","B"])),data=object$timeseries[,"mu","B"]))
   
   indices=list()
   for (i in dimnames(object$inputseries$cpue)[[2]][-1])
