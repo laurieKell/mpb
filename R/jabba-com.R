@@ -128,8 +128,7 @@ jabbaCOM<-function(catch,r,
                            proc.dev.all=TRUE,
                            sigma.est   =TRUE,
                            fixed.obsE  =0.05,
-                           sa$q_bounds = c(0.2,5.0)
-                   ),
+                           q_bounds    = c(0.2,5.0)),
                    index=NULL,min=NULL,n=20,flag=c("results","sa","jabba","biodyn")[1]){
   
   #attach(list(bmsyk=0.37,b0="heuristic",bfinal="heuristic",index=indexL,min=NULL,n=20,flag=c("results","sa","jabba","biodyn")[1]))
