@@ -126,7 +126,7 @@ jabbaCOM<-function(catch,r,
                            sigma.proc =TRUE,
                            igamma = c(4,0.01), # That is default and fairly robust for COMs (also used in CMSY)
                            proc.dev.all=TRUE,
-                           sigma.est   =TRUE,
+                           sigma.est   =!TRUE,
                            fixed.obsE  =0.05,
                            q_bounds    = c(0.2,5.0)),
                    index=NULL,min=NULL,n=20,flag=c("results","sa","jabba","biodyn")[1]){
