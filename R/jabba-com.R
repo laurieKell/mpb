@@ -108,6 +108,17 @@ sacc=list(model.type = "Schaefer",
      P_bound = c(0.02, 1.2), # close to cmsy
      sigma.est = F)
 
+shape=list(assessment = "shape",
+           model.type = "Pella_m", # Choose Pella option with estimable m
+           BmsyK = 0.2, # mean of shape prior
+           shape.CV = 0.3, # default is 0.3
+           model.type="Pella",
+           sigma.proc =TRUE,
+           igamma = c(4,0.01), # That is default and fairly robust for COMs (also used in CMSY)
+           proc.dev.all=TRUE,
+           sigma.est =FALSE,
+           fixed.obsE =0.05)
+           
 jabbaCOM<-function(catch,r,
                    bmsyk=0.37,b0="heuristic",bfinal="heuristic",
                    sa=list(assessment="com",
@@ -115,8 +126,10 @@ jabbaCOM<-function(catch,r,
                            sigma.proc =TRUE,
                            igamma = c(4,0.01), # That is default and fairly robust for COMs (also used in CMSY)
                            proc.dev.all=TRUE,
-                           sigma.est =FALSE,
-                           fixed.obsE =0.05),
+                           sigma.est   =TRUE,
+                           fixed.obsE  =0.05,
+                           sa$q_bounds = c(0.2,5.0)
+                   ),
                    index=NULL,min=NULL,n=20,flag=c("results","sa","jabba","biodyn")[1]){
   
   #attach(list(bmsyk=0.37,b0="heuristic",bfinal="heuristic",index=indexL,min=NULL,n=20,flag=c("results","sa","jabba","biodyn")[1]))
@@ -134,7 +147,7 @@ jabbaCOM<-function(catch,r,
   if (is.numeric(bfinal)) sa$b.prior[1]=bfinal
   ## Initial        
   sa$psi.prior=c(dInitialPrior(min(sa$catch$Yr)),0.3)       
-  if (is.numeric(b0)) sa$b.prior[1]=b0*sa$BmsyK
+  if (is.numeric(b0)) sa$psi.prior[1]=b0*sa$BmsyK
   ## dont allow value>1
   sa$psi.prior[1] = min(sa$psi.prior[1],1)
   
@@ -159,7 +172,7 @@ jabbaCOM<-function(catch,r,
   jb=do.call("build_jabba",sa)
   jb=try(fit_jabba(jb,
                    #init.values=TRUE,
-                   #init.r=sa$r.prior[1]*2,
+                   init.r=min(sa$r.prior[1],0.6),
                    #init.q=2,
                    save.trj=TRUE,
                    ni =5500,
@@ -173,14 +186,13 @@ jabbaCOM<-function(catch,r,
   
   bd=try(jabba2biodyn(jb)) 
   
-  
   if (flag[1]=="biodyn") return(bd)
   
   if ("try-error"%in%is(bd)) return(NULL)
   
   rtn=FLQuants(bd,stock  =function(x) stock(  x)/refpts(x)["bmsy"],
-               harvest=function(x) harvest(x)/refpts(x)["fmsy"],
-               catch  =function(x) catch(  x)/refpts(x)["msy"])
+                  harvest=function(x) harvest(x)/refpts(x)["fmsy"],
+                  catch  =function(x) catch(  x)/refpts(x)["msy"])
   
   if (is.FLQuant(index)) rtn[["index"]]=index
   
