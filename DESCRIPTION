@@ -1,6 +1,6 @@
 Package: mpb
 Title: Management Procedures
-Version: 3.4.0
+Version: 3.4.0.9001
 Date: 2020-05-26
 Authors@R: person(given = "Laurence", family = "Kell", role = c("aut", "cre"), 
   email = "laurie@seaplusplus.co.uk")
@@ -108,4 +108,4 @@ Collate:
 LazyLoad: Yes
 LazyData: Yes
 Encoding: UTF-8
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
