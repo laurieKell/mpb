@@ -5,7 +5,7 @@ utils::globalVariables('optimise')
 
 setGeneric('control',     function(object,...)        standardGeneric('control'))
 setGeneric('control<-',   function(object,value)      standardGeneric('control<-'))
-setGeneric('setControl<-',function(object,...,value)  standardGeneric('setControl<-'))
+setGeneric('setControl<-',function(object,value,...)  standardGeneric('setControl<-'))
 
 #' @title control
 #' 
