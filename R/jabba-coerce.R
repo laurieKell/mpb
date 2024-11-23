@@ -2,6 +2,11 @@ utils::globalVariables(c("bdModel","biomass"))
 
 setGeneric('as.biodyn', function(object, ...) standardGeneric('as.biodyn'))
 
+tryIt<-function(x){
+  rtn=try(x)
+  if ("try-error"%in%is(rtn)) return(NULL)
+  return(rtn)}
+
 jabba2biodyn<-function(object, phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=1),
                                min=0.1,max=10){
     
@@ -10,11 +15,11 @@ jabba2biodyn<-function(object, phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=
   res@desc     ="coerced from JABBA"
   
   if (!("timeseries"%in%names(object))&"catch"%in%names(object)){
-    catch(res)   =as.FLQuant(transmute(object$catch,year=Yr,data=Total))
+    catch(res)   =as.FLQuant(transmute(object$catch,year=year,data=Total))
     return(res)}
   
   params(res)[]=object$pars[c("r","K","m","psi"),"Median"]-c(0,0,1,0)
-  catch(res)   =as.FLQuant(transmute(object$inputseries$catch,year=Yr,data=Total))
+  catch(res)   =as.FLQuant(transmute(object$inputseries$catch,year=year,data=catch))
   res@stock    =as.FLQuant(data.frame(year=as.numeric(names(object$timeseries[,"mu","B"])),data=object$timeseries[,"mu","B"]))
   
   indices=list()
@@ -50,7 +55,7 @@ jabba2biodyn<-function(object, phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=
 setMethod("as.biodyn", signature(object="list"),
     function(object, ...) {
             
-      jabba2biodyn(object)})
+      tryIt(jabba2biodyn(object))})
 
 setAs(from='list', to='biodyn',  def=function(from) as.biodyn(from))
 

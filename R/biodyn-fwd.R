@@ -174,16 +174,16 @@ setMethod('fwd', signature(object='biodyn',fishery='missing',control='missing'),
                     end    =NULL,
                     starvationRations=0.75,
                     ...) {
-     
      ## target arg is an FLQuant
      if (is.null(harvest)&('FLQuant' %in% class(f)|'FLQuant' %in% class(f))) harvest=f
      
      if ('FLQuant' %in% class(stock)   |
          'FLQuant' %in% class(harvest) |
-         'FLQuant' %in% class(catch))
+         'FLQuant' %in% class(catch)){
         res=fwdFn(object,control=control,
               catch,harvest,stock,pe,peMult,minF,maxF,bounds,lag,end,
               starvationRations=starvationRations,...)
+        }
      else if ('FLQuants' %in% class(stock))  
         res=mpb:::biodyns(llply(stock, function(x) fwdFn(object,control=control,
                  catch,harvest,x,pe,peMult,minF,maxF,bounds,lag,end,...)))
@@ -193,7 +193,7 @@ setMethod('fwd', signature(object='biodyn',fishery='missing',control='missing'),
       else if ('FLQuants' %in% class(catch))  
         res=mpb:::biodyns(llply(catch, function(x) fwdFn(object,control=control,
                 x,harvest,stock,pe,peMult,minF,maxF,bounds,lag,end,...)))
-                        
+      
      res})
      
 fwdFn=function(object, 
@@ -204,9 +204,8 @@ fwdFn=function(object,
                minF,    maxF,
                starvationRations,
                ...){
-        
       lag=0
-      object@stock=FLQuant(object@stock,quant=names(object@catch)[1])   
+      #object@stock=FLQuant(object@stock,quant=names(object@catch)[1])   
     
       ## catch, harvest or stock?
       ctcTrgt=FALSE
