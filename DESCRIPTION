@@ -107,6 +107,8 @@ Collate:
     jabbaBuild.R
     getBiodyn.R
     jabba-com.R
+    biodyn-FLPar.R
+    jabba-coerce2.R
 LazyLoad: Yes
 LazyData: Yes
 Encoding: UTF-8
