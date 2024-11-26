@@ -71,6 +71,8 @@ Collate:
     biodyn-profile-Cpp.R
     biodyn-plot.R
     biodyn-func.R
+    biodyn-rebuild.R
+    pellat.R
     iRate.R
     lk-methods.R
     lk-mfcl.R

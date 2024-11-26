@@ -1,41 +1,3 @@
-#' Create biodyn Object from FLPar Parameters
-#'
-#' @description Creates a biodyn object initialized with biomass at BMSY and catch at MSY
-#'
-#' @param params An FLPar object containing parameters r, k, and p
-#' @param nyrs Number of years for projection (default = 50)
-#' @return A biodyn object initialized for the specified number of years
-#' @export
-#' @examples
-#' params=FLPar(r=0.5, k=1000, p=1)
-#' bd=biodyn(params)
-setMethod("biodyn", signature(object="FLPar","missing"), 
-          function(object, params=50) {
-            if (!is(object, "FLPar"))
-              stop("params must be an FLPar object")
-            
-            if (!all(c("r", "k", "p") %in% dimnames(object)$params))
-              stop("params must contain r, k, and p")
-            
-            nyrs=params
-            if (!is.numeric(nyrs) || nyrs <= 0)
-              stop("nyrs must be a positive integer")
-            
-            rtn=new("biodyn")
-            params(rtn)[c("r","k","p")]=object[c("r","k","p")]
-
-            # Set initial states
-            rtn@stock=window(FLQuant(), end=nyrs)
-            rtn@stock[]=refpts(rtn)["bmsy"]
-            rtn@catch=window(FLQuant(), end=nyrs)
-            rtn@catch[]=refpts(rtn)["msy"]
-            
-            range(rtn)=unlist(dims(stock(rtn))[c("minyear","maxyear")])
-            
-            rtn=fwd(rtn,catch=catch[,-1])
-            
-            return(rtn)})
-
 #' Calculate Rebuild Trajectories
 #'
 #' @description Projects stock rebuilding trajectories from different initial depletion levels
@@ -87,7 +49,7 @@ setMethod("rebuild", signature(object="biodyn"),
             dat=dat[,-2]
             
             # Interpolate results
-            dat=as.data.frame(with(dat, interp(initial, data, year, yo=bmsy, duplicate="mean", nx=nx)))[,c(3,1)]
+            dat=as.data.frame(with(dat, interp(initial, data, year, yo=bmsy, duplicate="mean", nx=nx, jitter=1e-6)))[,c(3,1)]
             names(dat)=c("year", "initial")
             
             transform(dat,initial=initial/bmsy)})
