@@ -18,7 +18,7 @@
 #' rebuild_data=rebuild(bd)
 setGeneric("rebuild", function(object, targetF=NULL, targetSSB=NULL,
                                nInitial=100, growthRate=0.25, minVal=1e-6, maxVal=1,
-                               burnin=20, truncate=TRUE) {
+                               burnin=20, truncate=TRUE,...) {
   standardGeneric("rebuild")
 })
 
