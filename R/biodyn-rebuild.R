@@ -16,6 +16,12 @@
 #' @examples
 #' bd=biodyn(FLPar(r=0.5, k=1000, p=1))
 #' rebuild_data=rebuild(bd)
+setGeneric("rebuild", function(object, targetF=NULL, targetSSB=NULL,
+                               nInitial=100, growthRate=0.25, minVal=1e-6, maxVal=1,
+                               burnin=20, truncate=TRUE) {
+  standardGeneric("rebuild")
+})
+
 setMethod("rebuild", signature(object="biodyn"), 
           function(object, target=refpts(object)["bmsy"], nInitial=100, 
                    growthRate=0.3, minVal=1e-6, maxVal=1, nx=101) {
