@@ -16,7 +16,7 @@
 #' @examples
 #' bd=biodyn(FLPar(r=0.5, k=1000, p=1))
 #' rebuild_data=rebuild(bd)
-setGeneric("rebuild", function(object, targetF=NULL, targetSSB=NULL,
+setGeneric("rebuild", function(object, target=NULL,
                                nInitial=100, growthRate=0.25, minVal=1e-6, maxVal=1,
                                burnin=20, truncate=TRUE,...) {
   standardGeneric("rebuild")
@@ -37,11 +37,12 @@ setMethod("rebuild", signature(object="biodyn"),
             if (!all(sapply(list(growthRate, minVal, maxVal), is.numeric)))
               stop("growthRate, minVal, and maxVal must be numeric")
             
+            minVal=1e-6
             if (minVal >= maxVal)
               stop("minVal must be less than maxVal")
-            
+          
             bmsy=c(refpts(object)["bmsy"])
-            
+               
             rtn=propagate(object, nInitial)
             
             # Create stock projection
@@ -55,7 +56,8 @@ setMethod("rebuild", signature(object="biodyn"),
             dat=dat[,-2]
             
             # Interpolate results
-            dat=as.data.frame(with(dat, interp(initial, data, year, yo=bmsy, duplicate="mean", nx=nx, jitter=1e-6)))[,c(3,1)]
+            surpressWarnings(dat=as.data.frame(with(dat, akima::interp(initial, 
+                        data, year, yo=bmsy, duplicate="mean", nx=nx, jitter=1e-6)))[,c(3,1)])
             names(dat)=c("year", "initial")
             
             transform(dat,initial=initial/bmsy)})
