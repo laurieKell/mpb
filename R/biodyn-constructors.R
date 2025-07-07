@@ -42,17 +42,6 @@ setMethod('biodyn', signature(object='FLQuant',params='FLPar'),
 guessK=function(r,catch,p=1)
     mean(catch)/(r*(1/(1+p))^(1/p+1))
 
-setMethod('biodyn', signature(object='missing',params='FLPar'),
-  function(object,params,model="pellat",min=.1,max=10,msy=NULL,r=NULL,...){
-  args=list(...)
-          
-  res=biodyn(object=factor(model),
-             params=params,
-             #catch=ifelse("catch"%in%names(args),args[["catch"]],NA),
-             min=min,max=max,...)
-                               
-  res})
-
 setMethod('biodyn', signature(object='FLQuant',params='missing'),
   function(object,params=FLPar(r=0.5,k=NA,p=1,b0=1),model="pellat",min=.1,max=10,msy=NULL,r=NULL,...){
     args=list(...)
@@ -256,7 +245,26 @@ is.biodyn = function(x)
   return(inherits(x, 'biodyn'))
 
 setMethod('biodyn', signature(object='missing',params='FLPar'),
-     function(params,model="pellat",...){
+          function(object,params,model="pellat",min=.1,max=10,msy=NULL,r=NULL,catch=NULL,stock=NULL,...){
+            args=list(...)
+            
+            
+            res=biodyn(object=factor(model),
+                       params=params,
+                       min=min,max=max,...)
+            if(!is.null(catch))
+              catch(res)=catch
+            
+            if (is.null(stock)){
+              res@stock=FLQuant(NA,dimnames=dimnames(catch))
+              res@stock[]=params(res)["k"]*params(res)["b0"]}
+            else{
+              res@stock=stock
+              params(res)["b0"]=res@stock[,1]/params(res)["k"]
+            }
+            
+            range(res)=unlist(dims(catch(res))[c("minyear","maxyear")])
+            
+            
+            res})
 
-     biodyn(factor("pellat"),params,...)
-     })

@@ -4,7 +4,7 @@
 \alias{as}
 \title{as("biodyn", "FLStock")}
 \usage{
-\S4method{instantaneous}{FLQuant}(object)
+\S4method{rate}{FLQuant}(object)
 }
 \description{
 Coerces an \code{FLStock} into a \code{biodyn} object.

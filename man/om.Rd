@@ -36,7 +36,5 @@ derived from the ICCAT multifan-CL assessment
 }
 \author{
 Laurence Kell \email{laurie@kell.es}
-
-Laurence Kell \email{laurie@kell.es}
 }
 \keyword{data}

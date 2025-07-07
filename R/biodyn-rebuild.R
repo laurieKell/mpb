@@ -16,13 +16,13 @@
 #' @examples
 #' bd=biodyn(FLPar(r=0.5, k=1000, p=1))
 #' rebuild_data=rebuild(bd)
-setGeneric("rebuild", function(object, target=NULL,
+setGeneric("rebuildTime", function(object, target=NULL,
                                nInitial=100, growthRate=0.25, minVal=1e-6, maxVal=1,
                                burnin=20, truncate=TRUE,...) {
-  standardGeneric("rebuild")
+  standardGeneric("rebuildTime")
 })
 
-setMethod("rebuild", signature(object="biodyn"), 
+setMethod("rebuildTime", signature(object="biodyn"), 
           function(object, target=refpts(object)["bmsy"], nInitial=100, 
                    growthRate=0.3, minVal=1e-6, maxVal=1, nx=101) {
             if (!is(object, "biodyn"))
@@ -56,8 +56,8 @@ setMethod("rebuild", signature(object="biodyn"),
             dat=dat[,-2]
             
             # Interpolate results
-            surpressWarnings(dat=as.data.frame(with(dat, akima::interp(initial, 
-                        data, year, yo=bmsy, duplicate="mean", nx=nx, jitter=1e-6)))[,c(3,1)])
+            dat=as.data.frame(with(dat, akima::interp(initial, 
+                        data, year, yo=bmsy, duplicate="mean", nx=nx, jitter=1e-6)))[,c(3,1)]
             names(dat)=c("year", "initial")
             
             transform(dat,initial=initial/bmsy)})

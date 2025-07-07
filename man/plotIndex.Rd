@@ -16,7 +16,7 @@
 an \code{ggplot2} object
 }
 \description{
-
+plotIndex
 }
 \examples{
 \dontrun{

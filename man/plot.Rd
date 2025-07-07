@@ -49,8 +49,6 @@ an \code{ggplot2} object
 }
 \description{
 Plots time series of biomass, harvest rate and catch for a \code{biodyn} object, using \code{ggplot2}.
-
-
 }
 \examples{
 \dontrun{

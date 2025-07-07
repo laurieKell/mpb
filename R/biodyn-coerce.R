@@ -88,7 +88,7 @@ setMethod('instantaneous',signature(object='FLQuant'),
 #   #bd=fit(bd,index)
 #   
 #   bd}
-
+  
 FLStock2biodynSimple=function(from){
   
   res      =biodyn()

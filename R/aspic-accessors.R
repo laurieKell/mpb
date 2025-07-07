@@ -54,6 +54,7 @@ invisible(createFLAccesors("aspic",
                 exclude=c(
                   "conditioning","options","index","stopmess","rnd",         
                   "model","catch","stock",'obj',   
+                  'indices','diags','posteriors','kobe',
                   "priors","hcr","vcov","hessian","objFn","ll",          
                   "ref","mng","mngVcov","profile","hst","name",        
                   "desc","range")))
