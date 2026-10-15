@@ -1,6 +1,6 @@
 Package: mpb
 Title: Management Procedures
-Version: 3.5.1
+Version: 3.5.2
 Date: 2026-10-15
 Authors@R: person(given = "Laurence", family = "Kell", role = c("aut", "cre"), 
   email = "laurie@seaplusplus.co.uk")
@@ -25,7 +25,8 @@ Suggests:
     spict,
     icesdata,
     FLRebuild,
-    ggplot2
+    ggplot2,
+    patchwork
 LinkingTo: Rcpp
 License: GPL-2
 Collate:

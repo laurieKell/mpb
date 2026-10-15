@@ -173,6 +173,7 @@ plotspict.data(inp)
 
 ```{r, fit}
 fit=fit.spict(inp)
+fit=calc.process.resid(fit)
 
 fit
 ```
@@ -395,40 +396,111 @@ ggplot(crv, aes(biomass, yield, colour=source))+
 
 ## Process error
 
-The process error implied by the age-structured assessment is the annual
-log-deviation of the `FLStock` biomass from a one-year deterministic
-Pella-Tomlinson step using the `FLBRP`-derived parameters,
-$\log\left(B_{t+1}/(B_t+P(B_t)-C_t)\right)$. This is compared with SPiCT's
-own process residuals (`calc.process.resid`, applied to a refit of `inp`
-because it fails on a fit that already carries OSA and retrospective
-results). These are standardised residuals
-of the Euler steps averaged within each year, so they are rescaled by
-$\sigma_B/\sqrt{\Delta t}$ to annual log deviations, comparable with the
-estimated process-error standard deviation `sdb` ($\sigma_B$). A non-zero mean
-in the `FLStock` series shows bias in the production function relative to the
-biomass series, e.g. the `FLBRP` curve implies more production than the
-`FLStock` biomass actually shows.
+Process error is summarised with the four-panel diagnostic used at the ICES
+SPiCT benchmark (WKBMSYSPiCT4): residuals over time, residuals against
+biomass, their autocorrelation, and their distribution. Following Walters et
+al. (2008), the realised surplus production $SP_t=B_{t+1}-B_t+C_t$ is compared
+with the production function $P(B_t)$. If $P(B)$ is correctly specified the
+residuals are white noise around zero; trends, dependence on biomass or
+autocorrelation show that process error is absorbing misspecification or
+non-stationary productivity.
 
-```{r, processError, fig.height=4}
-devBR=log(B[-1]/(B[-nY]+pBR(B[-nY])-C[-nY]))
-sdb  =gp("logsdb", fit)[1]
+For SPiCT the residuals are its own process residuals (`calc.process.resid`,
+computed after the fit). These are standardised Euler-step residuals averaged
+within each year, so they are multiplied by $\sigma_B/\sqrt{\Delta t}$ to give
+annual log deviations, comparable with the estimated `sdb` ($\sigma_B$). For the
+age-structured stock the residual is the log deviation of the `FLStock`
+biomass from a one-year Pella-Tomlinson step with the `FLBRP`-derived
+parameters, $\log\left(B_{t+1}/(B_t+P(B_t)-C_t)\right)$. Residuals are
+indexed by the start year $t$ of each interval.
 
-prc  =calc.process.resid(fit.spict(inp))$process.resid
-prc  =subset(prc, floor(time) %in% yrs[-nY])
-devSP=prc$B*sdb/sqrt(fit$inp$dteuler)
+Process-error helper functions (adapted from the WKBMSYSPiCT4 process-error
+diagnostics):
 
-pe=rbind(data.frame(year=yrs[-nY],      dev=devBR, source="FLStock"),
-         data.frame(year=floor(prc$time), dev=devSP, source="SPiCT"))
+```{r, peFunctions}
+## Pella-Tomlinson production curve and realised surplus production from a
+## SPiCT fit; process residuals from calc.process.resid on the log scale
+getSpictPrd=function(fit, xMax=1.3, nX=200) {
+  n  =get.par("logn", fit, exp=TRUE)[1, "est"]
+  msy=get.par("MSY",  fit)[1, "est"]
+  K  =get.par("logK", fit, exp=TRUE)[1, "est"]
+  sdb=get.par("logsdb", fit, exp=TRUE)[1, "est"]
 
-ggplot(pe, aes(year, dev, colour=source))+
-  geom_hline(yintercept=0, colour="grey70")+
-  geom_hline(yintercept=c(-2, 2)*sdb, colour="red", linetype=3)+
-  geom_line()+geom_point(size=1)+
-  scale_colour_manual(values=clrs)+
-  labs(x="Year", y="Process error (log deviation)", colour="",
-       subtitle=sprintf("SD: FLStock %.3f, SPiCT %.3f; SPiCT sdb %.3f (dotted lines: \u00b12 sdb)",
-                        sd(devBR, na.rm=TRUE), sd(devSP, na.rm=TRUE), sdb))+
-  theme_bw()+theme(legend.position="bottom")
+  x =seq(0.01, xMax, length.out=nX)
+  pf=data.frame(bRel=x, b=x*K, sp=n^(n/(n-1))/(n-1)*msy*(x-x^n))
+
+  tC =fit$inp$timeC
+  B  =get.par("logB", fit, exp=TRUE)[match(tC, round(fit$inp$time, 6)), "est"]
+  nB =length(B)
+  trj=data.frame(year=tC[-nB], b=B[-nB], bRel=B[-nB]/K,
+                 sp  =B[-1]-B[-nB]+fit$inp$obsC[-nB])
+
+  if (is.null(fit$process.resid)) fit=calc.process.resid(fit)
+  prc=fit$process.resid
+  trj$rsdl=prc$B[match(trj$year, round(prc$time, 6))]*sdb/sqrt(fit$inp$dteuler)
+
+  list(pf=pf, traj=trj)}
+
+## The same for a biomass and catch series and a production function pFn(B)
+getPrd=function(B, C, year, pFn) {
+  nB=length(B)
+  data.frame(year=year[-nB], b=B[-nB],
+             sp  =B[-1]-B[-nB]+C[-nB],
+             rsdl=log(B[-1]/(B[-nB]+pFn(B[-nB])-C[-nB])))}
+
+## Four-panel process-error diagnostic: residuals over time, against
+## biomass, ACF and distribution; dat has year, b, rsdl and source
+pePlot=function(dat, cols=NULL) {
+  dat=subset(dat, is.finite(rsdl))
+  acfs=do.call(rbind, lapply(split(dat, dat$source), function(x) {
+    a=acf(x$rsdl, plot=FALSE)
+    data.frame(lag=c(a$lag)[-1], acf=c(a$acf)[-1], source=x$source[1],
+               crit=qnorm(0.975)/sqrt(nrow(x)))}))
+  nrm=do.call(rbind, lapply(split(dat, dat$source), function(x) {
+    r=seq(min(dat$rsdl), max(dat$rsdl), length.out=101)
+    data.frame(rsdl=r, density=dnorm(r, mean(x$rsdl), sd(x$rsdl)), source=x$source[1])}))
+
+  sc=if (is.null(cols)) NULL else list(scale_colour_manual(values=cols),
+                                       scale_fill_manual(values=cols))
+  thm=list(theme_bw(), sc, labs(colour="", fill=""))
+
+  pTime=ggplot(dat, aes(year, rsdl, colour=source))+
+    geom_hline(yintercept=0, colour="grey60")+geom_line()+geom_point(size=1)+
+    labs(x="Year", y="Process residual", title="Over time")+thm
+  pB   =ggplot(dat, aes(b, rsdl, colour=source))+
+    geom_hline(yintercept=0, colour="grey60")+geom_point(alpha=0.6)+
+    labs(x="Fitted biomass", y="Process residual", title="Residuals vs Biomass")+thm
+  pAcf =ggplot(acfs, aes(lag, acf, fill=source))+
+    geom_hline(yintercept=0, colour="grey60")+
+    geom_hline(aes(yintercept=crit),  linetype="dashed", colour="grey60")+
+    geom_hline(aes(yintercept=-crit), linetype="dashed", colour="grey60")+
+    geom_col(position="dodge")+
+    labs(x="Lag", y="ACF", title="Autocorrelation")+thm
+  pHist=ggplot(dat, aes(rsdl, fill=source))+
+    geom_histogram(aes(y=after_stat(density)), bins=20, colour="white",
+                   alpha=0.5, position="identity")+
+    geom_line(aes(rsdl, density, colour=source), data=nrm, linewidth=0.8)+
+    labs(x="Residual", y="Density", title="Distribution")+thm
+
+  patchwork::wrap_plots(pTime, pB, pAcf, pHist, ncol=2, guides="collect")&
+    theme(legend.position="bottom")}
+```
+
+```{r, processError, fig.width=10, fig.height=8}
+sdb=gp("logsdb", fit)[1]
+
+peSP=getSpictPrd(fit)$traj
+peBR=getPrd(B, C, yrs, pBR)
+pe  =rbind(cbind(peBR[, c("year", "b", "rsdl")], source="FLStock"),
+           cbind(peSP[, c("year", "b", "rsdl")], source="SPiCT"))
+
+peSD=sapply(split(pe$rsdl, pe$source), sd, na.rm=TRUE)
+peAC=sapply(split(pe$rsdl, pe$source), function(x) acf(x, plot=FALSE, na.action=na.pass)$acf[2])
+
+pePlot(pe, clrs[c("FLStock", "SPiCT")])+
+  patchwork::plot_annotation(subtitle=sprintf(
+    "SD: FLStock %.3f, SPiCT %.3f; SPiCT sdb %.3f. Lag-1 ACF: FLStock %.2f, SPiCT %.2f",
+    peSD["FLStock"], peSD["SPiCT"], sdb, peAC["FLStock"], peAC["SPiCT"]))
 ```
 
 # Coercing to biodyn
@@ -530,3 +602,7 @@ sessionInfo()
 
 Pedersen, M. W. and Berg, C. W. (2017). A stochastic surplus production model
 in continuous time. *Fish and Fisheries*, 18: 226-243.
+
+Walters, C. J., Hilborn, R. and Christensen, V. (2008). Surplus production
+dynamics in declining and recovering fish populations. *Canadian Journal of
+Fisheries and Aquatic Sciences*, 65: 2536-2551.
