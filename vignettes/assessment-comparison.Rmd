@@ -54,9 +54,8 @@ North Sea plaice is used to compare
 
 * the age-structured assessment (ICES) and its equilibrium reference points
   (`FLBRP`), using exploitable biomass and the harvest rate (catch/biomass);
-* SPiCT and a `biodyn`, both fitted to catch and exploitable biomass, with
-  priors / starting values from the `FLBRP`-derived Pella-Tomlinson
-  parameters;
+* SPiCT, fitted to catch and exploitable biomass, with priors from the
+  `FLBRP`-derived Pella-Tomlinson parameters;
 * JABBA, with priors from the `FLBRP` (`FLRebuild::runJABBA`).
 
 ```{r, pkgs}
@@ -118,32 +117,6 @@ The process residuals are calculated from the production function for all
 methods (`process="generic"`), so that they are comparable; the SPiCT
 process residuals for B and F are used with `process="spict"`.
 
-## biodyn
-
-The `biodyn` starts from the `FLBRP`-derived Pella-Tomlinson parameters,
-with the shape and initial depletion fixed. Retrospective peels are refitted
-to truncated data, and each peel is projected one year with the observed
-catch, so that it predicts the next index observation.
-
-```{r, biodyn}
-bd=biodyn(params=FLPar(r=c(pt["r"]), k=c(pt["k"]), p=c(pt["p"]), b0=psi),
-          catch=catch(stk))
-setParams( bd)=idx
-setControl(bd)=params(bd)
-control(bd)[c("p", "b0"), "phase"]=-1
-bd=fit(bd, idx)
-
-biodynPeel=function(bd, idx, end) {
-  p  =fit(window(bd, end=end), window(idx, end=end))
-  ext=window(p, end=end+1)
-  catch(ext)[, ac(end+1)]=catch(bd)[, ac(end+1)]
-  fwd(ext, catch=catch(ext)[, ac(end+1)])}
-
-bdPeels=lapply(2019:2015, function(y) biodynPeel(bd, idx, y))
-
-asBiodyn=biodyn2cmp(bd, name="biodyn", peels=bdPeels)
-```
-
 ## JABBA
 
 ```{r, jabba, eval=ok&&runJabba}
@@ -152,7 +125,7 @@ asJABBA=jabba2cmp(jb, name="JABBA")
 ```
 
 ```{r, list}
-asmt=list(FLBRP=asFLBRP, SPiCT=asSPiCT, biodyn=asBiodyn)
+asmt=list(FLBRP=asFLBRP, SPiCT=asSPiCT)
 if (exists("asJABBA")) asmt$JABBA=asJABBA
 names(asmt)
 ```
@@ -183,7 +156,7 @@ ggplot(bb, aes(year, data, colour=qname)) +
 or plot a single method with `plot`
 
 ```{r, ggplotfl2, fig.height=5}
-plot(asmt$biodyn$ts[c("stock", "harvest", "catch")])
+plot(asmt$SPiCT$ts[c("stock", "harvest", "catch")])
 ```
 
 # Kobe phase plot
@@ -229,10 +202,8 @@ cmpQQ(asmt)
 ## Process residuals
 
 $\log(B_{t+1}/(B_t+P(B_t)-C_t))$, where $P$ is each method's production
-function. The `biodyn` is deterministic given its parameters and the catch,
-so its process residuals are zero to numerical precision (a check on the
-calculation); for the age-structured assessment they show how far its
-biomass dynamics depart from the equilibrium yield curve.
+function. For the age-structured assessment they show how far its biomass
+dynamics depart from the equilibrium yield curve.
 
 ```{r, process, fig.height=6}
 cmpProcess(asmt)

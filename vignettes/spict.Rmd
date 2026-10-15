@@ -138,8 +138,9 @@ inp$priors[c("logr", "logK", "logn", "logbkfrac", "logsdi")]
 Only the priors are set; initial values (`inp$ini`) are left to SPiCT. Setting
 the initial values to the prior means led to a poorer local optimum in testing.
 
-```{r, plotData, fig.height=5}
-plotspict.data(inp)
+```{r, plotData, fig.height=4}
+plot(FLQuants(Catch=catch(stk)/scale, Index=idx/scale))+
+  labs(x="Year", y="Thousand tonnes")
 ```
 
 # Fit
@@ -161,14 +162,31 @@ c(convergence=fit$opt$convergence,
 
 `convergence` should be 0 and the Hessian positive definite.
 
-```{r, plotFit, fig.height=7}
-plot(fit)
+The SPiCT figures use the ggplotFL-based `plotSpict*` functions in mpb, which
+convert the fit to a common assessment summary (`spict2cmp`) so the same plots
+can be used for other assessment methods (see the `assessment-comparison`
+vignette).
+
+```{r, plotTS, fig.height=6.5}
+plotSpictTS(fit, scale=scale)
+```
+
+```{r, plotKobe, fig.height=5}
+plotSpictKobe(fit)
+```
+
+```{r, plotProd, fig.height=4.5}
+plotSpictProduction(fit, scale=scale)
+```
+
+```{r, plotFitIdx, fig.height=4}
+plotSpictFit(fit, scale=scale)
 ```
 
 ## Prior and posterior
 
 ```{r, priors, fig.height=5}
-plotspict.priors(fit)
+plotSpictPriors(fit)
 ```
 
 ## Residuals
@@ -176,9 +194,17 @@ plotspict.priors(fit)
 One-step-ahead residuals should show no bias, autocorrelation or departure
 from normality.
 
-```{r, osa, fig.height=6}
+```{r, osa, fig.height=4}
 fit=calc.osa.resid(fit)
-plotspict.diagnostic(fit)
+plotSpictRuns(fit)
+```
+
+```{r, osaACF, fig.height=3.5}
+plotSpictACF(fit)
+```
+
+```{r, osaQQ, fig.height=3.5}
+plotSpictQQ(fit)
 ```
 
 ## Retrospective analysis
@@ -187,8 +213,11 @@ Five one-year peels; each refit takes a few seconds.
 
 ```{r, retro, fig.height=5}
 fit=retro(fit, nretroyear=5)
-rho=plotspict.retro(fit)
-rho
+plotSpictRetro(fit)
+```
+
+```{r, hindcast, fig.height=4}
+plotSpictHindcast(fit)
 ```
 
 # SPiCT compared with the FLBRP
