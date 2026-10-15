@@ -31,7 +31,7 @@ setMethod("biodyn", signature(object="FLPar",params="missing"),
             
             range(rtn)=unlist(dims(stock(rtn))[c("minyear","maxyear")])
             
-            rtn=mpb::fwd(rtn,catch=catch(rtn)[,-1])
+            rtn=fwd(rtn,catch=catch(rtn)[,-1])
             
             return(rtn)})
 

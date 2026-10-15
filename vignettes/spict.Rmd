@@ -1,0 +1,527 @@
+---
+title: "Fitting SPiCT with priors derived from an FLBRP"
+author: "Laurence Kell"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    fig_width: 7
+    fig_height: 4.5
+vignette: >
+  %\VignetteIndexEntry{Fitting SPiCT with priors derived from an FLBRP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, knitr, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE,
+                      fig.align="center", comment="#>")
+
+pkgs=c("FLCore", "FLBRP", "FLRebuild", "icesdata", "spict", "mpb", "ggplot2")
+ok  =all(vapply(pkgs, requireNamespace, logical(1), quietly=TRUE))
+knitr::opts_chunk$set(eval=ok)
+```
+
+# Introduction
+
+This vignette shows how to go from an age-structured stock assessment to a
+surplus production model fitted with SPiCT (Pedersen and Berg, 2017), using the
+equilibrium reference points of the age-structured model as priors. The steps
+are
+
+1. take an `FLStock` (North Sea plaice from `icesdata`);
+2. fit a stock-recruitment relationship and build an `FLBRP`
+   (`FLRebuild::eql`);
+3. convert the `FLBRP` reference points (MSY, $B_{MSY}$, $K$) into
+   Pella-Tomlinson parameters ($r$, $n$) and an initial depletion
+   $B_0/K$, which are used as SPiCT priors;
+4. build the SPiCT input from the `FLStock` catch and a biomass index, and fit;
+5. check convergence and diagnostics;
+6. compare the SPiCT estimates with the `FLBRP` equivalents;
+7. coerce the fit to a `biodyn` object and project recovery at zero catch from
+   $0.3B_{MSY}$.
+
+```{r, pkgs}
+library(FLCore)
+library(FLBRP)
+library(mpb)
+library(spict)
+library(ggplot2)
+```
+
+`FLRebuild` and `icesdata` mask several `FLCore` generics (e.g. `fwd`, `msy`,
+`bmsy`), so they are not attached and are called with `::`. For the same
+reason `FLBRP::refpts` and `mpb::refpts` are used explicitly.
+
+# Stock
+
+```{r, stock}
+data(icesdata, package="icesdata")
+
+stk=icesdata[["ple.27.420"]]
+stk=window(stk, end=2020)
+
+summary(stk)
+```
+
+# Equilibrium reference points
+
+`FLRebuild::eql` fits a Beverton-Holt stock-recruitment relationship
+(steepness parameterisation, with a prior on steepness) and returns an
+`FLBRP`. `FLRebuild::refptsEB` adds exploitable biomass (`eb`, i.e. biomass
+weighted by selectivity) to the standard reference points.
+
+```{r, eql}
+eq=FLRebuild::eql(stk, model="bevholtSV")
+rf=FLRebuild::refptsEB(eq)
+
+rf[c("virgin", "msy"), c("harvest", "yield", "ssb", "biomass", "eb")]
+```
+
+A biomass dynamic model has a single biomass, so we have to choose which
+age-structured biomass it represents. Catch is taken from the exploitable
+biomass, so exploitable biomass is the natural choice; spawning stock biomass
+(`"ssb"`) can be used by changing `quant` below.
+
+```{r, quant}
+quant="eb"   # or "ssb"
+```
+
+# Priors from the FLBRP
+
+For the Pella-Tomlinson model, surplus production is
+
+$$P(B)=\frac{r}{p}B\left(1-\left(\frac{B}{K}\right)^p\right),$$
+
+with $B_{MSY}/K=(1+p)^{-1/p}$, $MSY=rB_{MSY}/(1+p)$ and
+$F_{MSY}=r/(1+p)$. SPiCT uses $n=p+1$ and the same definition of $r$
+($r=mn^{n/(n-1)}/K$ in the SPiCT source, where $m$ is MSY), so `biodyn`, `FLRebuild` and
+SPiCT share $r$ and $K$, and $n=p+1$.
+
+`FLRebuild::pellatParams` solves for $p$ from $B_{MSY}/K$ and then for $r$
+from MSY and $B_{MSY}$.
+
+```{r, pellat}
+pt=FLRebuild::pellatParams(FLPar(msy =rf["msy",   "yield"],
+                                 bmsy=rf["msy",   quant],
+                                 k   =rf["virgin",quant]))
+pt
+```
+
+Initial depletion is the first year biomass divided by $K$.
+
+```{r, index}
+idx=switch(quant,
+           eb =FLRebuild::ebiomass(stk),
+           ssb=ssb(stk))
+
+psi=c(idx[, 1])/c(pt["k"])
+psi
+```
+
+The priors are log-normal. SPiCT takes the mean and standard deviation on the
+log scale, so the CVs below are converted with $\sigma=\sqrt{\log(1+CV^2)}$.
+
+```{r, cvs}
+cv=c(r=0.3, K=0.5, n=0.3, psi=0.3)
+cv2sd=function(x) sqrt(log(1+x^2))
+
+prior=data.frame(
+  parameter=c("r", "K", "n", "B0/K"),
+  mean     =c(c(pt["r"]), c(pt["k"]), c(pt["p"])+1, psi),
+  cv       =cv)
+prior
+```
+
+# SPiCT input
+
+SPiCT is fitted to catch and to the biomass index from the `FLStock`. The
+index is an output of the age-structured assessment rather than a survey, so
+it has almost no observation error; without some information the index
+standard deviation (`sdi`) collapses towards zero. A weak prior centred on
+0.1 (log-scale SD 0.5) keeps it away from zero.
+
+Values are rescaled to thousand tonnes, which helps the optimiser, and the
+Euler time step is set to a quarter of a year to keep the runtime short.
+
+```{r, inp}
+scale=1000
+yrs  =an(dimnames(catch(stk))$year)
+
+inp=list(obsC   =c(catch(stk))/scale, timeC=yrs,
+         obsI   =c(idx)/scale,        timeI=yrs,
+         dteuler=1/4)
+
+inp$priors=list(
+  logr     =c(log(c(pt["r"])),        cv2sd(cv["r"]),   1),
+  logK     =c(log(c(pt["k"])/scale),  cv2sd(cv["K"]),   1),
+  logn     =c(log(c(pt["p"])+1),      cv2sd(cv["n"]),   1),
+  logbkfrac=c(log(psi),               cv2sd(cv["psi"]), 1),
+  logsdi   =c(log(0.1),               0.5,              1))
+
+inp=check.inp(inp, verbose=FALSE)
+```
+
+Only the priors are set; initial values (`inp$ini`) are left to SPiCT. Setting
+the initial values to the prior means led to a poorer local optimum in testing.
+
+```{r, plotData, fig.height=5}
+plotspict.data(inp)
+```
+
+# Fit
+
+```{r, fit}
+fit=fit.spict(inp)
+
+fit
+```
+
+## Convergence
+
+```{r, convergence}
+c(convergence=fit$opt$convergence,
+  pdHess     =fit$pdHess,
+  finiteSE   =all(is.finite(sqrt(diag(fit$cov.fixed)))))
+```
+
+`convergence` should be 0 and the Hessian positive definite.
+
+```{r, plotFit, fig.height=7}
+plot(fit)
+```
+
+## Prior and posterior
+
+```{r, priors, fig.height=5}
+plotspict.priors(fit)
+```
+
+## Residuals
+
+One-step-ahead residuals should show no bias, autocorrelation or departure
+from normality.
+
+```{r, osa, fig.height=6}
+fit=calc.osa.resid(fit)
+plotspict.diagnostic(fit)
+```
+
+## Retrospective analysis
+
+Five one-year peels; each refit takes a few seconds.
+
+```{r, retro, fig.height=5}
+fit=retro(fit, nretroyear=5)
+rho=plotspict.retro(fit)
+rho
+```
+
+# SPiCT compared with the FLBRP
+
+`gp` extracts a parameter from a SPiCT fit on the natural scale. The
+deterministic reference points (`Bmsyd`, `Fmsyd`) are used, since these
+correspond to the equilibrium reference points of the `FLBRP`; the
+stochastic versions (`Bmsy`, `Fmsy`) also depend on the process error.
+
+```{r, gp}
+gp=function(nm, fit, i=1) unname(get.par(nm, fit, exp=TRUE)[i, c("est", "cv")])
+```
+
+The `FLBRP` harvest rate at MSY is $MSY/B_{MSY}$ for the chosen biomass, which
+is comparable with the SPiCT $F_{MSY}$; the age-based $F_{bar}$ at MSY is
+shown separately. Biomass and catch are in thousand tonnes.
+
+```{r, compare}
+tl  =match(max(yrs), fit$inp$time)
+bmsy=c(rf["msy", quant])
+
+hrTerm=c(catch(stk)[, ac(max(yrs))])/c(idx[, ac(max(yrs))])
+
+flbrp=c(r       =c(pt["r"]),
+        K       =c(pt["k"])/scale,
+        n       =c(pt["p"])+1,
+        BmsyK   =bmsy/c(pt["k"]),
+        MSY     =c(rf["msy", "yield"])/scale,
+        Bmsy    =bmsy/scale,
+        Fmsy    =c(rf["msy", "yield"])/bmsy,
+        BBmsy   =c(idx[, ac(max(yrs))])/bmsy,
+        FFmsy   =hrTerm/(c(rf["msy", "yield"])/bmsy))
+
+spct=rbind(r    =gp("logr",     fit),
+           K    =gp("logK",     fit),
+           n    =gp("logn",     fit),
+           BmsyK=c(gp("logBmsyd", fit)[1]/gp("logK", fit)[1], NA),
+           MSY  =gp("logm",     fit),
+           Bmsy =gp("logBmsyd", fit),
+           Fmsy =gp("logFmsyd", fit),
+           BBmsy=gp("logBBmsy", fit, tl),
+           FFmsy=gp("logFFmsy", fit, tl))
+
+cmp=data.frame(FLBRP     =flbrp,
+               SPiCT     =spct[names(flbrp), 1],
+               SPiCT.cv  =spct[names(flbrp), 2],
+               ratio     =spct[names(flbrp), 1]/flbrp)
+
+knitr::kable(cmp, digits=3,
+  caption=paste0("FLBRP (", quant, ") and SPiCT estimates, ",
+                 "terminal year ", max(yrs), "."))
+```
+
+```{r, fbar}
+c(FbarMSY=c(rf["msy", "harvest"]))
+```
+
+SPiCT estimates a catchability $q$ for the index, even though the index is
+itself a biomass. If $q<1$ SPiCT biomass is larger than the `FLStock`
+biomass, so $B/B_{MSY}$ can differ even when the production functions are
+similar. Fixing $q=1$ (e.g. a tight prior on `logq`) forces the two biomass
+scales to agree.
+
+```{r, q}
+gp("logq", fit)
+```
+
+# Comparison figures
+
+Three figures compare the age-structured stock (`FLStock` and `FLBRP`) with
+SPiCT: the time series, the production functions and the process error.
+All biomass and catch values are in thousand tonnes.
+
+`spAnn` extracts a SPiCT quantity at the start of each year, with its 95%
+confidence interval.
+
+```{r, spAnn}
+ann  =match(yrs, round(fit$inp$time, 6))
+spAnn=function(nm) {
+  x=get.par(nm, fit, exp=TRUE)[ann, , drop=FALSE]
+  data.frame(year=yrs, lower=x[, "ll"], est=x[, "est"], upper=x[, "ul"])}
+
+C     =c(catch(stk))/scale
+B     =c(idx)/scale
+nY    =length(yrs)
+fmsyBR=c(rf["msy", "yield"])/bmsy
+clrs  =c(FLStock="grey40", FLBRP="grey40", "Pella-Tomlinson (FLBRP)"="black",
+         SPiCT="red")
+```
+
+## Trajectories
+
+Biomass and fishing mortality on the absolute scale (top) and relative to each
+model's own reference points (bottom). For the `FLStock`, fishing mortality is
+the harvest rate (catch divided by the chosen biomass) and $F_{MSY}$ is
+$MSY/B_{MSY}$ from the `FLBRP`; SPiCT $F$ is an instantaneous rate, so the two
+are only approximately comparable on the absolute scale. Shaded areas are the
+SPiCT 95% confidence intervals.
+
+```{r, trajectories, fig.height=6}
+pnl=c("Biomass (kt)", "F or harvest rate", "B/BMSY", "F/FMSY")
+fls=data.frame(year=yrs, lower=NA, upper=NA, source="FLStock")
+
+trj=rbind(cbind(fls, est=B,               panel=pnl[1]),
+          cbind(fls, est=C/B,             panel=pnl[2]),
+          cbind(fls, est=B*scale/bmsy,    panel=pnl[3]),
+          cbind(fls, est=C/B/fmsyBR,      panel=pnl[4]),
+          cbind(spAnn("logB"),     source="SPiCT", panel=pnl[1]),
+          cbind(spAnn("logFs"),    source="SPiCT", panel=pnl[2]),
+          cbind(spAnn("logBBmsy"), source="SPiCT", panel=pnl[3]),
+          cbind(spAnn("logFFmsy"), source="SPiCT", panel=pnl[4]))
+trj$panel=factor(trj$panel, levels=pnl)
+
+ggplot(trj, aes(year, est, colour=source))+
+  geom_ribbon(aes(ymin=lower, ymax=upper, fill=source),
+              data=subset(trj, source=="SPiCT"), alpha=0.2, colour=NA,
+              show.legend=FALSE)+
+  geom_line()+
+  geom_hline(aes(yintercept=1), data=data.frame(panel=factor(pnl[3:4], levels=pnl)),
+             linetype=2)+
+  facet_wrap(~panel, scales="free_y")+
+  scale_colour_manual(values=clrs)+scale_fill_manual(values=clrs, guide="none")+
+  expand_limits(y=0)+
+  labs(x="Year", y="", colour="")+
+  theme_bw()+theme(legend.position="bottom")
+```
+
+## Production functions
+
+The `FLBRP` equilibrium curve is obtained by evaluating the `FLBRP` over a
+range of $F_{bar}$ and plotting equilibrium yield against the chosen biomass.
+It is compared with the Pella-Tomlinson curve fitted to it
+(`FLRebuild::pellatParams`, used as the SPiCT prior) and with the SPiCT
+surplus production curve
+$P(B)=\gamma m\left(B/K-(B/K)^n\right)$, $\gamma=n^{n/(n-1)}/(n-1)$.
+Points are the annual surplus production $B_{t+1}-B_t+C_t$ calculated from
+the `FLStock` biomass and from the SPiCT biomass. Large symbols mark
+($B_{MSY}$, MSY) for each model.
+
+```{r, production, fig.height=5}
+eqp=eq
+fbar(eqp)=FLQuant(seq(0, 5*c(rf["msy", "harvest"]), length.out=101))
+eqB=switch(quant, eb=FLRebuild::ebiomass(eqp), ssb=ssb(eqp))
+
+n=gp("logn", fit)[1]
+K=gp("logK", fit)[1]
+m=gp("logm", fit)[1]
+pSP=function(B) n^(n/(n-1))/(n-1)*m*(B/K-(B/K)^n)
+
+pBR=function(B, r=c(pt["r"]), k=c(pt["k"])/scale, p=c(pt["p"])) r/p*B*(1-(B/k)^p)
+
+bGrid=seq(0, max(K, c(pt["k"])/scale), length.out=201)
+crv=rbind(data.frame(biomass=c(eqB)/scale, yield=c(catch(eqp))/scale, source="FLBRP"),
+          data.frame(biomass=bGrid, yield=pBR(bGrid), source="Pella-Tomlinson (FLBRP)"),
+          data.frame(biomass=bGrid, yield=pSP(bGrid), source="SPiCT"))
+crv=subset(crv, yield>=0)
+
+spB=spAnn("logB")$est
+obs=rbind(data.frame(biomass=B[-nY],   yield=diff(B)+C[-nY],   source="FLStock"),
+          data.frame(biomass=spB[-nY], yield=diff(spB)+C[-nY], source="SPiCT"))
+
+ref=data.frame(biomass=c(bmsy/scale, gp("logBmsyd", fit)[1]),
+               yield  =c(c(rf["msy", "yield"])/scale, m),
+               source =c("FLBRP", "SPiCT"))
+
+ggplot(crv, aes(biomass, yield, colour=source))+
+  geom_point(data=obs, alpha=0.5, size=1)+
+  geom_line(aes(linetype=source))+
+  geom_point(data=ref, size=4, shape=18)+
+  geom_hline(yintercept=0, colour="grey70")+
+  scale_colour_manual(values=clrs)+
+  scale_linetype_manual(values=c(FLBRP=1, "Pella-Tomlinson (FLBRP)"=2, SPiCT=1),
+                        guide="none")+
+  labs(x=paste0("Biomass (", quant, ", kt)"), y="Surplus production (kt)",
+       colour="", caption="Dashed: Pella-Tomlinson fitted to the FLBRP (SPiCT prior)")+
+  theme_bw()+theme(legend.position="bottom")
+```
+
+## Process error
+
+The process error implied by the age-structured assessment is the annual
+log-deviation of the `FLStock` biomass from a one-year deterministic
+Pella-Tomlinson step using the `FLBRP`-derived parameters,
+$\log\left(B_{t+1}/(B_t+P(B_t)-C_t)\right)$. The same calculation using the
+SPiCT biomass and SPiCT production function gives the SPiCT equivalent, which
+can be compared with SPiCT's estimated process-error standard deviation
+`sdb`. The one-year step is a discrete approximation of SPiCT's continuous-time
+model, so it is not identical to SPiCT's internal process residuals. A
+non-zero mean shows bias in the production function relative to the biomass
+series, e.g. the `FLBRP` curve implies more production than the `FLStock`
+biomass actually shows.
+
+```{r, processError, fig.height=4}
+devBR=log(B[-1]  /(B[-nY]  +pBR(B[-nY])  -C[-nY]))
+devSP=log(spB[-1]/(spB[-nY]+pSP(spB[-nY])-C[-nY]))
+sdb  =gp("logsdb", fit)[1]
+
+pe=rbind(data.frame(year=yrs[-nY], dev=devBR, source="FLStock"),
+         data.frame(year=yrs[-nY], dev=devSP, source="SPiCT"))
+
+ggplot(pe, aes(year, dev, colour=source))+
+  geom_hline(yintercept=0, colour="grey70")+
+  geom_hline(yintercept=c(-2, 2)*sdb, colour="red", linetype=3)+
+  geom_line()+geom_point(size=1)+
+  scale_colour_manual(values=clrs)+
+  labs(x="Year", y="Process error (log deviation)", colour="",
+       subtitle=sprintf("SD: FLStock %.3f, SPiCT %.3f; SPiCT sdb %.3f (dotted lines: \u00b12 sdb)",
+                        sd(devBR, na.rm=TRUE), sd(devSP, na.rm=TRUE), sdb))+
+  theme_bw()+theme(legend.position="bottom")
+```
+
+# Coercing to biodyn
+
+mpb does not yet have a SPiCT to `biodyn` coercion, so a small helper is
+defined here. It copies $r$, $K$, $p=n-1$ and $B_0/K$ into the `biodyn`
+parameters, and the catch, index and SPiCT annual biomass into the
+corresponding slots, rescaling back to tonnes.
+
+```{r, spict2biodyn}
+spict2biodyn=function(fit, scale=1) {
+  gp =function(nm) unname(get.par(nm, fit, exp=TRUE)[1, "est"])
+  yrs=fit$inp$timeC
+  B  =get.par("logB", fit, exp=TRUE)[, "est"]
+  B  =B[match(c(yrs, max(yrs)+1), round(fit$inp$time, 6))]
+
+  par=FLPar(r=gp("logr"), k=gp("logK")*scale, p=gp("logn")-1, b0=gp("logbkfrac"))
+  bd =biodyn(params=par,
+             catch =FLQuant(fit$inp$obsC*scale, dimnames=list(year=yrs)))
+
+  bd@stock  =FLQuant(B*scale, dimnames=list(year=c(yrs, max(yrs)+1)))
+  bd@indices=FLQuants(index=FLQuant(fit$inp$obsI[[1]]*scale,
+                                    dimnames=list(year=fit$inp$timeI[[1]])))
+  bd@desc="coerced from SPiCT"
+  bd}
+
+bd=spict2biodyn(fit, scale)
+
+params(bd)
+mpb::refpts(bd)
+```
+
+`mpb::refpts` gives the same $F_{MSY}$, $B_{MSY}$ and MSY as the
+deterministic SPiCT reference points (to rounding).
+
+```{r, plotBiodyn, fig.height=5}
+plot(bd)
+```
+
+# Recovery from 0.3BMSY at zero catch
+
+To link the production function to rebuilding time, both the SPiCT and the
+FLBRP-derived Pella-Tomlinson parameters are projected from
+$0.3B_{MSY}$ with no catch. `biodyn` is a discrete annual model whereas
+SPiCT is in continuous time, so recovery times for the same parameters can
+differ slightly.
+
+```{r, recover}
+recover=function(par, nyr=50, b0=0.3) {
+  bmsy=c(mpb::refpts(par)["bmsy"])
+  par  =FLPar(r=c(par["r"]), k=c(par["k"]), p=c(par["p"]),
+              b0=b0*bmsy/c(par["k"]))
+  bd   =biodyn(params=par, catch=FLQuant(0, dimnames=list(year=seq(nyr))))
+  bd   =fwd(bd, catch=catch(bd))
+  data.frame(year=an(dimnames(stock(bd))$year)-1,
+             BBmsy=c(stock(bd))/bmsy)}
+
+rcv=rbind(cbind(model="SPiCT", recover(params(bd))),
+          cbind(model="FLBRP", recover(FLPar(r=c(pt["r"]), k=c(pt["k"]), p=c(pt["p"])))))
+
+tRecover=sapply(split(rcv, rcv$model), function(x) min(x$year[x$BBmsy>=1]))
+tRecover
+```
+
+```{r, plotRecover}
+ggplot(rcv, aes(year, BBmsy, colour=model))+
+  geom_line()+
+  geom_hline(yintercept=1, linetype=2)+
+  geom_vline(xintercept=tRecover, linetype=3, colour=c("grey40", "red"))+
+  scale_colour_manual(values=c(FLBRP="grey40", SPiCT="red"))+
+  labs(x="Years since start of recovery", y=expression(B/B[MSY]), colour="")+
+  coord_cartesian(xlim=c(0, 30))+
+  theme_bw()+theme(legend.position="bottom")
+```
+
+Time to recover depends on both $r$ and the shape. With no catch the
+per-capita growth rate is $(r/p)(1-(B/K)^p)$, which tends to $r/p$ as
+$B\rightarrow 0$; for $p<1$ (i.e. $B_{MSY}/K<0.5$) this is much larger than
+$r$. A lower $r$, or a larger $p$, therefore means a longer rebuilding time.
+
+# Notes
+
+* The index here is an assessment output, so this is a consistency check
+  between the age-structured and biomass dynamic models rather than an
+  independent assessment. Survey indices can be added as further elements of
+  `inp$obsI` and `inp$timeI`.
+* Setting `quant="ssb"` gives a much lower $n$ (a $B_{MSY}/K$ around 0.25
+  for plaice), since recruitment compensation acts on spawning biomass.
+* The FLBRP depends on the stock-recruitment relationship and its steepness
+  prior in `FLRebuild::eql`; different choices give different priors.
+
+# Session information
+
+```{r, session}
+sessionInfo()
+```
+
+# References
+
+Pedersen, M. W. and Berg, C. W. (2017). A stochastic surplus production model
+in continuous time. *Fish and Fisheries*, 18: 226-243.

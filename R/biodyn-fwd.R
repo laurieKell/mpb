@@ -173,6 +173,7 @@ setMethod('fwd', signature(object='biodyn',fishery='missing',control='missing'),
                     lag    =0,
                     end    =NULL,
                     starvationRations=0.75,
+                    timing=0,
                     ...) {
      ## target arg is an FLQuant
      if (is.null(harvest)&('FLQuant' %in% class(f)|'FLQuant' %in% class(f))) harvest=f
@@ -182,7 +183,7 @@ setMethod('fwd', signature(object='biodyn',fishery='missing',control='missing'),
          'FLQuant' %in% class(catch)){
         res=fwdFn(object,control=control,
               catch,harvest,stock,pe,peMult,minF,maxF,bounds,lag,end,
-              starvationRations=starvationRations,...)
+              starvationRations=starvationRations,timing=timing,...)
         }
      else if ('FLQuants' %in% class(stock))  
         res=mpb:::biodyns(llply(stock, function(x) fwdFn(object,control=control,
@@ -203,7 +204,9 @@ fwdFn=function(object,
                pe, peMult,
                minF,    maxF,
                starvationRations,
+               timing=0,
                ...){
+
       lag=0
       #object@stock=FLQuant(object@stock,quant=names(object@catch)[1])   
     
@@ -226,7 +229,7 @@ fwdFn=function(object,
       if (ctcTrgt) if (dims(object@stock)$maxyear   < dims(  catch)$maxyear) object=window(object,end=dims(  catch)$maxyear)
       if (hvtTrgt) if (dims(object@stock)$maxyear-1 < dims(harvest)$maxyear) object=window(object,end=dims(harvest)$maxyear+1)
       if (stkTrgt) if (dims(object@stock)$maxyear   < dims(  stock)$maxyear) object=window(object,end=dims(  stock)$maxyear)
-
+      
       if (stkTrgt) catch=stock*0
      
       ## check year range
@@ -284,12 +287,6 @@ fwdFn=function(object,
       if (!hvtTrgt) harvest=harvest(object)
       for(y in as.numeric(yrs)) {
     
-         ## sp & process error
-         if (!is.null(pe)) {    
-            if (peMult) sp.=mpb::production(object,object@stock[, ac(y)])%*%pe[, ac(y)] 
-            else        sp.=mpb::production(object,object@stock[, ac(y)])%+%pe[, ac(y)]
-         } else sp.=mpb::production(object,object@stock[, ac(y)])
-         #} else sp.=production(object,object@stock[, ac(y)]*(1-ptYr)+object@stock[, ac(y+1)]*(ptYr))
          
           ## targets, if lag<0 then the targets are relative 
           if (hcrTrgt)
@@ -303,10 +300,23 @@ fwdFn=function(object,
          
          object@catch[,ac(y)]=qmin(object@stock[,ac(y)]*starvationRations,
                                    object@catch[,ac(y)])
-                                   
+         
+         # ## sp & process error
+         # if (!is.null(pe)) {    
+         #    if (peMult) sp.=mpb::production(object,object@stock[, ac(y)])%*%pe[, ac(y)] 
+         #    else        sp.=mpb::production(object,object@stock[, ac(y)])%+%pe[, ac(y)]
+         #else 
+         
+         sp.=mpb::production(object,object@stock[,ac(y)]%-%(object@catch[,ac(y)]*timing))
+         
          object@stock[,ac(y+1)] = object@stock[,ac(y)] - 
                                   object@catch[,ac(y)] + sp.
          
+        ##process error
+        if (!is.null(pe)) 
+          if (peMult) object@stock[,ac(y)]=object@stock[,ac(y)]%*%pe[, ac(y)] 
+              else    object@stock[,ac(y)]=object@stock[,ac(y)]%+%pe[, ac(y)]
+
     ## Not implemented     
     ### bounds
     #      if ('catch' %in% bounds){ 

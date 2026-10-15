@@ -21,7 +21,11 @@ Imports:
   FLBRP
 Suggests:
     rmarkdown,
-    knitr
+    knitr,
+    spict,
+    icesdata,
+    FLRebuild,
+    ggplot2
 LinkingTo: Rcpp
 License: GPL-2
 Collate:

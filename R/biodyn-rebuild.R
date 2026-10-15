@@ -37,7 +37,6 @@ setMethod("rebuildTime", signature(object="biodyn"),
             if (!all(sapply(list(growthRate, minVal, maxVal), is.numeric)))
               stop("growthRate, minVal, and maxVal must be numeric")
             
-            minVal=1e-6
             if (minVal >= maxVal)
               stop("minVal must be less than maxVal")
           
