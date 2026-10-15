@@ -28,6 +28,7 @@
   lag = 0,
   end = NULL,
   starvationRations = 0.75,
+  timing = 0,
   ...
 )
 }

@@ -1,0 +1,225 @@
+---
+title: "ggplot2 and ggplotFL plots for SPiCT fits"
+author: "Laurence Kell"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    fig_width: 7
+    fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{ggplot2 and ggplotFL plots for SPiCT fits}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, knitr, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE,
+                      fig.align="center", comment="#>")
+
+pkgs=c("FLCore", "FLBRP", "FLRebuild", "icesdata", "spict", "ggplot2", "ggplotFL")
+ok  =all(vapply(pkgs, requireNamespace, logical(1), quietly=TRUE))
+knitr::opts_chunk$set(eval=ok)
+```
+
+# Introduction
+
+SPiCT (Pedersen and Berg, 2017) provides base graphics plots
+(`plot.spictcls`, `plotspict.*`). This vignette shows the equivalent plots
+built with `ggplot2` and `ggplotFL`, in the same style as the diagnostics
+used for the other assessment models (time series with confidence
+intervals, Kobe phase plots, production functions, runs tests on residuals,
+retrospective and hindcast cross-validation, and priors against
+posteriors).
+
+The `plotSpict*` functions are thin wrappers: the fit is converted to the
+method-agnostic `cmpAssess` summary with `spict2cmp` (which uses only the
+exported SPiCT API) and plotted with the generic `cmp*` functions, which can
+also overlay other assessment methods (see the `assessment-comparison`
+vignette).
+
+The example is North Sea plaice, fitted as in the `spict` vignette, with
+priors for $r$, $K$, $n$ and the initial depletion derived from the
+`FLBRP` reference points and exploitable biomass as the index.
+
+```{r, pkgs}
+library(FLCore)
+library(FLBRP)
+library(ggplotFL)
+library(ggplot2)
+library(spict)
+
+library(mpb)
+```
+
+# Fit
+
+```{r, fit}
+data(icesdata, package="icesdata")
+stk=window(icesdata[["ple.27.420"]], end=2020)
+
+eq =FLRebuild::eql(stk, model="bevholtSV")
+rf =FLRebuild::refptsEB(eq)
+pt =FLRebuild::pellatParams(FLPar(msy =rf["msy",   "yield"],
+                                  bmsy=rf["msy",   "eb"],
+                                  k   =rf["virgin","eb"]))
+idx=FLRebuild::ebiomass(stk)
+psi=c(idx[, 1])/c(pt["k"])
+
+cv2sd=function(x) sqrt(log(1+x^2))
+scale=1000
+yrs  =an(dimnames(catch(stk))$year)
+
+inp=list(obsC=c(catch(stk))/scale, timeC=yrs,
+         obsI=c(idx)/scale,        timeI=yrs,
+         dteuler=1/4)
+inp$priors=list(
+  logr     =c(log(c(pt["r"])),       cv2sd(0.3), 1),
+  logK     =c(log(c(pt["k"])/scale), cv2sd(0.5), 1),
+  logn     =c(log(c(pt["p"])+1),     cv2sd(0.3), 1),
+  logbkfrac=c(log(psi),              cv2sd(0.3), 1),
+  logsdi   =c(log(0.1),              0.5,        1))
+inp=check.inp(inp, verbose=FALSE)
+
+fit=fit.spict(inp)
+fit=calc.process.resid(fit)
+fit=calc.osa.resid(fit)
+fit$opt$convergence
+```
+
+The retrospective (`spict::retro`) refits the model to five peels; the
+same peels are used for the hindcast.
+
+```{r, retro}
+fit=retro(fit, nretroyear=5)
+```
+
+# Time series
+
+`spictTS` extracts annual estimates and 95% confidence intervals as a
+`data.frame`, and `plotSpictTS` plots them. Dashed lines are the
+deterministic reference points ($B_{MSY}$, $F_{MSY}$, MSY); `scale` converts
+back to tonnes.
+
+```{r, ts, fig.height=6}
+plotSpictTS(fit, scale=scale)
+```
+
+The same plot from the common summary, which is what `plotSpictTS` does
+internally:
+
+```{r, cmp}
+sp=spict2cmp(fit, scale=scale)
+sp
+```
+
+Stock status relative to MSY reference points.
+
+```{r, status}
+plotSpictStatus(fit)
+```
+
+## As FLQuants
+
+`spict2FLQuants` converts the fit to `FLQuants`. With `iter` the
+uncertainty is represented by log-normal draws, so that `ggplotFL::plot`
+shows the median and quantile ribbons as for any other FLR model.
+
+```{r, flq, fig.height=7}
+flq=spict2FLQuants(fit, iter=500)
+plot(flq)
+```
+
+Without `iter` the point estimates can be combined with other `FLQuants`,
+e.g. the exploitable biomass from the age-structured assessment.
+
+```{r, flqcmp, fig.height=3}
+bsp=FLQuant(c(spict2FLQuants(fit, "B")[["B"]])*scale, dimnames=dimnames(idx))
+cmp=FLQuants(SPiCT=bsp, Assessment=idx)
+
+ggplot(cmp, aes(year, data, colour=qname)) +
+  geom_line() +
+  labs(x="Year", y="Exploitable biomass (t)", colour=NULL) +
+  theme_minimal()
+```
+
+# Kobe phase plot
+
+The terminal year is shown as a large point with its 95% confidence intervals.
+
+```{r, kobe, fig.height=5.5}
+plotSpictKobe(fit)
+```
+
+# Production function
+
+The Pella-Tomlinson production function implied by the SPiCT estimates,
+with the realised surplus production $B_{t+1}-B_t+C_t$ in each year.
+
+```{r, prod}
+plotSpictProduction(fit)
+```
+
+# Model fit
+
+Observed (points) and fitted catch and index, with 95% confidence intervals.
+
+```{r, fitted}
+plotSpictFit(fit)
+```
+
+# Residuals
+
+## One-step-ahead residuals
+
+The 3-sigma band is green if the runs test is passed and red if it fails;
+points outside the band are outlined in red.
+
+```{r, runs}
+plotSpictRuns(fit)
+```
+
+```{r, acf, fig.height=3}
+plotSpictACF(fit)
+```
+
+```{r, qq, fig.height=3}
+plotSpictQQ(fit)
+```
+
+## Process residuals
+
+```{r, process}
+plotSpictProcess(fit)
+```
+
+```{r, processacf, fig.height=3}
+plotSpictACF(fit, "process")
+```
+
+# Retrospective analysis
+
+```{r, retroplot}
+plotSpictRetro(fit)
+```
+
+# Hindcast cross-validation
+
+Each peel predicts the index one year ahead as $qB_{T+1}$, where $T$ is the
+peel's last year; MASE is calculated by `cmpMASE` from these predictions.
+Unlike `spict::hindcast`, catches are also removed from the peeled years.
+
+```{r, hindcast, fig.height=4}
+plotSpictHindcast(fit)
+```
+
+# Priors and posteriors
+
+```{r, priors, fig.height=5}
+plotSpictPriors(fit)
+```
+
+# References
+
+Pedersen, M.W. and Berg, C.W. (2017). A stochastic surplus production model
+in continuous time. *Fish and Fisheries*, 18(2), 226-243.

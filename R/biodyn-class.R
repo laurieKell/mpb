@@ -70,6 +70,7 @@ validity<-function(object) {
 #' @export
 #' @importFrom stringr str_trim
 #' @importFrom reshape melt
+#' @importFrom plyr aaply adply alply daply ddply dlply laply ldply llply maply mdply mlply d_ply m_ply count rbind.fill mutate .
 #' @import FLCore 
 #' @import methods
 #'

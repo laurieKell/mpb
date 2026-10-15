@@ -1,4 +1,10 @@
-
+#' Coerce a JABBA fit to a biodyn
+#'
+#' @param object a JABBA fit (list returned by \code{JABBA::fit_jabba}).
+#' @param phase named vector of estimation phases.
+#' @param min,max multipliers for the parameter bounds.
+#' @return a \code{biodyn}.
+#' @export
 jabba2biodyn<-function(object, phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=1),
                                min=0.1,max=10){
     
@@ -8,11 +14,11 @@ jabba2biodyn<-function(object, phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=
   res@desc     ="coerced from JABBA"
   
   if (!("timeseries"%in%names(object))&"catch"%in%names(object)){
-    catch(res)   =as.FLQuant(transmute(object$catch,year=Yr,data=Total))
+    catch(res)   =as.FLQuant(data.frame(year=object$catch$Yr,data=object$catch$Total))
     return(res)}
   
   params(res)[]=object$pars[c("r","K","m","psi"),"Median"]-c(0,0,1,0)
-  catch(res)   =as.FLQuant(transmute(object$inputseries$catch,year=year,data=catch))
+  catch(res)   =as.FLQuant(data.frame(year=object$inputseries$catch$year,data=object$inputseries$catch$catch))
   res@stock    =as.FLQuant(data.frame(year=as.numeric(names(object$timeseries[,"mu","B"])),data=object$timeseries[,"mu","B"]))
   
   indices=list()

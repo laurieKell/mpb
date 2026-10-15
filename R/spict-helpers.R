@@ -1,0 +1,207 @@
+#' SPiCT helpers: priors from an FLBRP, input from an FLStock, coercion to
+#' biodyn, process-error diagnostics and recovery at zero catch
+#'
+#' Functions used by the \code{spict} vignette to fit SPiCT to an
+#' \code{FLStock} with priors from the equilibrium reference points of an
+#' \code{FLBRP}, and to compare the fit with the age-structured model.
+#' \code{spict}, \code{FLRebuild}, \code{ggplot2} and \code{patchwork} are
+#' suggested packages and are checked when needed.
+#'
+#' @name spict-helpers
+NULL
+
+.need=function(pkgs) {
+  miss=pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly=TRUE)]
+  if (length(miss)) stop("Package(s) required: ", paste(miss, collapse=", "), call.=FALSE)
+  invisible(TRUE)}
+
+#' @describeIn spict-helpers Estimate and CV of a SPiCT parameter
+#' @param fit a fitted SPiCT object (class \code{spictcls}).
+#' @param nm parameter name, e.g. \code{"logr"}, \code{"logBBmsy"}.
+#' @param i row (time step) to return.
+#' @return \code{spictPar}: numeric vector of estimate and CV.
+#' @export
+spictPar=function(fit, nm, i=1) {
+  .need("spict")
+  unname(spict::get.par(nm, fit, exp=TRUE)[i, c("est", "cv")])}
+
+#' @describeIn spict-helpers Pella-Tomlinson priors for SPiCT from an FLBRP
+#' @param stk an \code{FLStock}.
+#' @param brp an \code{FLBRP} for \code{stk}, e.g. from \code{FLRebuild::eql}.
+#' @param quant biomass the biomass dynamic model represents, exploitable
+#'   (\code{"eb"}) or spawning (\code{"ssb"}) biomass.
+#' @param cv CVs of the log-normal priors on r, K, n and initial depletion.
+#' @param scale divisor for biomass and catch (e.g. 1000 for thousand tonnes).
+#' @return \code{spictPriors}: list with the Pella-Tomlinson parameters
+#'   (\code{pars}), initial depletion (\code{psi}), a summary table
+#'   (\code{table}) and SPiCT prior vectors (\code{priors}).
+#' @export
+spictPriors=function(stk, brp, quant=c("eb", "ssb"),
+                     cv=c(r=0.3, K=0.5, n=0.3, psi=0.3), scale=1) {
+  .need("FLRebuild")
+  quant=match.arg(quant)
+  rf=FLRebuild::refptsEB(brp)
+  pt=FLRebuild::pellatParams(FLPar(msy =rf["msy",    "yield"],
+                                   bmsy=rf["msy",    quant],
+                                   k   =rf["virgin", quant]))
+  idx=switch(quant, eb=FLRebuild::ebiomass(stk), ssb=ssb(stk))
+  psi=c(idx[, 1])/c(pt["k"])
+  sd =function(x) sqrt(log(1+x^2))
+
+  list(pars =pt,
+       psi  =psi,
+       table=data.frame(parameter=c("r", "K", "n", "B0/K"),
+                        mean     =c(c(pt["r"]), c(pt["k"])/scale, c(pt["p"])+1, psi),
+                        cv       =unname(cv[c("r", "K", "n", "psi")])),
+       priors=list(
+         logr     =c(log(c(pt["r"])),       sd(cv["r"]),   1),
+         logK     =c(log(c(pt["k"])/scale), sd(cv["K"]),   1),
+         logn     =c(log(c(pt["p"])+1),     sd(cv["n"]),   1),
+         logbkfrac=c(log(psi),              sd(cv["psi"]), 1)))}
+
+#' @describeIn spict-helpers SPiCT input from an FLStock, with priors from an FLBRP
+#' @param dteuler Euler time step.
+#' @param sdi mean and log-scale SD of the prior on the index observation
+#'   SD; \code{NULL} for none. An assessment-derived index has almost no
+#'   observation error, so without a prior \code{sdi} collapses towards zero.
+#' @return \code{spictInp}: a checked SPiCT input list.
+#' @export
+spictInp=function(stk, brp, quant=c("eb", "ssb"), scale=1000, dteuler=1/4,
+                  cv=c(r=0.3, K=0.5, n=0.3, psi=0.3), sdi=c(0.1, 0.5)) {
+  .need(c("spict", "FLRebuild"))
+  quant=match.arg(quant)
+  yrs=as.numeric(dimnames(catch(stk))$year)
+  idx=switch(quant, eb=FLRebuild::ebiomass(stk), ssb=ssb(stk))
+  pr =spictPriors(stk, brp, quant, cv, scale)
+
+  inp=list(obsC=c(catch(stk))/scale, timeC=yrs,
+           obsI=c(idx)/scale,        timeI=yrs,
+           dteuler=dteuler)
+  inp$priors=pr$priors
+  if (!is.null(sdi)) inp$priors$logsdi=c(log(sdi[1]), sdi[2], 1)
+
+  spict::check.inp(inp, verbose=FALSE)}
+
+#' @describeIn spict-helpers Coerce a SPiCT fit to a biodyn
+#' @return \code{spict2biodyn}: a \code{biodyn} with r, K, p=n-1 and b0
+#'   from the fit, and the catch, index and annual SPiCT biomass, rescaled by
+#'   \code{scale}.
+#' @export
+spict2biodyn=function(fit, scale=1) {
+  .need("spict")
+  est=function(nm) unname(spict::get.par(nm, fit, exp=TRUE)[1, "est"])
+  yrs=fit$inp$timeC
+  B  =spict::get.par("logB", fit, exp=TRUE)[, "est"]
+  B  =B[match(c(yrs, max(yrs)+1), round(fit$inp$time, 6))]
+
+  par=FLPar(r=est("logr"), k=est("logK")*scale, p=est("logn")-1, b0=est("logbkfrac"))
+  bd =biodyn(params=par,
+             catch =FLQuant(fit$inp$obsC*scale, dimnames=list(year=yrs)))
+
+  bd@stock  =FLQuant(B*scale, dimnames=list(year=c(yrs, max(yrs)+1)))
+  bd@indices=FLQuants(index=FLQuant(fit$inp$obsI[[1]]*scale,
+                                    dimnames=list(year=fit$inp$timeI[[1]])))
+  bd@desc="coerced from SPiCT"
+  bd}
+
+#' @describeIn spict-helpers Production curve, realised surplus production and
+#'   process residuals from a SPiCT fit
+#' @param xMax,nX range (relative to K) and number of points for the curve.
+#' @return \code{spictPrd}: list with the production curve (\code{pf}) and the
+#'   annual trajectory (\code{traj}: year, b, bRel, sp, rsdl). Residuals are
+#'   SPiCT process residuals rescaled to annual log deviations.
+#' @export
+spictPrd=function(fit, xMax=1.3, nX=200) {
+  .need("spict")
+  n  =spict::get.par("logn",   fit, exp=TRUE)[1, "est"]
+  msy=spict::get.par("MSY",    fit)[1, "est"]
+  K  =spict::get.par("logK",   fit, exp=TRUE)[1, "est"]
+  sdb=spict::get.par("logsdb", fit, exp=TRUE)[1, "est"]
+
+  x =seq(0.01, xMax, length.out=nX)
+  pf=data.frame(bRel=x, b=x*K, sp=n^(n/(n-1))/(n-1)*msy*(x-x^n))
+
+  tC =fit$inp$timeC
+  B  =spict::get.par("logB", fit, exp=TRUE)[match(tC, round(fit$inp$time, 6)), "est"]
+  nB =length(B)
+  trj=data.frame(year=tC[-nB], b=B[-nB], bRel=B[-nB]/K,
+                 sp  =B[-1]-B[-nB]+fit$inp$obsC[-nB])
+
+  if (is.null(fit$process.resid)) fit=spict::calc.process.resid(fit)
+  prc=fit$process.resid
+  trj$rsdl=prc$B[match(trj$year, round(prc$time, 6))]*sdb/sqrt(fit$inp$dteuler)
+
+  list(pf=pf, traj=trj)}
+
+#' @describeIn spict-helpers Realised surplus production and process residuals
+#'   for a biomass and catch series and a production function
+#' @param B,C,year biomass, catch and year vectors.
+#' @param pFn production function of biomass, \code{pFn(B)}.
+#' @return \code{prdResid}: data.frame with year, b, sp and rsdl, the log
+#'   deviation of \code{B[t+1]} from a one-year step \code{B[t]+pFn(B[t])-C[t]}.
+#' @export
+prdResid=function(B, C, year, pFn) {
+  nB=length(B)
+  data.frame(year=year[-nB], b=B[-nB],
+             sp  =B[-1]-B[-nB]+C[-nB],
+             rsdl=log(B[-1]/(B[-nB]+pFn(B[-nB])-C[-nB])))}
+
+#' @describeIn spict-helpers Four-panel process-error diagnostic (over time,
+#'   against biomass, autocorrelation and distribution), as used at WKBMSYSPiCT4
+#' @param dat data.frame with year, b, rsdl and source.
+#' @param cols optional named vector of colours by source.
+#' @return \code{plotPE}: a patchwork of four ggplots.
+#' @export
+plotPE=function(dat, cols=NULL) {
+  .need(c("ggplot2", "patchwork"))
+  dat=subset(dat, is.finite(dat$rsdl))
+  acfs=do.call(rbind, lapply(split(dat, dat$source), function(x) {
+    a=stats::acf(x$rsdl, plot=FALSE)
+    data.frame(lag=c(a$lag)[-1], acf=c(a$acf)[-1], source=x$source[1],
+               crit=stats::qnorm(0.975)/sqrt(nrow(x)))}))
+  nrm=do.call(rbind, lapply(split(dat, dat$source), function(x) {
+    r=seq(min(dat$rsdl), max(dat$rsdl), length.out=101)
+    data.frame(rsdl=r, density=stats::dnorm(r, mean(x$rsdl), stats::sd(x$rsdl)),
+               source=x$source[1])}))
+
+  sc=if (is.null(cols)) NULL else list(ggplot2::scale_colour_manual(values=cols),
+                                       ggplot2::scale_fill_manual(values=cols))
+  thm=list(ggplot2::theme_bw(), sc, ggplot2::labs(colour="", fill=""))
+  aes=ggplot2::aes
+  h0 =ggplot2::geom_hline(yintercept=0, colour="grey60")
+
+  pTime=ggplot2::ggplot(dat, aes(year, rsdl, colour=source))+h0+
+    ggplot2::geom_line()+ggplot2::geom_point(size=1)+
+    ggplot2::labs(x="Year", y="Process residual", title="Over time")+thm
+  pB   =ggplot2::ggplot(dat, aes(b, rsdl, colour=source))+h0+
+    ggplot2::geom_point(alpha=0.6)+
+    ggplot2::labs(x="Fitted biomass", y="Process residual", title="Residuals vs Biomass")+thm
+  pAcf =ggplot2::ggplot(acfs, aes(lag, acf, fill=source))+h0+
+    ggplot2::geom_hline(aes(yintercept=crit),  linetype="dashed", colour="grey60")+
+    ggplot2::geom_hline(aes(yintercept=-crit), linetype="dashed", colour="grey60")+
+    ggplot2::geom_col(position="dodge")+
+    ggplot2::labs(x="Lag", y="ACF", title="Autocorrelation")+thm
+  pHist=ggplot2::ggplot(dat, aes(rsdl, fill=source))+
+    ggplot2::geom_histogram(aes(y=ggplot2::after_stat(density)), bins=20,
+                            colour="white", alpha=0.5, position="identity")+
+    ggplot2::geom_line(aes(rsdl, density, colour=source), data=nrm, linewidth=0.8)+
+    ggplot2::labs(x="Residual", y="Density", title="Distribution")+thm
+
+  patchwork::wrap_plots(pTime, pB, pAcf, pHist, ncol=2, guides="collect")&
+    ggplot2::theme(legend.position="bottom")}
+
+#' @describeIn spict-helpers Recovery at zero catch from a fraction of BMSY
+#' @param par \code{FLPar} with r, k and p.
+#' @param nyr number of years to project.
+#' @param b0 starting biomass relative to BMSY.
+#' @return \code{recoverBD}: data.frame of year and B/BMSY.
+#' @export
+recoverBD=function(par, nyr=50, b0=0.3) {
+  bmsy=c(refpts(par)["bmsy"])
+  par =FLPar(r=c(par["r"]), k=c(par["k"]), p=c(par["p"]), b0=b0*bmsy/c(par["k"]))
+  bd  =biodyn(params=par, catch=FLQuant(0, dimnames=list(year=seq(nyr))))
+  bd  =fwd(bd, catch=catch(bd))
+  data.frame(year=as.numeric(dimnames(stock(bd))$year)-1,
+             BBmsy=c(stock(bd))/bmsy)}
+
+utils::globalVariables(c("year", "rsdl", "b", "lag", "crit", "density"))

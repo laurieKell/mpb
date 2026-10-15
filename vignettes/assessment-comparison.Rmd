@@ -1,0 +1,279 @@
+---
+title: "Comparing assessment methods with common ggplot2/ggplotFL plots"
+author: "Laurence Kell"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    fig_width: 7.5
+    fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{Comparing assessment methods with common ggplot2/ggplotFL plots}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, knitr, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE,
+                      fig.align="center", comment="#>")
+
+pkgs=c("FLCore", "FLBRP", "FLRebuild", "icesdata", "spict", "ggplot2", "ggplotFL")
+ok  =all(vapply(pkgs, requireNamespace, logical(1), quietly=TRUE))
+knitr::opts_chunk$set(eval=ok)
+
+## JABBA takes about two minutes; set to FALSE to skip
+runJabba=requireNamespace("JABBA", quietly=TRUE) && requireNamespace("rjags", quietly=TRUE)
+```
+
+# Introduction
+
+Diagnostics for different assessment methods are usually produced by
+method-specific code (e.g. `spict::plotspict.*`, `JABBA::jbplot_*`,
+`ss3diags`), which makes it hard to compare methods and ties the plots to
+package internals. Here, extraction is separated from plotting:
+
+1. each assessment is converted to a common summary, a `cmpAssess`, holding
+   * `ts`, an `FLQuants` of annual biomass (`stock`), `harvest`, `catch`,
+     $B/B_{MSY}$ (`bbmsy`) and $F/F_{MSY}$ (`ffmsy`), with `lower` and
+     `upper` `FLQuants` (or iters) for the uncertainty;
+   * `refpts`, an `FLPar` with `bmsy`, `fmsy`, `msy`, `k`, `r` and `n`;
+   * `index`, a data.frame of observations and fits (`series`, `year`,
+     `obs`, `hat`, `lower`, `upper`), `resid` and `process` residuals
+     (`series`, `year`, `residual`), the production function `curve`
+     (`stock`, `yield`), and `prior`/posterior densities or draws;
+   * `peels`, a named list of `cmpAssess` from retrospective fits;
+2. the `cmp*` functions plot one assessment or a named list of them,
+   coloured by method.
+
+Mohn's rho, the hindcast and MASE, and the runs test are calculated from
+the common summary, so no method-specific code is needed. The converters are
+`flbrp2cmp` (an `FLStock` and `FLBRP`), `spict2cmp` (using only the exported
+SPiCT API), `biodyn2cmp` and `jabba2cmp`.
+
+North Sea plaice is used to compare
+
+* the age-structured assessment (ICES) and its equilibrium reference points
+  (`FLBRP`), using exploitable biomass and the harvest rate (catch/biomass);
+* SPiCT and a `biodyn`, both fitted to catch and exploitable biomass, with
+  priors / starting values from the `FLBRP`-derived Pella-Tomlinson
+  parameters;
+* JABBA, with priors from the `FLBRP` (`FLRebuild::runJABBA`).
+
+```{r, pkgs}
+library(FLCore)
+library(FLBRP)
+library(ggplotFL)
+library(ggplot2)
+library(spict)
+library(mpb)
+```
+
+# Assessments
+
+## Age-structured assessment and FLBRP
+
+```{r, flbrp}
+data(icesdata, package="icesdata")
+stk=window(icesdata[["ple.27.420"]], end=2020)
+
+eq =FLRebuild::eql(stk, model="bevholtSV")
+rf =FLRebuild::refptsEB(eq)
+pt =FLRebuild::pellatParams(FLPar(msy =rf["msy",   "yield"],
+                                  bmsy=rf["msy",   "eb"],
+                                  k   =rf["virgin","eb"]))
+idx=FLRebuild::ebiomass(stk)
+psi=c(idx[, 1])/c(pt["k"])
+
+asFLBRP=flbrp2cmp(stk, eq, name="FLBRP", biomass="eb", harvest="hr")
+asFLBRP
+```
+
+## SPiCT
+
+```{r, spict}
+cv2sd=function(x) sqrt(log(1+x^2))
+scale=1000
+yrs  =an(dimnames(catch(stk))$year)
+
+inp=list(obsC=c(catch(stk))/scale, timeC=yrs,
+         obsI=c(idx)/scale,        timeI=yrs,
+         dteuler=1/4)
+inp$priors=list(
+  logr     =c(log(c(pt["r"])),       cv2sd(0.3), 1),
+  logK     =c(log(c(pt["k"])/scale), cv2sd(0.5), 1),
+  logn     =c(log(c(pt["p"])+1),     cv2sd(0.3), 1),
+  logbkfrac=c(log(psi),              cv2sd(0.3), 1),
+  logsdi   =c(log(0.1),              0.5,        1))
+inp=check.inp(inp, verbose=FALSE)
+
+fit=fit.spict(inp)
+fit=calc.osa.resid(fit)
+fit=calc.process.resid(fit)
+fit=retro(fit, nretroyear=5)
+
+asSPiCT=spict2cmp(fit, name="SPiCT", scale=scale, process="generic")
+```
+
+The process residuals are calculated from the production function for all
+methods (`process="generic"`), so that they are comparable; the SPiCT
+process residuals for B and F are used with `process="spict"`.
+
+## biodyn
+
+The `biodyn` starts from the `FLBRP`-derived Pella-Tomlinson parameters,
+with the shape and initial depletion fixed. Retrospective peels are refitted
+to truncated data, and each peel is projected one year with the observed
+catch, so that it predicts the next index observation.
+
+```{r, biodyn}
+bd=biodyn(params=FLPar(r=c(pt["r"]), k=c(pt["k"]), p=c(pt["p"]), b0=psi),
+          catch=catch(stk))
+setParams( bd)=idx
+setControl(bd)=params(bd)
+control(bd)[c("p", "b0"), "phase"]=-1
+bd=fit(bd, idx)
+
+biodynPeel=function(bd, idx, end) {
+  p  =fit(window(bd, end=end), window(idx, end=end))
+  ext=window(p, end=end+1)
+  catch(ext)[, ac(end+1)]=catch(bd)[, ac(end+1)]
+  fwd(ext, catch=catch(ext)[, ac(end+1)])}
+
+bdPeels=lapply(2019:2015, function(y) biodynPeel(bd, idx, y))
+
+asBiodyn=biodyn2cmp(bd, name="biodyn", peels=bdPeels)
+```
+
+## JABBA
+
+```{r, jabba, eval=ok&&runJabba}
+jb=FLRebuild::runJABBA(stk, method="flbrp", quick=TRUE, nc=2)
+asJABBA=jabba2cmp(jb, name="JABBA")
+```
+
+```{r, list}
+asmt=list(FLBRP=asFLBRP, SPiCT=asSPiCT, biodyn=asBiodyn)
+if (exists("asJABBA")) asmt$JABBA=asJABBA
+names(asmt)
+```
+
+# Time series
+
+```{r, ts, fig.height=6.5}
+cmpTS(asmt)
+```
+
+```{r, status, fig.height=5}
+cmpStatus(asmt)
+```
+
+Since `ts` is an `FLQuants`, ggplotFL can be used directly, e.g. to compare
+$B/B_{MSY}$ across methods
+
+```{r, ggplotfl, fig.height=3.5}
+bb=FLQuants(lapply(asmt, function(x) x$ts$bbmsy))
+
+ggplot(bb, aes(year, data, colour=qname)) +
+  geom_line() +
+  geom_hline(yintercept=1, linetype=2) +
+  labs(x="Year", y=expression(B/B[MSY]), colour=NULL) +
+  theme_minimal()
+```
+
+or plot a single method with `plot`
+
+```{r, ggplotfl2, fig.height=5}
+plot(asmt$biodyn$ts[c("stock", "harvest", "catch")])
+```
+
+# Kobe phase plot
+
+```{r, kobe, fig.height=6}
+cmpKobe(asmt)
+```
+
+# Production functions
+
+The `FLBRP` curve is the equilibrium yield against equilibrium exploitable
+biomass; for the biomass dynamic models it is the Pella-Tomlinson
+production function. Points are the realised surplus production
+$B_{t+1}-B_t+C_t$ of each method.
+
+```{r, prod, fig.height=5.5}
+cmpProduction(asmt)
+```
+
+# Fits to the data
+
+```{r, fit, fig.height=6}
+cmpFit(asmt)
+```
+
+# Residuals
+
+Observation residuals (one-step-ahead for SPiCT, $\log(obs/hat)$
+otherwise), with runs tests.
+
+```{r, runs, fig.height=6}
+cmpRuns(asmt)
+```
+
+```{r, acf, fig.height=4}
+cmpACF(asmt)
+```
+
+```{r, qq, fig.height=4}
+cmpQQ(asmt)
+```
+
+## Process residuals
+
+$\log(B_{t+1}/(B_t+P(B_t)-C_t))$, where $P$ is each method's production
+function. The `biodyn` is deterministic given its parameters and the catch,
+so its process residuals are zero to numerical precision (a check on the
+calculation); for the age-structured assessment they show how far its
+biomass dynamics depart from the equilibrium yield curve.
+
+```{r, process, fig.height=6}
+cmpProcess(asmt)
+```
+
+```{r, processacf, fig.height=3}
+cmpACF(asmt, "process")
+```
+
+# Retrospective analysis
+
+Mohn's rho is calculated by `mohnsRho` from the peels, for methods that
+have them.
+
+```{r, retro, fig.height=5}
+cmpRetro(asmt)
+```
+
+# Hindcast cross-validation
+
+One-year-ahead predictions of the index from each peel, with the MASE
+(`cmpMASE`) relative to a naive (last observation) prediction.
+
+```{r, hindcast, fig.height=4}
+cmpHindcast(asmt, series="Index 1")
+```
+
+```{r, hindcastdf}
+hc=cmpHindcastDF(asmt)
+do.call(rbind, lapply(split(hc, hc[, c("method", "series")], drop=TRUE), function(x)
+  data.frame(method=x$method[1], series=x$series[1],
+             MASE=cmpMASE(x$obs, x$pred, x$naive))))
+```
+
+# Priors and posteriors
+
+Priors are dashed and posteriors solid. For SPiCT the posterior is the
+normal approximation on the log scale; for JABBA it is the MCMC sample
+(with `quick=TRUE`, so a bimodal posterior may indicate chains that have
+not mixed).
+
+```{r, priors, fig.height=5.5}
+cmpPriors(asmt, parameters=c("r", "k", "n", "psi"))
+```
