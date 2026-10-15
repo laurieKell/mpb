@@ -398,22 +398,27 @@ ggplot(crv, aes(biomass, yield, colour=source))+
 The process error implied by the age-structured assessment is the annual
 log-deviation of the `FLStock` biomass from a one-year deterministic
 Pella-Tomlinson step using the `FLBRP`-derived parameters,
-$\log\left(B_{t+1}/(B_t+P(B_t)-C_t)\right)$. The same calculation using the
-SPiCT biomass and SPiCT production function gives the SPiCT equivalent, which
-can be compared with SPiCT's estimated process-error standard deviation
-`sdb`. The one-year step is a discrete approximation of SPiCT's continuous-time
-model, so it is not identical to SPiCT's internal process residuals. A
-non-zero mean shows bias in the production function relative to the biomass
-series, e.g. the `FLBRP` curve implies more production than the `FLStock`
-biomass actually shows.
+$\log\left(B_{t+1}/(B_t+P(B_t)-C_t)\right)$. This is compared with SPiCT's
+own process residuals (`calc.process.resid`, applied to a refit of `inp`
+because it fails on a fit that already carries OSA and retrospective
+results). These are standardised residuals
+of the Euler steps averaged within each year, so they are rescaled by
+$\sigma_B/\sqrt{\Delta t}$ to annual log deviations, comparable with the
+estimated process-error standard deviation `sdb` ($\sigma_B$). A non-zero mean
+in the `FLStock` series shows bias in the production function relative to the
+biomass series, e.g. the `FLBRP` curve implies more production than the
+`FLStock` biomass actually shows.
 
 ```{r, processError, fig.height=4}
-devBR=log(B[-1]  /(B[-nY]  +pBR(B[-nY])  -C[-nY]))
-devSP=log(spB[-1]/(spB[-nY]+pSP(spB[-nY])-C[-nY]))
+devBR=log(B[-1]/(B[-nY]+pBR(B[-nY])-C[-nY]))
 sdb  =gp("logsdb", fit)[1]
 
-pe=rbind(data.frame(year=yrs[-nY], dev=devBR, source="FLStock"),
-         data.frame(year=yrs[-nY], dev=devSP, source="SPiCT"))
+prc  =calc.process.resid(fit.spict(inp))$process.resid
+prc  =subset(prc, floor(time) %in% yrs[-nY])
+devSP=prc$B*sdb/sqrt(fit$inp$dteuler)
+
+pe=rbind(data.frame(year=yrs[-nY],      dev=devBR, source="FLStock"),
+         data.frame(year=floor(prc$time), dev=devSP, source="SPiCT"))
 
 ggplot(pe, aes(year, dev, colour=source))+
   geom_hline(yintercept=0, colour="grey70")+
